@@ -7,14 +7,16 @@
 #include "connection/connection.h"
 #include "config/port_agent_config.h"
 #include "packet/packet.h"
+#include "publisher/publisher_list.h"
 
 #include <sys/select.h>
 
 using namespace std;
 using namespace packet;
 using namespace network;
+using namespace publisher;
 
-#define SELECT_SLEEP_TIME 3
+#define SELECT_SLEEP_TIME 1
 
 namespace port_agent {
     
@@ -76,6 +78,16 @@ namespace port_agent {
             void initializeInstrumentConnection();
             void initializeTCPInstrumentConnection();
             
+            // Publisher initializers
+            void initializePublishers();
+            void initializePublisherFile();
+            void initializePublisherObservatoryData();    
+            void initializePublisherObservatoryCommand();    
+            void initializePublisherInstrumentData();    
+            void initializePublisherInstrumentCommand();    
+            void initializePublisherTCP();    
+            void initializePublisherUDP();    
+            
             // State handlers
             void handleStateStartup();
             void handleStateUnconfigured(const fd_set &readFDs);
@@ -95,7 +107,8 @@ namespace port_agent {
             void handleInstrumentDataRead(const fd_set &readFDs);
             
             void publishFault(const string &msg);
-            void publishPacket(const Packet *packet);
+            void publishPacket(Packet *packet);
+            void publishPacket(char *payload, uint16_t size, PacketType type);
             
         /////
         // Members
@@ -106,6 +119,8 @@ namespace port_agent {
         private:
             PortAgentConfig *m_pConfig;
             PortAgentState  m_oState;
+            
+            PublisherList m_oPublishers;
             
             // Port agent connections
             Connection *m_pObservatoryConnection;

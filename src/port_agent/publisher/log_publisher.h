@@ -47,11 +47,12 @@ namespace publisher {
             LogPublisher() {}
 
         protected:
-            virtual bool handleInstrumentData(Packet *packet) { return logPacket(packet); }
-            virtual bool handleDriverData(Packet *packet)     { return logPacket(packet); }
-            virtual bool handleCommand(Packet *packet)        { return logPacket(packet); }
-            virtual bool handleStatus(Packet *packet)         { return logPacket(packet); }
-            virtual bool handleFault(Packet *packet)          { return logPacket(packet); }
+            virtual bool handleInstrumentData(Packet *packet)      { return logPacket(packet); }
+            virtual bool handleDriverData(Packet *packet)          { return logPacket(packet); }
+            virtual bool handleCommand(Packet *packet)             { return logPacket(packet); }
+            virtual bool handleStatus(Packet *packet)              { return logPacket(packet); }
+            virtual bool handleFault(Packet *packet)               { return logPacket(packet); }
+            virtual bool handleInstrumentCommand(Packet *packet)   { return logPacket(packet); }
 
 
         private:

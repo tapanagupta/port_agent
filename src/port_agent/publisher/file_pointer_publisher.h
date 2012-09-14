@@ -32,12 +32,21 @@ namespace publisher {
         public:
 
            FilePointerPublisher();
-	   FilePointerPublisher(CommBase *socket);
+	       FilePointerPublisher(const FilePointerPublisher &rhs);
+	       FilePointerPublisher(CommBase *socket);
+	       
+		   virtual ~FilePointerPublisher();
 
+           virtual FilePointerPublisher & operator=(const FilePointerPublisher &rhs);
+           virtual bool operator==(FilePointerPublisher &rhs);
+           virtual bool compare(Publisher *rhs);
+			
            void setCommObject(CommBase *socket);
 	   
            // Explicitly set the output file
            void setFilePointer(FILE *fd);
+		   
+		   CommBase *commSocket() { return m_pCommSocket; }
 
         protected:
 
@@ -52,6 +61,7 @@ namespace publisher {
             bool write(const char *buffer, uint32_t size);
 
         private:
+			bool compareCommSocket(CommBase *rhs);
         
 
         /********************
@@ -59,7 +69,7 @@ namespace publisher {
          ********************/
         
         protected:
-	    CommBase* m_oCommSocket;
+	    CommBase* m_pCommSocket;
             
         private:
             FILE* m_pFilePointer;

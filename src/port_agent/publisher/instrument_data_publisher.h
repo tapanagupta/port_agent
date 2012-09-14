@@ -25,7 +25,8 @@ namespace publisher {
          ********************/
         
         public:
-        	InstrumentDataPublisher();
+            InstrumentDataPublisher();
+            InstrumentDataPublisher(CommBase *socket) : InstrumentPublisher(socket) {}
 
 	    const PublisherType publisherType() { return PUBLISHER_INSTRUMENT_DATA; }
 

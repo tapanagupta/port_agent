@@ -18,6 +18,7 @@
 
 #include <string>
 #include <list>
+#include <stdint.h>
 
 using namespace std;
 
@@ -107,6 +108,7 @@ namespace port_agent {
             string logfile();
             string pidfile();
             string conffile();
+            string datafile();
             
             string logdir() { return m_logdir; }
             string piddir() { return m_piddir; }

@@ -60,4 +60,11 @@ CommBase & CommBase::operator=(const CommBase &rhs) {
 }
 
 
+/******************************************************************************
+ * Method: equality operator
+ * Description: overloaded equality operator.
+ ******************************************************************************/
+bool CommBase::operator==(CommBase &rhs) {
+	throw NotImplemented();
+}
 

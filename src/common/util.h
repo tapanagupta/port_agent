@@ -9,6 +9,7 @@
 #ifndef __UTIL_H__
 #define __UTIL_H__
 
+#include <stdint.h>
 #include <string>
 
 using namespace std;
@@ -25,5 +26,4 @@ bool file_exists(const char* filename);
 bool create_file(const char* filename, const char* content);
 string read_file(const char* filename);
 
-#endif __UTIL_H__
-
+#endif //__UTIL_H__

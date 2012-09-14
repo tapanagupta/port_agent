@@ -32,15 +32,19 @@ namespace network {
             
             /* Operators */
             virtual CommListener & operator=(const CommListener &rhs);
+            virtual bool operator==(CommListener &rhs);
 
             /* Accessors */
             bool listening() { return m_pServerFD > 0; }
             bool connected() { return m_pClientFD > 0; }
+			
+			bool connectClient() { return false; }
 	    
 	    int serverFD() { return m_pServerFD; }
 	    int clientFD() { return m_pClientFD; }
             
             void setPort(const uint16_t port) { m_iPort = port; }
+            virtual bool compare(CommBase *rhs);
 	    
 	    uint16_t port() { return m_iPort; }
 	    

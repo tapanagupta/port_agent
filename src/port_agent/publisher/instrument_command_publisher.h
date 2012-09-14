@@ -25,7 +25,8 @@ namespace publisher {
          ********************/
         
         public:
-        	InstrumentCommandPublisher();
+            InstrumentCommandPublisher();
+            InstrumentCommandPublisher(CommBase *socket) : InstrumentPublisher(socket) {}
 
 	    const PublisherType publisherType() { return PUBLISHER_INSTRUMENT_COMMAND; }
 

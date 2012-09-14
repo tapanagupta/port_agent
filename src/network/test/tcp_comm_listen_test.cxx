@@ -435,7 +435,7 @@ TEST_F(TCPListenerTest, DoublePortAssignment) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        //EXPECT_EQ(e.errno(), 304);
+        EXPECT_EQ(e.errcode(), 304);
     }
     
     EXPECT_TRUE(exceptionRaised);
@@ -454,7 +454,7 @@ TEST_F(TCPListenerTest, PrivPortAssignment) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        //EXPECT_EQ(e.errno(), 304);
+        EXPECT_EQ(e.errcode(), 304);
     }
     
     EXPECT_TRUE(exceptionRaised);
@@ -472,7 +472,7 @@ TEST_F(TCPListenerTest, NotInitialized) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        //EXPECT_EQ(e.errno(), 310);
+        EXPECT_EQ(e.errcode(), 310);
     }
     
     EXPECT_TRUE(exceptionRaised);
@@ -490,7 +490,7 @@ TEST_F(TCPListenerTest, NotInitializedWrite) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        //EXPECT_EQ(e.errno(), 310);
+        EXPECT_EQ(e.errcode(), 310);
     }
     
     EXPECT_TRUE(exceptionRaised);
@@ -511,7 +511,7 @@ TEST_F(TCPListenerTest, NotInitializedNotConnectedWrite) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        //EXPECT_EQ(e.errno(), 308);
+        EXPECT_EQ(e.errcode(), 308);
     }
     
     EXPECT_TRUE(exceptionRaised);
@@ -531,7 +531,7 @@ TEST_F(TCPListenerTest, NotInitializedRead) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        //EXPECT_EQ(e.errno(), 310);
+        EXPECT_EQ(e.errcode(), 310);
     }
     
     EXPECT_TRUE(exceptionRaised);
@@ -553,7 +553,7 @@ TEST_F(TCPListenerTest, NotInitializedNotConnectedRead) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        //EXPECT_EQ(e.errno(), 308);
+        EXPECT_EQ(e.errcode(), 308);
     }
     
     EXPECT_TRUE(exceptionRaised);

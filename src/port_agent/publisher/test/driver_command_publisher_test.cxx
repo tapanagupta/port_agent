@@ -5,6 +5,7 @@
 #include "publisher_test.h"
 #include "driver_command_publisher.h"
 #include "network/tcp_comm_socket.h"
+#include "network/tcp_comm_listener.h"
 
 
 #include <sstream>
@@ -15,6 +16,7 @@ using namespace std;
 using namespace packet;
 using namespace logger;
 using namespace publisher;
+using namespace network;
 
 #define DATAFILE "/tmp/data.log"
 
@@ -65,12 +67,86 @@ TEST_F(DriverCommandPublisherTest, FailureNoFile) {
 
 /* Test with a tcp comm socket */
 TEST_F(DriverCommandPublisherTest, CommSocketWrite) {
+    try {
+	    TCPCommSocket socket;
+        socket.setHostname("localhost");
+        socket.setPort(4001);
 	
-	TCPCommSocket socket;
-	socket.setHostname("localhost");
-	socket.setPort(4001);
+        DriverCommandPublisher publisher((CommBase*)&socket);
 	
-//	DriverCommandPublisher publisher(&socket);
-	
-//      EXPECT_TRUE(testPublishCommSocket(publisher, DATA_FROM_DRIVER));
+        EXPECT_TRUE(testPublishCommSocket(publisher, 4001, DATA_FROM_DRIVER));
+	}
+	catch(OOIException &e) {
+		string err = e.what();
+		LOG(ERROR) << "EXCEPTION: " << err;
+		ASSERT_FALSE(true);
+	}
 }
+
+// Test equality operator
+TEST_F(DriverCommandPublisherTest, TCPCommSocketEqualityOperator) {
+	try {
+    	DriverCommandPublisher leftPublisher, rightPublisher;
+    	TCPCommSocket leftSocket, rightSocket;
+    	
+    	EXPECT_TRUE(leftPublisher == leftPublisher);
+    	EXPECT_TRUE(leftPublisher == rightPublisher);
+    	
+	    // Test the base equality tests
+	    leftPublisher.setAsciiMode(false);
+	    rightPublisher.setAsciiMode(true);
+	    EXPECT_FALSE(leftPublisher == rightPublisher);
+	    rightPublisher.setAsciiMode(false);
+	    EXPECT_TRUE(leftPublisher == rightPublisher);
+	        
+        
+    	// Test with sockets
+    	leftSocket.setHostname("localhost");
+        leftSocket.setPort(4001);
+    	
+	    rightSocket.setHostname("localhost");
+        rightSocket.setPort(4001);
+    	    
+    	EXPECT_TRUE(leftSocket == rightSocket);
+    	leftPublisher.setCommObject(&leftSocket);
+    	EXPECT_TRUE(leftPublisher.commSocket());
+    	
+	    EXPECT_FALSE(leftPublisher == rightPublisher);
+	
+	    rightPublisher.setCommObject(&rightSocket);
+	    EXPECT_TRUE(rightPublisher.commSocket());
+	    EXPECT_TRUE(leftPublisher == rightPublisher);
+        
+		rightSocket.setPort(4002);
+	    rightPublisher.setCommObject(&rightSocket);
+	    EXPECT_FALSE(leftPublisher == rightPublisher);
+	}
+	catch(OOIException &e) {
+		string err = e.what();
+		LOG(ERROR) << "EXCEPTION: " << err;
+		ASSERT_FALSE(true);
+	}
+}
+
+// Test equality operator
+TEST_F(DriverCommandPublisherTest, TCPListenerEqualityOperator) {
+	try {
+    	DriverCommandPublisher leftPublisher, rightPublisher;
+    	TCPCommListener leftSocket;
+		TCPCommSocket rightSocket;
+    	
+    	EXPECT_TRUE(leftPublisher == leftPublisher);
+    	EXPECT_TRUE(leftPublisher == rightPublisher);
+    	
+    	leftPublisher.setCommObject(&leftSocket);
+	    rightPublisher.setCommObject(&rightSocket);
+    	
+	    EXPECT_FALSE(leftPublisher == rightPublisher);
+	}
+	catch(OOIException &e) {
+		string err = e.what();
+		LOG(ERROR) << "EXCEPTION: " << err;
+		ASSERT_FALSE(true);
+	}
+}
+

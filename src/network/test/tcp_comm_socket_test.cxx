@@ -201,7 +201,7 @@ TEST_F(TCPSocketTest, ExceptionNotConfigured) {
     catch(SocketMissingConfig &e) {
         exceptionRaised = true;
         LOG(INFO) << "Expected exception caught: " << e.what();
-        EXPECT_EQ(e.errno(), 307);
+        EXPECT_EQ(e.errcode(), 307);
     };
     
     EXPECT_TRUE(exceptionRaised);
@@ -215,7 +215,7 @@ TEST_F(TCPSocketTest, ExceptionNotConfigured) {
     catch(SocketMissingConfig &e) {
         exceptionRaised = true;
         LOG(INFO) << "Expected exception caught: " << e.what();
-        EXPECT_EQ(e.errno(), 307);
+        EXPECT_EQ(e.errcode(), 307);
     };
     EXPECT_TRUE(exceptionRaised);
     
@@ -228,7 +228,7 @@ TEST_F(TCPSocketTest, ExceptionNotConfigured) {
     catch(SocketMissingConfig &e) {
         exceptionRaised = true;
         LOG(INFO) << "Expected exception caught: " << e.what();
-        EXPECT_EQ(e.errno(), 307);
+        EXPECT_EQ(e.errcode(), 307);
     };
     EXPECT_TRUE(exceptionRaised);
     
@@ -250,7 +250,7 @@ TEST_F(TCPSocketTest, ExceptionBadHost) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        EXPECT_EQ(e.errno(), 303);
+        EXPECT_EQ(e.errcode(), 303);
     };
     
     EXPECT_TRUE(exceptionRaised);
@@ -272,7 +272,7 @@ TEST_F(TCPSocketTest, ExceptionBadPort) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        EXPECT_EQ(e.errno(), 307);
+        EXPECT_EQ(e.errcode(), 307);
     };
     
     EXPECT_TRUE(exceptionRaised);
@@ -294,7 +294,7 @@ TEST_F(TCPSocketTest, ExceptionPrivPortBlocking) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        EXPECT_EQ(e.errno(), 304);
+        EXPECT_EQ(e.errcode(), 304);
     };
 
     EXPECT_TRUE(exceptionRaised);
@@ -315,7 +315,7 @@ TEST_F(TCPSocketTest, ExceptionPrivPortNonBlock) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        EXPECT_EQ(e.errno(), 304);
+        EXPECT_EQ(e.errcode(), 304);
     };
     
     EXPECT_TRUE(exceptionRaised);
@@ -342,7 +342,7 @@ TEST_F(TCPSocketTest, ExceptionWriteFailure) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        EXPECT_EQ(e.errno(), 306);
+        EXPECT_EQ(e.errcode(), 306);
     };
     
     EXPECT_TRUE(exceptionRaised);
@@ -373,7 +373,7 @@ TEST_F(TCPSocketTest, ExceptionReadFailure) {
         exceptionRaised = true;
 	string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        EXPECT_EQ(e.errno(), 305);
+        EXPECT_EQ(e.errcode(), 305);
     };
     
     EXPECT_TRUE(exceptionRaised);

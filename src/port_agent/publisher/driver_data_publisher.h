@@ -24,6 +24,7 @@ namespace publisher {
         
         public:
             DriverDataPublisher();
+            DriverDataPublisher(CommBase *socket) : DriverPublisher(socket) {}
 	   
 	    const PublisherType publisherType() { return PUBLISHER_DRIVER_DATA; }
 

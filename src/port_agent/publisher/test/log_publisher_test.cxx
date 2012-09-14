@@ -134,3 +134,21 @@ TEST_F(LogPublisherTest, FailureNoFile) {
 
     EXPECT_FALSE(publisher.publish(&packet));
 }
+
+
+// Test equality operator
+TEST_F(LogPublisherTest, TCPCommSocketEqualityOperator) {
+	try {
+    	LogPublisher leftPublisher, rightPublisher;
+    	
+    	EXPECT_TRUE(leftPublisher == leftPublisher);
+    	EXPECT_TRUE(leftPublisher == rightPublisher);
+	}
+	catch(OOIException &e) {
+		string err = e.what();
+		LOG(ERROR) << "EXCEPTION: " << err;
+		ASSERT_FALSE(true);
+	}
+}
+
+

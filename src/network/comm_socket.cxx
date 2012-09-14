@@ -15,12 +15,13 @@
 
 #include <netinet/in.h>
 #include <netdb.h>
-#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 using namespace std;
 using namespace logger;
@@ -36,6 +37,7 @@ using namespace network;
  ******************************************************************************/
 CommSocket::CommSocket() {
     m_pSocketFD = 0;
+	m_iPort = 0;
 }
 
 
@@ -45,6 +47,8 @@ CommSocket::CommSocket() {
  ******************************************************************************/
 CommSocket::CommSocket(const CommSocket &rhs) {
 	m_pSocketFD = rhs.m_pSocketFD;
+	m_iPort = rhs.m_iPort;
+	m_sHostname = rhs.m_sHostname;
 }
 
 
@@ -65,6 +69,25 @@ CommSocket & CommSocket::operator=(const CommSocket &rhs) {
 	return *this;
 }
 
+/******************************************************************************
+ * Method: equality operator
+ * Description: overloaded equality operator.
+ ******************************************************************************/
+bool CommSocket::operator==(CommSocket &rhs) {
+        return compare(&rhs);
+}
+
+/******************************************************************************
+ * Method: compare
+ * Description: compare objects
+ ******************************************************************************/
+bool CommSocket::compare(CommBase *rhs) {
+		if(rhs->type() != COMM_TCP_SOCKET && rhs->type() != COMM_UDP_SOCKET)
+		    return false;
+        
+		return m_iPort == ((CommSocket *)rhs)->m_iPort &&
+		       m_sHostname == ((CommSocket *)rhs)->m_sHostname;
+}
 
 /******************************************************************************
  * Method: close

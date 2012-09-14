@@ -27,6 +27,7 @@ namespace publisher {
         public:
 
     	    UDPPublisher();
+            UDPPublisher(CommBase *socket) : FilePointerPublisher(socket) {}
 
 	    const PublisherType publisherType() { return PUBLISHER_UDP; }
 

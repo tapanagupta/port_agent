@@ -47,8 +47,9 @@
 #include <fstream>
 #include <string>
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 #include <errno.h>
+
 
 #include <sys/time.h>
 
@@ -99,6 +100,19 @@ LogFile::LogFile(const LogFile & rhs) {
 LogFile& LogFile::operator=(const LogFile & rhs) {
 	copy(rhs);
 	return *this;
+}
+
+/******************************************************************************
+ * Method: equality operator
+ * Description: are we writing to the same file?
+ ******************************************************************************/
+bool LogFile::operator==(const LogFile & rhs) const {
+	if(this == &rhs)
+	    return true;
+	
+	return m_sFileName == rhs.m_sFileName &&
+	       m_sFileBase == rhs.m_sFileBase &&
+	       m_sFileExtention == rhs.m_sFileExtention;
 }
 
 /******************************************************************************
@@ -273,7 +287,10 @@ void LogFile::setBase(string path, string ext) {
  ******************************************************************************/
 bool LogFile::write(const char *buffer, uint16_t size) {
     ofstream *out = getStreamObject();
-    out->write(buffer, size);
+    
+	out->write(buffer, size);
+	this->flush();
+	
 	return true;
 }
 

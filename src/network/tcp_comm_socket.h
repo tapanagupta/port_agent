@@ -30,7 +30,7 @@ namespace network {
     	    TCPCommSocket(const TCPCommSocket &rhs);
             virtual ~TCPCommSocket();
             
-	    virtual CommBase *copy();
+    	    virtual CommBase *copy();
             
             /* Operators */
             virtual TCPCommSocket & operator=(const TCPCommSocket &rhs);
@@ -38,9 +38,10 @@ namespace network {
             /* Accessors */
             void setHostname(const string &hostname) {m_sHostname = hostname;}
             void setPort(const uint16_t port) {m_iPort = port;}
+			CommType type() { return COMM_TCP_SOCKET; }
 	    
-	    uint16_t port() { return m_iPort; }
-	    const string & hostname() { return m_sHostname; }
+	        uint16_t port() { return m_iPort; }
+	        const string & hostname() { return m_sHostname; }
             
             // Connect to the network host
             bool initialize();
@@ -59,8 +60,6 @@ namespace network {
         protected:
             
         private:
-            string m_sHostname;
-            uint16_t m_iPort;
     };
 }
 

@@ -21,6 +21,7 @@
 #include <sstream>
 #include <string>
 #include <list>
+#include <algorithm>
 
 using namespace std;
 using namespace logger;
@@ -125,6 +126,22 @@ string PortAgentConfig::conffile() {
     
     return out.str();
 }
+
+/******************************************************************************
+ * Method: database()
+ * Description: return a path to the data file;
+ * Return: formatted path string
+ ******************************************************************************/
+string PortAgentConfig::datafile() {
+    ostringstream out;
+    out << logdir() << "/" << BASE_FILENAME << "_"
+        << observatoryCommandPort();
+    
+    LOG(DEBUG) << "Data file: " << out.str();
+    
+    return out.str();
+}
+
 
 
 /******************************************************************************

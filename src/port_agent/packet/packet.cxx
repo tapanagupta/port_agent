@@ -36,6 +36,7 @@
 #include "common/exception.h"
 #include "common/timestamp.h"
 
+#include <netinet/in.h>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -43,7 +44,9 @@
 #include <cctype>
 #include <assert.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 using namespace std;
 using namespace packet;
@@ -69,7 +72,7 @@ Packet::Packet() {
  * Description: General use constructor for the the packet.  Sets up all
  *              paramaters, basically an immutable object.
  * Parameters:
- *   packetType - type of packet.  See the TPacketTypeEnum
+ *   packetType - type of packet.  See the PacketTypeEnum
  *   timestamp  - Timestamp when the data was initially collected.
  *   payload - the actual data stored in the packet.
  *   payloadSize - number of bytes in the payload.
@@ -84,7 +87,7 @@ Packet::Packet() {
  *     - packet type is UNKNOWN
  *
  ******************************************************************************/
-Packet::Packet(TPacketType packetType, Timestamp timestamp,
+Packet::Packet(PacketType packetType, Timestamp timestamp,
                char *payload, uint16_t payloadSize) {
     
     LOG(DEBUG) << "Building a new packet";
@@ -131,10 +134,12 @@ Packet::Packet(const Packet& rhs) {
  * Description: free up our dynamically created packet data.
  ******************************************************************************/
 Packet::~Packet() {
+	LOG(DEBUG) << "Packet DTOR";
     if( m_pPacket ) {
         delete [] m_pPacket;
         m_pPacket = NULL;
     }
+	LOG(DEBUG) << "Packet DTOR exit";
 }
 
 /******************************************************************************
@@ -349,7 +354,7 @@ uint16_t Packet::calculateChecksum() {
  *   string representation of that type.
  *
  ******************************************************************************/
-string Packet::typeToString(TPacketType type) {
+string Packet::typeToString(PacketType type) {
     switch(type) {
         case UNKNOWN: return string("UNKNOWN");
         case DATA_FROM_INSTRUMENT: return string("DATA_FROM_INSTRUMENT");

@@ -47,7 +47,7 @@ using namespace std;
 namespace packet {
     
     /* Known packet types */
-    enum TPacketType {
+    enum PacketType {
         UNKNOWN,  
         DATA_FROM_INSTRUMENT,
         DATA_FROM_DRIVER,
@@ -70,7 +70,7 @@ namespace packet {
             ///////////////////////
             // Public Methods
             Packet();
-            Packet(TPacketType packet_type, Timestamp timestamp,
+            Packet(PacketType packet_type, Timestamp timestamp,
                    char *payload, uint16_t payload_size);
             Packet(const Packet &rhs);
             virtual ~Packet();
@@ -79,7 +79,7 @@ namespace packet {
             virtual Packet & operator=(const Packet &rhs);
 
             /* Accessors */
-            TPacketType packetType() { return m_tPacketType; }
+            PacketType packetType() { return m_tPacketType; }
             uint16_t packetSize()    { return m_iPacketSize; }
             uint16_t payloadSize()   { return m_iPacketSize - HEADER_SIZE; }
             uint16_t checksum()      { return m_iChecksum; }
@@ -97,8 +97,8 @@ namespace packet {
             // overloaded for buffered packets.
             virtual bool readyToSend() { return true; }
 
-            // Convert a TPacketType to a string representation
-            string typeToString(TPacketType type);
+            // Convert a PacketType to a string representation
+            string typeToString(PacketType type);
         protected:
 
             // Calculate a checksum of the packet buffer.
@@ -121,7 +121,7 @@ namespace packet {
         
         protected:
             
-            TPacketType m_tPacketType;
+            PacketType m_tPacketType;
             uint16_t m_iPacketSize;
             uint16_t m_iChecksum;
             Timestamp m_oTimestamp;

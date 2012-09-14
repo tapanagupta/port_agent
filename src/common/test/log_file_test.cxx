@@ -262,7 +262,28 @@ TEST_F(LogFileTest, DerivedLogFileTest) {
     EXPECT_TRUE(caughtError);
 }
 
+// Test the == operator
+TEST_F(LogFileTest, EqualityOperator) {
+	LogFile lhsLog, rhsLog;
 
+    EXPECT_TRUE(lhsLog == lhsLog);
+    EXPECT_TRUE(lhsLog == rhsLog);
+	
+	lhsLog.setFile("foo");
+	EXPECT_FALSE(lhsLog == rhsLog);
+	rhsLog.setFile("foo");
+	EXPECT_TRUE(lhsLog == rhsLog);
+	
+	lhsLog.setBase("foo");
+	EXPECT_FALSE(lhsLog == rhsLog);
+	rhsLog.setBase("foo");
+	EXPECT_TRUE(lhsLog == rhsLog);
+	
+	lhsLog.setBase("foo", "ext");
+	EXPECT_FALSE(lhsLog == rhsLog);
+	rhsLog.setBase("foo", "ext");
+	EXPECT_TRUE(lhsLog == rhsLog);
+}
 
 
 

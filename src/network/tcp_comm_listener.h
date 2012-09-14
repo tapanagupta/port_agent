@@ -67,6 +67,7 @@ namespace network {
             virtual TCPCommListener & operator=(const TCPCommListener &rhs);
 
             /* Accessors */
+			CommType type() { return COMM_TCP_LISTENER; }
 
             /* Commands */
 	    

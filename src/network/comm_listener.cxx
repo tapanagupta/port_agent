@@ -21,6 +21,7 @@
 #include <sys/fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 using namespace std;
 using namespace logger;
@@ -46,7 +47,7 @@ CommListener::CommListener() {
  * Method: Copy Constructor
  * Description: Copy constructor.
  ******************************************************************************/
-CommListener::CommListener(const CommListener &rhs) {
+CommListener::CommListener(const CommListener &rhs) : CommBase(rhs) {
     m_iPort = rhs.m_iPort;
 	    
     m_pServerFD = rhs.m_pServerFD;
@@ -74,6 +75,25 @@ CommListener & CommListener::operator=(const CommListener &rhs) {
     m_pClientFD = rhs.m_pClientFD;
     
     return *this;
+}
+
+
+/******************************************************************************
+ * Method: equality operator
+ * Description: overloaded equality operator.
+ ******************************************************************************/
+bool CommListener::operator==(CommListener &rhs) {
+        return compare(&rhs);
+}
+
+/******************************************************************************
+ * Method: compare
+ * Description: compare objects
+ ******************************************************************************/
+bool CommListener::compare(CommBase *rhs) {
+		if(rhs->type() != COMM_TCP_LISTENER)
+		    return false;
+        return m_iPort == ((CommListener *)rhs)->m_iPort;
 }
 
 

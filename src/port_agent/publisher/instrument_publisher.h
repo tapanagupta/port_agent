@@ -28,6 +28,7 @@ namespace publisher {
         public:
 
     	InstrumentPublisher() {}
+        InstrumentPublisher(CommBase *socket) : FilePointerPublisher(socket) {}
 
         protected:
 

@@ -61,6 +61,8 @@ using namespace publisher;
  ******************************************************************************/
 bool LogPublisher::logPacket(Packet *packet) {
 
+    LOG(DEBUG3) << "write packet to " << logger().getFilename();
+	
 	if(m_bAsciiOut) {
 		logger() << packet->asAscii();
 	} else {

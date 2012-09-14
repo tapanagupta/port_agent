@@ -31,9 +31,14 @@ namespace network {
     	    SerialCommSocket(const SerialCommSocket &rhs);
             virtual ~SerialCommSocket();
             
+            virtual bool operator==(SerialCommSocket &rhs);
+			CommType type() { return COMM_SERIAL_SOCKET; }
+			
 	    virtual CommBase *copy();
 	    
+            virtual bool compare(CommBase *rhs);
             virtual bool initialize() { return false; }
+            virtual bool connectClient() { return false; }
 	    
             virtual uint32_t writeData(const char *buffer, uint32_t size) { return 0; }
             virtual uint32_t readData(char *buffer, uint32_t size) { return 0; }
@@ -42,6 +47,7 @@ namespace network {
             virtual SerialCommSocket & operator=(const SerialCommSocket &rhs);
 
             /* Accessors */
+            bool connected() { return false; }
             
         protected:
 

@@ -169,7 +169,7 @@ TEST_F(SpawnProcessTest, DISABLED_SpawnProcessMissingCmd) {
     }
     catch(LaunchCommandMissing &e) {
         LOG(INFO) << "Expected exception caught: " << e.what();
-        EXPECT_EQ(e.errno(), 401);
+        EXPECT_EQ(e.errcode(), 401);
         return;
     };
     
@@ -186,7 +186,7 @@ TEST_F(SpawnProcessTest, DISABLED_SpawnProcessFailedCmd) {
     }
     catch(LaunchCommandFailed &e) {
         LOG(INFO) << "Expected exception caught: " << e.what();
-        EXPECT_EQ(e.errno(), 402);
+        EXPECT_EQ(e.errcode(), 402);
         return;
     };
     

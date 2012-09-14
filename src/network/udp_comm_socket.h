@@ -59,9 +59,11 @@ namespace network {
 
             /* Accessors */
             
-            void setPort(const uint16_t port) { m_iPort = port; }
-            void setHostname(const string &hostname) { m_sHostname = hostname; }
             bool connected() { return m_pSocketFD > 0; }
+			CommType type() { return COMM_UDP_SOCKET; }
+			
+			uint16_t port() { return m_iPort; }
+			string hostname() { return m_sHostname; }
 
             /* Commands */
 	    
@@ -84,8 +86,6 @@ namespace network {
         protected:
             
         private:
-             string m_sHostname;
-             uint16_t m_iPort;
     };
 }
 

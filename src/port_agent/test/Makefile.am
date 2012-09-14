@@ -3,6 +3,7 @@ DEPLIBS = $(top_builddir)/src/common/libcommon.a \
           $(top_builddir)/src/port_agent/libport_agent.a \
           $(top_builddir)/src/port_agent/config/libport_agent_config.a \
           $(top_builddir)/src/port_agent/packet/libport_agent_packet.a \
+          $(top_builddir)/src/port_agent/publisher/libport_agent_publisher.a \
           $(top_builddir)/src/port_agent/connection/libport_agent_connection.a \
           $(top_builddir)/src/network/libnetwork_comm.a \
           $(GTEST_MAIN)

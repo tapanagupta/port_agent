@@ -78,7 +78,7 @@ namespace packet {
          	BufferedSingleCharPacket();
 
             // Constructor.
-            BufferedSingleCharPacket( TPacketType packetType,
+            BufferedSingleCharPacket( PacketType packetType,
                                       uint16_t maxPayloadSize,
                                       float maxQuiescentTime = 0,
                                       const char* sentinleSequence = NULL,

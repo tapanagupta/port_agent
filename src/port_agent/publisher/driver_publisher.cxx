@@ -32,5 +32,5 @@ using namespace publisher;
  * Method: Constructor
  * Description: default constructor
  ******************************************************************************/
-DriverPublisher::DriverPublisher() { }
+DriverPublisher::DriverPublisher() : FilePointerPublisher() { }
 

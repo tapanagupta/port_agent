@@ -54,6 +54,22 @@ CommBase * SerialCommSocket::copy() {
 	return new SerialCommSocket(*this);
 }
 
+/******************************************************************************
+ * Method: Equality operator
+ * Description: overloading!
+ ******************************************************************************/
+bool SerialCommSocket::operator==(SerialCommSocket &rhs) {
+		return compare(&rhs);
+}
+
+/******************************************************************************
+ * Method: compare
+ * Description: compare objects
+ ******************************************************************************/
+bool SerialCommSocket::compare(CommBase *rhs) {
+		return false;
+}
+
 
 /******************************************************************************
  * Method: assignment operator

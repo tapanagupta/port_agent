@@ -27,6 +27,7 @@ namespace publisher {
         public:
 
     	    TCPPublisher();
+            TCPPublisher(CommBase *socket) : FilePointerPublisher(socket) {}
 
 	    const PublisherType publisherType() { return PUBLISHER_TCP; }
 

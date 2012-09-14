@@ -53,11 +53,14 @@ namespace publisher {
 
     	    FilePublisher() {}
 
+            virtual bool operator==(FilePublisher &rhs);
+            virtual bool compare(Publisher *rhs);
+			
             // Explicitly set the output file
             void setFilename(string filename);
 
             // Set the file path and extension for rolling logs
-            void setFilebase(string filebase, string fileext = "");
+             void setFilebase(string filebase, string fileext = "");
 
             // Explicitly close the log file
             void close() { m_oLogger.close(); }

@@ -275,7 +275,7 @@ TEST_F(BufferedPacketTest, CTORThrowTests) {
     catch(PacketParamOutOfRange & e) {
         exceptionCaught = true;
         LOG(DEBUG1) << "exception caught: " << e.what();
-        EXPECT_EQ(e.errno(), 603);
+        EXPECT_EQ(e.errcode(), 603);
     }
     EXPECT_TRUE(exceptionCaught);
     
@@ -287,7 +287,7 @@ TEST_F(BufferedPacketTest, CTORThrowTests) {
     catch( PacketParamOutOfRange & e) {
         exceptionCaught = true;
         LOG(DEBUG1) << "exception caught: " << e.what();
-        EXPECT_EQ(e.errno(), 603);
+        EXPECT_EQ(e.errcode(), 603);
     }
     EXPECT_TRUE(exceptionCaught);
     
@@ -300,7 +300,7 @@ TEST_F(BufferedPacketTest, CTORThrowTests) {
     catch( PacketParamOutOfRange & e) {
         exceptionCaught = true;
         LOG(DEBUG1) << "exception caught: " << e.what();
-        EXPECT_EQ(e.errno(), 603);
+        EXPECT_EQ(e.errcode(), 603);
     }
     EXPECT_TRUE(exceptionCaught);
     
@@ -312,7 +312,7 @@ TEST_F(BufferedPacketTest, CTORThrowTests) {
     catch( PacketParamOutOfRange & e) {
         exceptionCaught = true;
         LOG(DEBUG1) << "exception caught: " << e.what();
-        EXPECT_EQ(e.errno(), 603);
+        EXPECT_EQ(e.errcode(), 603);
     }
     EXPECT_TRUE(exceptionCaught);
     
@@ -324,7 +324,7 @@ TEST_F(BufferedPacketTest, CTORThrowTests) {
     catch( PacketParamOutOfRange & e) {
         exceptionCaught = true;
         LOG(DEBUG1) << "exception caught: " << e.what();
-        EXPECT_EQ(e.errno(), 603);
+        EXPECT_EQ(e.errcode(), 603);
     }
     EXPECT_TRUE(exceptionCaught);
 }
@@ -348,7 +348,7 @@ TEST_F(BufferedPacketTest, OverflowTest) {
     catch(PacketOverflow & e) {
         LOG(DEBUG1) << "exception caught: " << e.what();
         exceptionCaught = true;
-        EXPECT_EQ(e.errno(), 601);
+        EXPECT_EQ(e.errcode(), 601);
     }
     LOG(DEBUG) << "Made it out alive!";
 

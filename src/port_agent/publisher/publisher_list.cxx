@@ -32,7 +32,7 @@
 #include "port_agent/publisher/driver_data_publisher.h"
 #include "port_agent/publisher/instrument_command_publisher.h"
 #include "port_agent/publisher/instrument_data_publisher.h"
-#include "port_agent/publisher/file_publisher.h"
+#include "port_agent/publisher/log_publisher.h"
 #include "port_agent/publisher/tcp_publisher.h"
 #include "port_agent/publisher/udp_publisher.h"
 
@@ -76,6 +76,24 @@ PublisherList::~PublisherList() {
  *
  ******************************************************************************/
 bool PublisherList::publish(Packet *packet) {
+    PublisherObjectList::iterator i = m_oPublishers.begin();
+    string error;
+	
+    for(i = m_oPublishers.begin(); i != m_oPublishers.end(); i++)
+        try {
+			LOG(DEBUG2) << "publish with publisher type: " << (*i)->publisherType();
+    		(*i)->publish(packet);
+		}
+		catch(OOIException &e) {
+			ostringstream err;
+			err << "<Publish Type> error: " << e.what() << endl;
+			error += err.str();
+		};
+		
+	if(error.length())
+	    throw PacketPublishFailure(error.c_str());
+	
+    return true;
 }
 
 
@@ -84,14 +102,25 @@ bool PublisherList::publish(Packet *packet) {
  * Description: Add a publisher to the list.
  ******************************************************************************/
 void PublisherList::add(Publisher *publisher) {
-    if(publisher->publisherType() == PUBLISHER_DRIVER_COMMAND || 
+    PublisherObjectList::iterator i = m_oPublishers.begin();
+    
+    LOG(DEBUG) << "Checking for duplicate publisher";
+	for(i = m_oPublishers.begin(); i != m_oPublishers.end(); i++) {
+    	if(publisher->compare(*i)) {
+			LOG(DEBUG2) << "Duplicate publisher found.  Not adding";
+	        return;
+		}
+    }
+	
+	if(publisher->publisherType() == PUBLISHER_DRIVER_COMMAND || 
        publisher->publisherType() == PUBLISHER_DRIVER_COMMAND ||
        publisher->publisherType() == PUBLISHER_INSTRUMENT_COMMAND ||
        publisher->publisherType() == PUBLISHER_INSTRUMENT_DATA ) {
-	addUnique(publisher);
+	
+	    addUnique(publisher);
     }
     else {
-	addPublisher(publisher);
+	    addPublisher(publisher);
     }
 }
 
@@ -102,12 +131,14 @@ void PublisherList::add(Publisher *publisher) {
 void PublisherList::addUnique(Publisher *publisher) {
     PublisherObjectList::iterator i = m_oPublishers.begin();
     
-    for(i = m_oPublishers.begin(); i != m_oPublishers.end(); i++) {
-	if(publisher->publisherType() == (*i)->publisherType()) {
-	    *(*i) = *publisher;
-	    return;
-	}
+    LOG(DEBUG) << "Add unique publisher";
+	for(i = m_oPublishers.begin(); i != m_oPublishers.end(); i++) {
+    	if(publisher->publisherType() == (*i)->publisherType()) {
+			LOG(DEBUG2) << "Found duplicate type, removing old publisher";
+	        m_oPublishers.remove(*i);		
+	    }
     }
+	
     
     // Didn't find a match so add a new one.
     addPublisher(publisher);
@@ -120,7 +151,11 @@ void PublisherList::addUnique(Publisher *publisher) {
  ******************************************************************************/
 void PublisherList::addPublisher(Publisher *publisher) {
     Publisher *newPublisher = NULL;
+    LOG(DEBUG) << "Add new publisher";
     
+	if(!publisher)
+	    throw ParameterRequired();
+	
     if(publisher->publisherType() == PUBLISHER_DRIVER_COMMAND)
         newPublisher = new DriverCommandPublisher(*(DriverCommandPublisher*)publisher);
     
@@ -134,7 +169,7 @@ void PublisherList::addPublisher(Publisher *publisher) {
         newPublisher = new InstrumentDataPublisher(*(InstrumentDataPublisher*)publisher);
 	
     else if(publisher->publisherType() == PUBLISHER_FILE)
-        newPublisher = new FilePublisher(*(FilePublisher*)publisher);
+        newPublisher = new LogPublisher(*(LogPublisher*)publisher);
 	
     else if(publisher->publisherType() == PUBLISHER_TCP)
         newPublisher = new TCPPublisher(*(TCPPublisher*)publisher);
@@ -145,7 +180,13 @@ void PublisherList::addPublisher(Publisher *publisher) {
     else
         throw UnknownPublisherType();
     
-    m_oPublishers.push_back(newPublisher);
+    // Always make sure that our file publishers are first so that the first thing
+	// we do is write data to the log.
+	if(publisher->publisherType() == PUBLISHER_FILE) {
+        m_oPublishers.push_front(newPublisher);
+	} else {
+        m_oPublishers.push_back(newPublisher);
+	}
 }
 
 

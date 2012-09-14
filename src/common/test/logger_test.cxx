@@ -115,7 +115,7 @@ TEST_F(LoggerTest, LogLevelTest) {
     Logger::SetLogLevel("BLOWUP");
     EXPECT_EQ(Logger::GetLogLevel(), DEBUG);
     ASSERT_TRUE(Logger::GetError()); 
-    //EXPECT_EQ(Logger::GetError()->errno(), 201); 
+    EXPECT_EQ(Logger::GetError()->errcode(), 201); 
    
 }
 
@@ -136,7 +136,7 @@ TEST_F(LoggerTest, FilenameTest) {
     Logger::Reset();
     EXPECT_FALSE(Logger::Instance()->getLogFilename().length());
     ASSERT_TRUE(Logger::GetError());
-    //EXPECT_EQ(Logger::GetError()->errno(), 202);
+    EXPECT_EQ(Logger::GetError()->errcode(), 202);
     
     // Set the log file and check it was set correctly
     Logger::SetLogFile(LOGFILE);
@@ -164,7 +164,7 @@ TEST_F(LoggerTest, LogOutputTest) {
     LOG(ERROR) << "Error Message";
     EXPECT_FALSE(Logger::Instance()->getLogFilename().length());
     ASSERT_TRUE(Logger::GetError());
-    //EXPECT_EQ(Logger::GetError()->errno(), 202);
+    EXPECT_EQ(Logger::GetError()->errcode(), 202);
     
     // That worked so let's set the log file and try to write something.
     Logger::SetLogFile(LOGFILE);
@@ -240,7 +240,7 @@ TEST_F(LoggerTest, PermissionDeniedTest) {
     Logger::SetLogFile("/tmp");
     LOG(ERROR) << "Error Message";
     ASSERT_TRUE(Logger::GetError());
-    //EXPECT_EQ(Logger::GetError()->errno(), 204);
+    EXPECT_EQ(Logger::GetError()->errcode(), 204);
 }
 
 // test writing to a derived filename

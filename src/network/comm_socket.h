@@ -34,15 +34,22 @@ namespace network {
             
             /* Operators */
             virtual CommSocket & operator=(const CommSocket &rhs);
+            virtual bool operator==(CommSocket &rhs);
 
             /* Accessors */
+            void setPort(const uint16_t port) { m_iPort = port; }
+            void setHostname(const string &hostname) { m_sHostname = hostname; }
             int getSocketFD() { return m_pSocketFD; }
+            virtual bool connected() { return m_pSocketFD > 0; }
             
             // Connect, must be overloaded in the derived class
             virtual bool initialize() = 0;
+			
+			virtual bool connectClient() { return initialize(); }
 
             // close
             virtual bool disconnect();
+            virtual bool compare(CommBase *rhs);
 
             virtual uint32_t writeData(const char *buffer, uint32_t size);
             virtual uint32_t readData(char *buffer, uint32_t size);
@@ -58,7 +65,10 @@ namespace network {
          ********************/
         
         protected:
-            int m_pSocketFD;
+            string m_sHostname;
+            uint16_t m_iPort;
+            
+			int m_pSocketFD;
             
         private:
 

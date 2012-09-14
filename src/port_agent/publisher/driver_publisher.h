@@ -28,7 +28,8 @@ namespace publisher {
         public:
 
     	DriverPublisher();
-
+        DriverPublisher(CommBase *socket) : FilePointerPublisher(socket) {}
+            
         protected:
 
         private:

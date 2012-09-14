@@ -9,7 +9,7 @@
  *
  ******************************************************************************/
 
-#include "instrument_Data_publisher.h"
+#include "instrument_data_publisher.h"
 #include "common/logger.h"
 #include "common/exception.h"
 #include "port_agent/packet/packet.h"

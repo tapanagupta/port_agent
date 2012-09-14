@@ -14,10 +14,20 @@
 
 #include "common/logger.h"
 
+#include <stdint.h>
+
 using namespace std;
 using namespace logger;
 
 namespace network {
+    typedef enum CommType {
+        COMM_UNKNOWN,
+        COMM_TCP_LISTENER,
+        COMM_TCP_SOCKET,
+        COMM_UDP_SOCKET,
+        COMM_SERIAL_SOCKET
+    } CommType;
+    
     class CommBase {
         /********************
          *      METHODS     *
@@ -34,14 +44,19 @@ namespace network {
             
             /* Operators */
             virtual CommBase & operator=(const CommBase &rhs);
+            virtual bool operator==(CommBase &rhs);
 
             /* Accessors */
             bool blocking() {return m_bBlocking;}
-            virtual bool connected() {return m_bConnected;}
+            virtual bool connected() = 0;
+            virtual CommType type() = 0;
+            
+            virtual bool compare(CommBase *rhs) = 0;
             
             /* Methods */
             void setBlocking(bool block) {m_bBlocking = block;}
             virtual bool initialize() = 0;
+            virtual bool connectClient() = 0;
 	    
             virtual uint32_t writeData(const char *buffer, uint32_t size) = 0;
             virtual uint32_t readData(char *buffer, uint32_t size) = 0;

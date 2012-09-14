@@ -41,5 +41,32 @@ void FilePublisher::setFilebase(string filebase, string fileext) {
     m_oLogger = LogFile(filebase.c_str(), fileext.c_str());
 }
 
+/******************************************************************************
+ * Method: equality operator
+ * Description: Are two objects equal
+ *
+ * Parameters:
+ *   copy - rhs object to compare
+ *
+ ******************************************************************************/
+bool FilePublisher::operator==(FilePublisher &rhs) {
+	return compare(&rhs);
+}
 
+/******************************************************************************
+ * Method: compare two publisher objects
+ * Description: Are two objects equal
+ *
+ * Parameters:
+ *   copy - rhs object to compare
+ *
+ ******************************************************************************/
+bool FilePublisher::compare(Publisher *rhs) {
+	LOG(DEBUG) << "File Publisher equality test";
+	if(this == rhs) return true;
 
+    if(publisherType() != rhs->publisherType())
+        return false;
+    
+	return m_oLogger == ((FilePublisher *)rhs)->m_oLogger;
+}

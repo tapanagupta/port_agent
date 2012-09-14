@@ -40,6 +40,7 @@
 
 #include "common/exception.h"
 #include "common/timestamp.h"
+#include "common/logger.h"
 #include "port_agent/packet/packet.h"
 
 #include <list>
@@ -49,6 +50,7 @@
 
 using namespace std;
 using namespace packet;
+using namespace logger;
 
 
 namespace publisher {
@@ -80,9 +82,11 @@ namespace publisher {
             
             /* Operators */
             virtual Publisher & operator=(const Publisher &rhs);
+            virtual bool operator==(Publisher &rhs);
 
             /*  Commands */
             virtual bool publish(Packet *packet);
+            virtual bool compare(Publisher *rhs) = 0;
 
             /* Accessors */
 	    
@@ -103,12 +107,12 @@ namespace publisher {
             // Handlers are used to process and ultimately write the packet
             // data somewhere.  By default the handler does nothing.  Then
             // each specialized publisher can implement the handlers needed.
-            virtual bool handleInstrumentData(Packet *packet)     { return true; }
-            virtual bool handleDriverData(Packet *packet)         { return true; }
-            virtual bool handleCommand(Packet *packet)            { return true; }
-            virtual bool handleStatus(Packet *packet)             { return true; }
-            virtual bool handleFault(Packet *packet)              { return true; }
-            virtual bool handleInstrumentCommand(Packet *packet)  { return true; }
+            virtual bool handleInstrumentData(Packet *packet)      = 0;
+            virtual bool handleDriverData(Packet *packet)          = 0;
+            virtual bool handleCommand(Packet *packet)             = 0;
+            virtual bool handleStatus(Packet *packet)              = 0;
+            virtual bool handleFault(Packet *packet)               = 0;
+            virtual bool handleInstrumentCommand(Packet *packet)   = 0;
 
 
         private:

@@ -19,9 +19,9 @@
 
 #include <sstream>
 #include <string>
-#include <errno.h>
-
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
 using namespace std;
 using namespace packet;
@@ -38,9 +38,20 @@ using namespace publisher;
  * Parameter:
  *    CommBase* pointer to a comm object
  ******************************************************************************/
-FilePointerPublisher::FilePointerPublisher() {
+FilePointerPublisher::FilePointerPublisher() : Publisher() {
     m_pFilePointer = NULL;
-    m_oCommSocket = NULL;
+    m_pCommSocket = NULL;
+}
+
+/******************************************************************************
+ * Method: Copy Constructor
+ * Description: Deep copy
+ ******************************************************************************/
+FilePointerPublisher::FilePointerPublisher(const FilePointerPublisher &rhs) : Publisher(rhs) {
+	LOG(DEBUG) << "FilePointerPublisher copy ctor";
+	
+    m_pFilePointer = rhs.m_pFilePointer;
+    m_pCommSocket = rhs.m_pCommSocket->copy();
 }
 
 /******************************************************************************
@@ -55,13 +66,101 @@ FilePointerPublisher::FilePointerPublisher(CommBase* comm) {
 }
 
 /******************************************************************************
+ * Method: Copy Constructor
+ * Description: Copy constructor ensuring we do a deep copy 
+ *
+ * Parameters:
+ *   copy - rhs object to copy
+ *
+ ******************************************************************************/
+FilePointerPublisher & FilePointerPublisher::operator=(const FilePointerPublisher &rhs) {
+    LOG(DEBUG2) << "FilePointerPublisher assignment operator";
+	m_pFilePointer = rhs.m_pFilePointer;
+    setCommObject(rhs.m_pCommSocket);
+	clearError();
+	return *this;
+}
+
+/******************************************************************************
+ * Method: equality operator
+ * Description: Are we the same
+ *
+ * Parameters:
+ *   copy - rhs object to copy
+ *
+ ******************************************************************************/
+bool FilePointerPublisher::operator==(FilePointerPublisher &rhs) {
+	return compare(&rhs);
+}
+
+/******************************************************************************
+ * Method: Compare
+ * Description: Are we the same
+ *
+ * Parameters:
+ *   copy - rhs object to copy
+ *
+ ******************************************************************************/
+bool FilePointerPublisher::compare(Publisher *rhs) {
+	LOG(DEBUG) << "FilePointerPublisher equality test";
+	FilePointerPublisher *target = (FilePointerPublisher *)rhs;
+	
+	if(this == target) return true;
+	if(!target) return false;
+
+    LOG(DEBUG) << "Verify types match";
+	if(publisherType() != target->publisherType())
+        return false;
+	
+    return compareCommSocket(target->m_pCommSocket);
+}
+
+
+/******************************************************************************
+ * Method: compare comm socket
+ * Description: see if two comm sockets look the same
+ *
+ * Parameters:
+ *   rhs object to compare
+ *
+ ******************************************************************************/
+bool FilePointerPublisher::compareCommSocket(CommBase *rhs) {
+	LOG(DEBUG) << "compare comm socket";
+	
+	// Both null
+	if(!m_pCommSocket && !rhs)
+	    return true;
+	
+    // one null
+    if(!m_pCommSocket || !rhs)
+	    return false;
+	
+    LOG(DEBUG) << "LHS Type: " << m_pCommSocket->type();
+    LOG(DEBUG) << "RHS Type: " << rhs->type();
+	
+    // neither null.  do compare
+	if(m_pCommSocket->type() != rhs->type())
+	    return false;
+	
+	return m_pCommSocket->compare(rhs);
+}
+
+
+/******************************************************************************
+ * Method: Destructor
+ * Description: Clear dynamic memory allocated
+ ******************************************************************************/
+FilePointerPublisher::~FilePointerPublisher() {
+}
+
+/******************************************************************************
  * Method: setFilePointer
  * Description: Set the private file pointer (deep copy)
  * Parameter:
  *    FILE* referencing a file descriptor.
  ******************************************************************************/
 void FilePointerPublisher::setCommObject(CommBase* comm) {
-    m_oCommSocket = comm->copy();
+    m_pCommSocket = comm->copy();
 }
 
 /******************************************************************************
@@ -112,12 +211,24 @@ bool FilePointerPublisher::write(const char *buffer, uint32_t size) {
 	int count;
 	int total = 0;
 
-	if(m_pFilePointer == NULL)
+    if(size == 0)
+	    return false;
+
+	if(m_pFilePointer == NULL && m_pCommSocket == NULL)
 		throw FileDescriptorNULL();
+	
+    if(m_pCommSocket && ! m_pCommSocket->connected()) {
+		LOG(DEBUG) << "Not connected.";
+	    m_pCommSocket->connectClient();
+    }
 
 	// Try to write data three times.  Throw an error if we fail.
 	for( int i = 0; i < 3 && total < size; i++) {
-		total += fwrite(buffer + total, 1, size - total, m_pFilePointer);
+		if(m_pCommSocket) {
+		    total += m_pCommSocket->writeData(buffer + total, size - total);
+		}
+		else
+		    total += fwrite(buffer + total, 1, size - total, m_pFilePointer);
 	}
 
 	if(total != size) {
@@ -127,6 +238,7 @@ bool FilePointerPublisher::write(const char *buffer, uint32_t size) {
 
 	return true;
 }
+
 
 
 

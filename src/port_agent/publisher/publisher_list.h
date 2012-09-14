@@ -60,6 +60,9 @@ namespace publisher {
 	    void add(Publisher *publisher);
 
             /* Accessors */
+			uint32_t size() const { return m_oPublishers.size(); }
+			Publisher * front() { return m_oPublishers.front(); }
+			Publisher * back() { return m_oPublishers.back(); }
 
         protected:
 

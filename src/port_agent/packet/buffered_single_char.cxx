@@ -67,7 +67,7 @@ BufferedSingleCharPacket::BufferedSingleCharPacket() : Packet::Packet() {
  *              a new buffer for the packet and initializes the iterator.  Also
  *              store any of the trigger values.
  * Parameters:
- *   packetType - type of packet.  See the TPacketTypeEnum
+ *   packetType - type of packet.  See the PacketTypeEnum
  *   makePayloadSize - The max allowable bytes of data for the payload.  Max
  *                     value is 2^16 - HEADER_SIZE.
  *   maxQuiescentTime - max elapse time between reading a packet and now before
@@ -88,7 +88,7 @@ BufferedSingleCharPacket::BufferedSingleCharPacket() : Packet::Packet() {
  *     - sentinleSequence set, but size is 0;
  *
  ******************************************************************************/
-BufferedSingleCharPacket::BufferedSingleCharPacket( TPacketType packetType,
+BufferedSingleCharPacket::BufferedSingleCharPacket( PacketType packetType,
                                                     uint16_t maxPayloadSize,
                                                     float maxQuiescentTime,
                                                     const char* sentinleSequence,

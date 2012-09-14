@@ -13,6 +13,14 @@
 #include "packet/packet.h"
 #include "packet/buffered_single_char.h"
 
+#include "publisher/log_publisher.h"
+#include "publisher/driver_command_publisher.h"
+#include "publisher/driver_data_publisher.h"
+#include "publisher/instrument_command_publisher.h"
+#include "publisher/instrument_data_publisher.h"
+#include "publisher/udp_publisher.h"
+#include "publisher/tcp_publisher.h"
+
 #include <iostream>
 #include <string.h>
 #include <netinet/in.h>
@@ -51,11 +59,6 @@ PortAgent::PortAgent() {
  ******************************************************************************/
 PortAgent::PortAgent(int argc, char *argv[]) {
     // Setup the log file if we are running as a daemon
-    if(no_daemon())
-        Logger::SetLogFile("/dev/stderr");
-    else
-        Logger::SetLogFile(m_pConfig->logfile());
-        
     LOG(DEBUG) << "Initialize port agent with args";
     
     m_pConfig = new PortAgentConfig(argc, argv);
@@ -156,7 +159,7 @@ void PortAgent::initializeObservatoryDataConnection() {
     }
     
     // Initialize!
-    connection->setDataPort(m_pConfig->observatoryCommandPort());
+    connection->setDataPort(m_pConfig->observatoryDataPort());
     
     if(! connection->dataInitialized())
         connection->initialize();
@@ -268,6 +271,165 @@ void PortAgent::initializeTCPInstrumentConnection() {
         setState(STATE_CONNECTED);
 }
 
+/******************************************************************************
+ * Method: initializePulishers
+ * Description: setup all publishers
+ ******************************************************************************/
+void PortAgent::initializePublishers() {
+    LOG(INFO) << "Initialize Publishers";
+    initializePublisherFile();    
+    initializePublisherObservatoryData();    
+    initializePublisherObservatoryCommand();    
+    initializePublisherInstrumentData();    
+    initializePublisherInstrumentCommand();    
+    initializePublisherTCP();    
+    initializePublisherUDP();    
+}
+
+/******************************************************************************
+ * Method: initializePulisherFile
+ * Description: setup the file publisher
+ ******************************************************************************/
+void PortAgent::initializePublisherFile() {
+    LOG(INFO) << "Initialize File Publisher";
+    
+    if(!m_pConfig || !m_pConfig->datafile().length()) {
+        LOG(ERROR) << "PA not configured, not initializing datalog";
+        return;
+    }
+    
+    LOG(DEBUG) << "Setup data log initial file: " << m_pConfig->datafile();
+    
+    LogPublisher publisher;
+    publisher.setFilebase(m_pConfig->datafile(), "data");
+    
+    m_oPublishers.add(&publisher);
+}
+
+/******************************************************************************
+ * Method: initializePublisherObservatoryData
+ * Description: setup the observatory data publisher
+ ******************************************************************************/
+void PortAgent::initializePublisherObservatoryData() {
+    CommBase *connection;
+    
+    LOG(INFO) << "Initialize Observatory Data Publisher";
+    if( ! m_pObservatoryConnection ) {
+        LOG(ERROR) << "Observatory connection does not exist. " 
+                   << "Not setting up data publisher!";
+        return;
+    }
+    
+    connection = m_pObservatoryConnection->dataConnectionObject();
+    if( ! connection ) {
+        LOG(INFO) << "Observatory data connection not set. " 
+                   << "Not setting up data publisher!";
+        return;
+    }
+    
+    LOG(DEBUG) << "Create new publisher";
+    DriverDataPublisher publisher(connection);
+    
+    m_oPublishers.add(&publisher);
+}
+
+/******************************************************************************
+ * Method: initializePublisherObservatoryCommand
+ * Description: setup the observatory command publisher
+ ******************************************************************************/
+void PortAgent::initializePublisherObservatoryCommand() {
+    CommBase *connection;
+    
+    LOG(INFO) << "Initialize Observatory Command Publisher";
+    if( ! m_pObservatoryConnection ) {
+        LOG(ERROR) << "Observatory connection does not exist. " 
+                   << "Not setting up command publisher!";
+        return;
+    }
+    
+    connection = m_pObservatoryConnection->commandConnectionObject();
+    if( ! connection ) {
+        LOG(INFO) << "Observatory command connection not set. " 
+                   << "Not setting up command publisher!";
+        return;
+    }
+    
+    LOG(DEBUG) << "Create new publisher";
+    DriverCommandPublisher publisher(connection);
+    
+    m_oPublishers.add(&publisher);
+}
+
+/******************************************************************************
+ * Method: initializePublisherInstrumentData
+ * Description: setup the instrument data publisher
+ ******************************************************************************/
+void PortAgent::initializePublisherInstrumentData() {
+    CommBase *connection;
+    
+    LOG(INFO) << "Initialize Instrument Data Publisher";
+    if( ! m_pInstrumentConnection ) {
+        LOG(ERROR) << "Instrument connection does not exist. "
+                   << "Not setting up data publisher!";
+        return;
+    }
+    
+    connection = m_pInstrumentConnection->dataConnectionObject();
+    if( ! connection ) {
+        LOG(INFO) << "Instrument data connection not set. " 
+                   << "Not setting up data publisher!";
+        return;
+    }
+    
+    LOG(DEBUG) << "Create new publisher";
+    InstrumentDataPublisher publisher(connection);
+    
+    m_oPublishers.add(&publisher);
+}
+
+/******************************************************************************
+ * Method: initializePublisherInstrumentCommand
+ * Description: setup the instrument command publisher
+ ******************************************************************************/
+void PortAgent::initializePublisherInstrumentCommand() {
+    CommBase *connection;
+    
+    LOG(INFO) << "Initialize Instrument Command Publisher";
+    if( ! m_pInstrumentConnection ) {
+        LOG(ERROR) << "Instrument connection does not exist. "
+                   << "Not setting up command publisher!";
+        return;
+    }
+    
+    connection = m_pInstrumentConnection->commandConnectionObject();
+    if( ! connection ) {
+        LOG(INFO) << "Instrument command connection not set. " 
+                   << "Not setting up command publisher!";
+        return;
+    }
+    
+    LOG(DEBUG) << "Create new publisher";
+    InstrumentCommandPublisher publisher(connection);
+    
+    m_oPublishers.add(&publisher);
+}
+
+/******************************************************************************
+ * Method: initializePublisherTCP
+ * Description: setup the tcp publisher
+ ******************************************************************************/
+void PortAgent::initializePublisherTCP() {
+    LOG(INFO) << "Initialize TCP Publisher";
+}
+
+/******************************************************************************
+ * Method: initializePublisherUDP
+ * Description: setup the udp publisher
+ ******************************************************************************/
+void PortAgent::initializePublisherUDP() {
+    LOG(INFO) << "Initialize UDP Publisher";
+}
+
 
 /******************************************************************************
  * Method: handlePortAgentCommand
@@ -372,6 +534,7 @@ void PortAgent::handleStateUnconfigured(const fd_set &readFDs) {
 void PortAgent::handleStateConfigured(const fd_set &readFDs) {
     LOG(DEBUG) << "start state configured handler";
     
+    initializePublishers();
     initializeInstrumentConnection();
     initializeObservatoryDataConnection();
 }
@@ -427,6 +590,13 @@ void PortAgent::handleStateUnknown() {
  * connection.
  ******************************************************************************/
 void PortAgent::handleStateStartup() {
+    // Setup logging
+    if(no_daemon()) {
+        Logger::SetLogFile("/dev/stderr");
+    } else {
+        Logger::SetLogFile(m_pConfig->logfile());
+    }
+        
     LOG(DEBUG) << "start state start up handler";
     initializeObservatoryCommandConnection();
     setState(STATE_UNCONFIGURED);
@@ -689,7 +859,7 @@ int PortAgent::getObservatoryCommandClientFD() {
 int PortAgent::getObservatoryDataListenerFD() {
     CommBase *pConnection = m_pObservatoryConnection->dataConnectionObject();
     if(m_pObservatoryConnection->dataInitialized() && ! m_pObservatoryConnection->dataConnected()) {
-        return ((TCPCommListener*)pConnection)->clientFD();
+        return ((TCPCommListener*)pConnection)->serverFD();
     }
     
     return 0;  
@@ -714,8 +884,8 @@ int PortAgent::getObservatoryDataClientFD() {
  ******************************************************************************/
 int PortAgent::getInstrumentDataClientFD() {
     CommBase *pConnection = m_pInstrumentConnection->dataConnectionObject();
-    if(m_pObservatoryConnection->dataConnected()) {
-        return ((TCPCommListener*)pConnection)->clientFD();
+    if(m_pInstrumentConnection->dataConnected()) {
+        //return ((TCPCommSocket*)pConnection)->clientFD();
     }
     
     return 0;    
@@ -738,8 +908,19 @@ void PortAgent::publishFault(const string &msg) {
  * Description: Publish a packet. Just iterate over all publisher and call
  * the publish method.  Easy Peasy
  ******************************************************************************/
-void PortAgent::publishPacket(const Packet *packet) {
-    // TODO: write the pulisher loop.
+void PortAgent::publishPacket(Packet *packet) {
+    LOG(DEBUG) << "Publish packet.";
+    m_oPublishers.publish(packet);
+}
+
+/******************************************************************************
+ * Method: publishPacket
+ * Description: Create a packet and publish it.
+ ******************************************************************************/
+void PortAgent::publishPacket(char *payload, uint16_t size, PacketType type) {
+    Timestamp ts;
+    Packet packet(type, ts, payload, size);
+    publishPacket(&packet); 
 }
 
 /******************************************************************************
@@ -751,7 +932,7 @@ void PortAgent::handleObservatoryCommandAccept(const fd_set &readFDs) {
     int serverFD = getObservatoryCommandListenerFD();
     
     LOG(DEBUG) << "handleObservatoryCommandAccept - do we need to accept a new connection?";
-    LOG(DEBUG2) << "Server FD: " << serverFD;
+    LOG(DEBUG2) << "Observatory Command Listener FD: " << serverFD;
         
     // Accept a new observatory command client
     if(serverFD && FD_ISSET(serverFD, &readFDs)) {
@@ -771,7 +952,7 @@ void PortAgent::handleObservatoryCommandRead(const fd_set &readFDs) {
     char buffer[1024];
     
     LOG(DEBUG) << "handleObservatoryCommandRead - do we need to read from the observatory command";
-    LOG(DEBUG2) << "Client FD: " << clientFD;
+    LOG(DEBUG2) << "Observatory Command Client FD: " << clientFD;
         
     if(clientFD && FD_ISSET(clientFD, &readFDs)) {
         LOG(DEBUG) << "Read data from observatory command socket";
@@ -794,7 +975,7 @@ void PortAgent::handleObservatoryDataAccept(const fd_set &readFDs) {
     int serverFD = getObservatoryDataListenerFD();
     
     LOG(DEBUG) << "handleObservatoryDataAccept - do we need to accept a new connection?";
-    LOG(DEBUG2) << "Server FD: " << serverFD;
+    LOG(DEBUG2) << "Observatory Data Listener FD: " << serverFD;
         
     // Accept a new observatory command client
     if(serverFD && FD_ISSET(serverFD, &readFDs)) {
@@ -814,16 +995,16 @@ void PortAgent::handleObservatoryDataRead(const fd_set &readFDs) {
     char buffer[1024];
     
     LOG(DEBUG) << "handleObservatoryDataRead - do we need to read from the observatory data";
-    LOG(DEBUG2) << "Client FD: " << clientFD;
+    LOG(DEBUG2) << "Observatory Data Client FD: " << clientFD;
         
     if(clientFD && FD_ISSET(clientFD, &readFDs)) {
-        LOG(DEBUG) << "Read data from observatory data socket";
+        LOG(DEBUG2) << "Read data from observatory data socket";
         bytesRead = ((TCPCommListener*)pConnection)->readData(buffer, 1023);
         buffer[bytesRead] = '\0';
         
         if(bytesRead) {
             LOG(DEBUG2) << "Bytes read: " << bytesRead;
-            // TODO: Add handler code
+            publishPacket(buffer, bytesRead, DATA_FROM_DRIVER);
         }
     }
 }
@@ -855,7 +1036,7 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
         
         if(bytesRead) {
             LOG(DEBUG2) << "Bytes read: " << bytesRead;
-            // TODO: Add handler code
+            publishPacket(buffer, bytesRead, DATA_FROM_INSTRUMENT);
         }
     }
 }
@@ -884,15 +1065,14 @@ const string PortAgent::getCurrentStateAsString() {
  * Description: State the port agent intrument connection state
  ******************************************************************************/
 void PortAgent::setState(const PortAgentState &state) {
-    const string previousState = getCurrentStateAsString();
+    // Only set the state if it has changed.
+    if(state != getCurrentState()) {
+        const string previousState = getCurrentStateAsString();
     
-    m_oState = state;
+        m_oState = state;
 
-    LOG(DEBUG2) << "State transition from " << previousState << " TO " << getCurrentStateAsString();
-    LOG(DEBUG2) << "State transition from " << previousState << " TO " << getCurrentStateAsString();
-    LOG(DEBUG2) << "State transition from " << previousState << " TO " << getCurrentStateAsString();
-    LOG(DEBUG2) << "State transition from " << previousState << " TO " << getCurrentStateAsString();
-    LOG(DEBUG2) << "State transition from " << previousState << " TO " << getCurrentStateAsString();
-    LOG(DEBUG2) << "State transition from " << previousState << " TO " << getCurrentStateAsString();
-    LOG(DEBUG2) << "State transition from " << previousState << " TO " << getCurrentStateAsString();
+        LOG(DEBUG) << "***********************************************";
+        LOG(DEBUG) << "State transition from " << previousState << " TO " << getCurrentStateAsString();
+        LOG(DEBUG) << "***********************************************";
+    }
 }

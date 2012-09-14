@@ -45,6 +45,9 @@
 #include <sstream>
 #include <string>
 #include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include "exception.h"
 
@@ -75,6 +78,9 @@ namespace logger {
 
 			// Overloaded assignment operator
 			LogFile& operator=(const LogFile & rhs);
+
+			// Overloaded equality operator
+			bool operator==(const LogFile & rhs) const;
 
 			// Overloading for the << operator TODO: Template function?
 		    LogFile &operator<<(const string & a);

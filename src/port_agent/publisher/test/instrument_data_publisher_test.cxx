@@ -4,6 +4,8 @@
 #include "gtest/gtest.h"
 #include "publisher_test.h"
 #include "instrument_data_publisher.h"
+#include "network/tcp_comm_socket.h"
+#include "network/tcp_comm_listener.h"
 
 
 #include <sstream>
@@ -33,12 +35,12 @@ class InstrumentDataPublisherTest : public FilePointerPublisherTest {
 
 
         // For the instrument data we just write raw data, not packets.
-	    size_t expectedAsciiPacket(char *buffer, const TPacketType &type) {
+	    size_t expectedAsciiPacket(char *buffer, const PacketType &type) {
 	        strcpy(buffer, "data");
 	        return 4;
 	    }
 
-	    size_t expectedBinaryPacket(char *buffer, const TPacketType &type) {
+	    size_t expectedBinaryPacket(char *buffer, const PacketType &type) {
 	        return expectedAsciiPacket(buffer, type);
 	    }
 };
@@ -72,3 +74,72 @@ TEST_F(InstrumentDataPublisherTest, FailureNoFile) {
 	InstrumentDataPublisher publisher;
 	EXPECT_TRUE(testPublishFailure(publisher, DATA_FROM_DRIVER));
 }
+
+
+// Test equality operator
+TEST_F(InstrumentDataPublisherTest, TCPCommSocketEqualityOperator) {
+	try {
+    	InstrumentDataPublisher leftPublisher, rightPublisher;
+    	TCPCommSocket leftSocket, rightSocket;
+    	
+    	EXPECT_TRUE(leftPublisher == leftPublisher);
+    	EXPECT_TRUE(leftPublisher == rightPublisher);
+    	
+	    // Test the base equality tests
+	    leftPublisher.setAsciiMode(false);
+	    rightPublisher.setAsciiMode(true);
+	    EXPECT_FALSE(leftPublisher == rightPublisher);
+	    rightPublisher.setAsciiMode(false);
+	    EXPECT_TRUE(leftPublisher == rightPublisher);
+	        
+        
+    	// Test with sockets
+    	leftSocket.setHostname("localhost");
+        leftSocket.setPort(4001);
+    	
+	    rightSocket.setHostname("localhost");
+        rightSocket.setPort(4001);
+    	    
+    	EXPECT_TRUE(leftSocket == rightSocket);
+    	leftPublisher.setCommObject(&leftSocket);
+    	EXPECT_TRUE(leftPublisher.commSocket());
+    	
+	    EXPECT_FALSE(leftPublisher == rightPublisher);
+	
+	    rightPublisher.setCommObject(&rightSocket);
+	    EXPECT_TRUE(rightPublisher.commSocket());
+	    EXPECT_TRUE(leftPublisher == rightPublisher);
+        
+		rightSocket.setPort(4002);
+	    rightPublisher.setCommObject(&rightSocket);
+	    EXPECT_FALSE(leftPublisher == rightPublisher);
+	}
+	catch(OOIException &e) {
+		string err = e.what();
+		LOG(ERROR) << "EXCEPTION: " << err;
+		ASSERT_FALSE(true);
+	}
+}
+
+// Test equality operator
+TEST_F(InstrumentDataPublisherTest, TCPListenerEqualityOperator) {
+	try {
+    	InstrumentDataPublisher leftPublisher, rightPublisher;
+    	TCPCommListener leftSocket;
+		TCPCommSocket rightSocket;
+    	
+    	EXPECT_TRUE(leftPublisher == leftPublisher);
+    	EXPECT_TRUE(leftPublisher == rightPublisher);
+    	
+    	leftPublisher.setCommObject(&leftSocket);
+	    rightPublisher.setCommObject(&rightSocket);
+    	
+	    EXPECT_FALSE(leftPublisher == rightPublisher);
+	}
+	catch(OOIException &e) {
+		string err = e.what();
+		LOG(ERROR) << "EXCEPTION: " << err;
+		ASSERT_FALSE(true);
+	}
+}
+

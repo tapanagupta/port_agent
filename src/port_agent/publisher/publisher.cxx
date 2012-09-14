@@ -48,7 +48,9 @@ Publisher::Publisher() {
  ******************************************************************************/
 Publisher::Publisher(const Publisher& rhs) {
     LOG(DEBUG) << "Publisher copy constructor";
-    clearError();
+	
+	m_oError = rhs.m_oError;
+	m_bAsciiOut = rhs.m_bAsciiOut;
 }
 
 /******************************************************************************
@@ -67,8 +69,24 @@ Publisher::~Publisher() {
  *
  ******************************************************************************/
 Publisher & Publisher::operator=(const Publisher &rhs) {
+    LOG(DEBUG2) << "Publisher assignment operator";
 	clearError();
 	return *this;
+}
+
+/******************************************************************************
+ * Method: equality operator
+ * Description: Are two objects equal
+ *
+ * Parameters:
+ *   copy - rhs object to compare
+ *
+ ******************************************************************************/
+bool Publisher::operator==(Publisher &rhs) {
+	LOG(DEBUG) << "Publisher equality test";
+	if(this == &rhs) return true;
+
+	return m_bAsciiOut == rhs.m_bAsciiOut;
 }
 
 /******************************************************************************

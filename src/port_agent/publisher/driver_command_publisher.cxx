@@ -31,4 +31,4 @@ using namespace publisher;
  * Method: Constructor
  * Description: default constructor
  ******************************************************************************/
-DriverCommandPublisher::DriverCommandPublisher() { }
+DriverCommandPublisher::DriverCommandPublisher() : DriverPublisher() { }
