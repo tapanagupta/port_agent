@@ -211,7 +211,7 @@ bool FilePointerPublisher::write(const char *buffer, uint32_t size) {
 	int count;
 	int total = 0;
 
-    if(size == 0)
+	if(size == 0)
 	    return false;
 
 	if(m_pFilePointer == NULL && m_pCommSocket == NULL)

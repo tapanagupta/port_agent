@@ -40,34 +40,11 @@ class DriverDataPublisherTest : public FilePointerPublisherTest {
 TEST_F(DriverDataPublisherTest, SingleAsciiOut) {
 	DriverDataPublisher publisher;
 	EXPECT_TRUE(testPublish(publisher, DATA_FROM_INSTRUMENT, true));
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
 	EXPECT_TRUE(testPublish(publisher, PORT_AGENT_STATUS, true));
-	LOG(INFO) << "Next test";
 	EXPECT_TRUE(testPublish(publisher, PORT_AGENT_FAULT, true));
-	LOG(INFO) << "Next test";
 	EXPECT_TRUE(testNoPublish(publisher, DATA_FROM_DRIVER));
-	LOG(INFO) << "Next test";
 	EXPECT_TRUE(testNoPublish(publisher, PORT_AGENT_COMMAND));
-	LOG(INFO) << "Next test";
 	EXPECT_TRUE(testNoPublish(publisher, INSTRUMENT_COMMAND));
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
-	LOG(INFO) << "Next test";
 }
 
 /* Test Single binary packet out out */
@@ -98,14 +75,6 @@ TEST_F(DriverDataPublisherTest, UDPCommSocketEqualityOperator) {
     	EXPECT_TRUE(leftPublisher == leftPublisher);
     	EXPECT_TRUE(leftPublisher == rightPublisher);
     	
-	    // Test the base equality tests
-	    leftPublisher.setAsciiMode(false);
-	    rightPublisher.setAsciiMode(true);
-	    EXPECT_FALSE(leftPublisher == rightPublisher);
-	    rightPublisher.setAsciiMode(false);
-	    EXPECT_TRUE(leftPublisher == rightPublisher);
-	        
-        
     	// Test with sockets
     	leftSocket.setHostname("localhost");
         leftSocket.setPort(4001);

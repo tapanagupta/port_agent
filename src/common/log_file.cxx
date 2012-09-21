@@ -303,11 +303,15 @@ bool LogFile::write(const char *buffer, uint16_t size) {
 LogFile & LogFile::operator<<(const string & a) {
 	ofstream *out = getStreamObject();
     *out << a;
+	
+	out->flush();
     return *this;
 }
 
 LogFile & LogFile::operator<<(std::ostream& (*pf) (std::ostream&)){
 	ofstream *out = getStreamObject();
     *out << pf;
+	
+	out->flush();
     return *this;
 }

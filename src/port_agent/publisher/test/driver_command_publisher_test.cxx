@@ -92,14 +92,6 @@ TEST_F(DriverCommandPublisherTest, TCPCommSocketEqualityOperator) {
     	EXPECT_TRUE(leftPublisher == leftPublisher);
     	EXPECT_TRUE(leftPublisher == rightPublisher);
     	
-	    // Test the base equality tests
-	    leftPublisher.setAsciiMode(false);
-	    rightPublisher.setAsciiMode(true);
-	    EXPECT_FALSE(leftPublisher == rightPublisher);
-	    rightPublisher.setAsciiMode(false);
-	    EXPECT_TRUE(leftPublisher == rightPublisher);
-	        
-        
     	// Test with sockets
     	leftSocket.setHostname("localhost");
         leftSocket.setPort(4001);

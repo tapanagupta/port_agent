@@ -144,8 +144,9 @@ uint32_t CommSocket::writeData(const char *buffer, const uint32_t size) {
     while( bytesRemaining > 0 ) {
         LOG(DEBUG) << "WRITE DEVICE: " << buffer;
         count = write(m_pSocketFD, buffer + bytesWritten, bytesRemaining );
-        LOG(DEBUG1) << "bytes written: " << count << " remaining: " << bytesRemaining;
+        LOG(DEBUG1) << "bytes written: " << count;
         if(count < 0) {
+			m_pSocketFD = 0;
             LOG(ERROR) << strerror(errno) << "(errno: " << errno << ")";
             throw(SocketWriteFailure(strerror(errno)));
         }
@@ -181,6 +182,7 @@ uint32_t CommSocket::readData(char *buffer, const uint32_t size) {
     
     if ((bytesRead = read(m_pSocketFD, buffer, size)) <= 0) {
         if(errno != EAGAIN && errno != EINPROGRESS) {
+			m_pSocketFD = 0;
             LOG(ERROR) << "read_device: " << strerror(errno) << "(errno: " << errno << ")";
             throw(SocketReadFailure(strerror(errno)));
         }

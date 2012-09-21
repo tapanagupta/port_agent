@@ -58,6 +58,7 @@ PortAgent::PortAgent() {
  *              passed in from the command line using (argv).
  ******************************************************************************/
 PortAgent::PortAgent(int argc, char *argv[]) {
+    Logger().SetLogLevel("MESG");
     // Setup the log file if we are running as a daemon
     LOG(DEBUG) << "Initialize port agent with args";
     
@@ -162,7 +163,7 @@ void PortAgent::initializeObservatoryDataConnection() {
     connection->setDataPort(m_pConfig->observatoryDataPort());
     
     if(! connection->dataInitialized())
-        connection->initialize();
+        connection->initializeDataSocket();
 }
 
 /******************************************************************************
@@ -195,7 +196,7 @@ void PortAgent::initializeObservatoryCommandConnection() {
     connection->setCommandPort(m_pConfig->observatoryCommandPort());
     
     if(! connection->commandInitialized())
-        connection->initialize();
+        connection->initializeCommandSocket();
 }
 
 /******************************************************************************
@@ -302,6 +303,7 @@ void PortAgent::initializePublisherFile() {
     
     LogPublisher publisher;
     publisher.setFilebase(m_pConfig->datafile(), "data");
+    publisher.setAsciiMode(true);
     
     m_oPublishers.add(&publisher);
 }
@@ -523,6 +525,10 @@ void PortAgent::handleStateUnconfigured(const fd_set &readFDs) {
     
     handleObservatoryCommandAccept(readFDs);
     handleObservatoryCommandRead(readFDs);
+    handleObservatoryDataRead(readFDs);
+    
+    if(m_pConfig->isConfigured())
+        setState(STATE_CONFIGURED);
 }
 
 /******************************************************************************
@@ -534,9 +540,9 @@ void PortAgent::handleStateUnconfigured(const fd_set &readFDs) {
 void PortAgent::handleStateConfigured(const fd_set &readFDs) {
     LOG(DEBUG) << "start state configured handler";
     
-    initializePublishers();
     initializeInstrumentConnection();
     initializeObservatoryDataConnection();
+    initializePublishers();
 }
 
 /******************************************************************************
@@ -597,7 +603,8 @@ void PortAgent::handleStateStartup() {
         Logger::SetLogFile(m_pConfig->logfile());
     }
         
-    LOG(DEBUG) << "start state start up handler";
+    LOG(DEBUG) << "start up state handler";
+    
     initializeObservatoryCommandConnection();
     setState(STATE_UNCONFIGURED);
 }
@@ -813,7 +820,7 @@ void PortAgent::addInstrumentDataClientFD(int &maxFD, fd_set &readFDs) {
         pConnection = m_pInstrumentConnection->dataConnectionObject();
         int fd = 0;
         
-        fd = getObservatoryCommandClientFD();
+        fd = getInstrumentDataClientFD();
         
         if(fd) {
             LOG(DEBUG2) << "add instrument data client FD";
@@ -865,6 +872,8 @@ int PortAgent::getObservatoryDataListenerFD() {
     return 0;  
 }
 
+
+
 /******************************************************************************
  * Method: getObservatoryDataClientFD
  * Description: Get the file descriptor
@@ -884,8 +893,13 @@ int PortAgent::getObservatoryDataClientFD() {
  ******************************************************************************/
 int PortAgent::getInstrumentDataClientFD() {
     CommBase *pConnection = m_pInstrumentConnection->dataConnectionObject();
+    TCPCommSocket *socket;
     if(m_pInstrumentConnection->dataConnected()) {
-        //return ((TCPCommSocket*)pConnection)->clientFD();
+        socket = (TCPCommSocket*)pConnection;
+        if(socket && socket->connected())
+            return socket->getSocketFD();
+        
+        LOG(ERROR) << "Instrument data client not connected";
     }
     
     return 0;    
@@ -1021,13 +1035,13 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
     
     LOG(DEBUG) << "handleInstrumentDataRead - do we need to read from the instrument data";
     
-    if(! clientFD) {
+    if(! pConnection->connected()) {
         LOG(DEBUG2) << "instrument not connected, attempting to re-init the socket";
         initializeInstrumentConnection();
         clientFD = getInstrumentDataClientFD();
     }
     
-    LOG(DEBUG2) << "Client FD: " << clientFD;
+    LOG(DEBUG2) << "Instrument Data Client FD: " << clientFD;
         
     if(clientFD && FD_ISSET(clientFD, &readFDs)) {
         LOG(DEBUG) << "Read data from instrument data socket";

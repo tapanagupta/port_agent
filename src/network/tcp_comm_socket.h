@@ -45,7 +45,7 @@ namespace network {
             
             // Connect to the network host
             bool initialize();
-
+			
             // Does this object have a complete configuration?
             bool isConfigured();
 	    

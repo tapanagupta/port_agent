@@ -12,8 +12,8 @@ using namespace std;
 using namespace logger;
 using namespace port_agent;
 
-#define TEST_DATA_PORT "4001"
-#define TEST_COMMAND_PORT "4000"
+#define TEST_DATA_PORT "6001"
+#define TEST_COMMAND_PORT "6000"
 
 class ObservatoryConnectionTest : public testing::Test {
     
@@ -30,28 +30,35 @@ class ObservatoryConnectionTest : public testing::Test {
 
 /* Test Normal Observatory Connection */
 TEST_F(ObservatoryConnectionTest, NormalConnection) {
-    ObservatoryConnection connection;
-    Connection *pConnection = &connection;
+    try {
+        ObservatoryConnection connection;
+        Connection *pConnection = &connection;
     
-    EXPECT_EQ(pConnection->connectionType(), PACONN_OBSERVATORY_STANDARD);
+        EXPECT_EQ(pConnection->connectionType(), PACONN_OBSERVATORY_STANDARD);
     
-    connection.setCommandPort(4000);
+        connection.setCommandPort(6000);
     
-    connection.initialize();
+        connection.initialize();
     
-    EXPECT_TRUE(connection.dataInitialized());
-    EXPECT_TRUE(connection.commandInitialized());
+        EXPECT_TRUE(connection.dataInitialized());
+        EXPECT_TRUE(connection.commandInitialized());
     
-    EXPECT_FALSE(connection.dataConnected());
-    EXPECT_FALSE(connection.commandConnected());
+        EXPECT_FALSE(connection.dataConnected());
+        EXPECT_FALSE(connection.commandConnected());
     
-    ASSERT_TRUE(connection.dataConnectionObject());
-    ASSERT_TRUE(connection.commandConnectionObject());
-    
-    EXPECT_EQ(connection.commandConnectionObject()->getListenPort(), atoi(TEST_COMMAND_PORT));
-    
-    EXPECT_NE(connection.dataConnectionObject()->getListenPort(), atoi(TEST_DATA_PORT));
-    connection.setDataPort(atoi(TEST_DATA_PORT));
-    EXPECT_EQ(connection.dataConnectionObject()->getListenPort(), atoi(TEST_DATA_PORT));
+        ASSERT_TRUE(connection.dataConnectionObject());
+        ASSERT_TRUE(connection.commandConnectionObject());
+        
+        EXPECT_EQ(connection.commandConnectionObject()->getListenPort(), atoi(TEST_COMMAND_PORT));
+        
+        EXPECT_NE(connection.dataConnectionObject()->getListenPort(), atoi(TEST_DATA_PORT));
+        connection.setDataPort(atoi(TEST_DATA_PORT));
+        EXPECT_EQ(connection.dataConnectionObject()->getListenPort(), atoi(TEST_DATA_PORT));
+    }
+    catch(OOIException &e) {
+		string err = e.what();
+		LOG(ERROR) << "EXCEPTION: " << err;
+		ASSERT_FALSE(true);
+	}
 }
 

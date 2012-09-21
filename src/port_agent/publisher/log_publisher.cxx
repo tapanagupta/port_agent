@@ -60,12 +60,11 @@ using namespace publisher;
  *   Note: Exceptions are caught in the publisher and won't hault execution.
  ******************************************************************************/
 bool LogPublisher::logPacket(Packet *packet) {
-
-    LOG(DEBUG3) << "write packet to " << logger().getFilename();
-	
 	if(m_bAsciiOut) {
+        LOG(DEBUG3) << "write packet (ascii) to " << logger().getFilename();
 		logger() << packet->asAscii();
 	} else {
+        LOG(DEBUG3) << "write packet (binary) to " << logger().getFilename();
 		logger().write(packet->packet(), packet->packetSize());
 	}
 

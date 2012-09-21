@@ -8,6 +8,7 @@
 # Options:
 # 
 #  -h, --help - Display the program help screen
+#  -c, --continuous - Do not close the connection after each read
 #  -s, --single - Accept one client connection then kill the server.
 #  -p PORT, --port PORT - Indicate what port to listen on.  Default: 40000
 #  -t TIMEOUT, --timeout TIMEOUT - How long should we wait for a client connection?
@@ -35,6 +36,8 @@ def parseArgs():
     parser = argparse.ArgumentParser(description="TCP Echo Server")
     parser.add_argument("-s", '--single', dest='single', action="store_true",
         help="only accept one connection then quit" )
+    parser.add_argument("-c", '--continuous', dest='continuous', action="store_true",
+        help="do not close between reads" )
     parser.add_argument('-p', '--port', dest='port', type=int, default=40000, help='specify the INET port to bind')
     parser.add_argument('-t', '--timeout', dest='timeout', type=int, default=DEFAULT_TIMEOUT, help='listen timeout')
     parser.add_argument('-d', '--delay', dest='delay', type=float, default=DEFAULT_DELAY, help='delay between reading characters from the stream')
@@ -47,14 +50,16 @@ def run_server(serv, opts):
     conn,addr = serv.accept() #accept the connection
     print("client connected");
     
-    data = read_tcp(conn, opts.delay);
-    if(opts.stdout): print data
-    send_tcp(conn, data)
-
-    # Do a final read to handle echoing clients (for tests)
-    data = read_tcp(conn, opts.delay);
-
     try:
+        while True:
+            data = read_tcp(conn, opts.delay);
+            if(data):
+                if(opts.stdout): print "Read: " + data
+                time.sleep(1);
+                send_tcp(conn, data)
+
+            if(not opts.continuous): break;
+
         print "closing connection"
         conn.close()
         
@@ -69,9 +74,9 @@ def send_tcp(conn, buffer):
 
 def read_tcp(conn, read_delay):
     result = ""
-    print("read data from client")
 
     conn.settimeout(0.1);
+
     while True:
         try:
             data = conn.recv(1)
@@ -80,10 +85,8 @@ def read_tcp(conn, read_delay):
                 print("READ: " + data)
                 result = result + data
             else:
-                print "read complete";
                 break
         except socket.timeout:
-            print("socket timeout.  read done")
             break
         
         except socket.error as e:

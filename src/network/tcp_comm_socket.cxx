@@ -90,7 +90,7 @@ bool TCPCommSocket::initialize() {
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
 
-	LOG(DEBUG) << "TCP Port Agent init_comms_device()";
+	LOG(DEBUG) << "TCP Port Agent initialize()";
 
 	if(!isConfigured())
 		throw SocketMissingConfig("missing port or hostname");

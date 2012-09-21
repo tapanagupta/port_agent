@@ -205,7 +205,7 @@ uint32_t TCPCommListener::writeData(const char *buffer, const uint32_t size) {
         throw(SocketNotConnected());
     
     while( bytesRemaining > 0 ) {
-        LOG(DEBUG) << "WRITE DEVICE: " << buffer;
+        LOG(DEBUG) << "WRITE DEVICE: " << buffer << "FD: " << m_pClientFD;
         count = write(m_pClientFD, buffer + bytesWritten, bytesRemaining );
         LOG(DEBUG1) << "bytes written: " << count << " remaining: " << bytesRemaining;
         if(count < 0) {

@@ -12,7 +12,7 @@ using namespace std;
 using namespace logger;
 using namespace port_agent;
 
-#define TEST_DATA_PORT "4001"
+#define TEST_DATA_PORT "7001"
 #define TEST_DATA_HOST "127.0.0.1"
 
 class InstrumentTCPConnectionTest : public testing::Test {
@@ -30,28 +30,35 @@ class InstrumentTCPConnectionTest : public testing::Test {
 
 /* Test Normal Instrument TCP Connection */
 TEST_F(InstrumentTCPConnectionTest, NormalConnection) {
-    InstrumentTCPConnection connection;
-    Connection *pConnection = &connection;
+    try {
+        InstrumentTCPConnection connection;
+        Connection *pConnection = &connection;
     
-    EXPECT_FALSE(connection.dataConfigured());
-    EXPECT_FALSE(connection.commandConfigured());
+        EXPECT_FALSE(connection.dataConfigured());
+        EXPECT_FALSE(connection.commandConfigured());
     
-    connection.setDataPort(atoi(TEST_DATA_PORT));
-    EXPECT_FALSE(connection.dataConfigured());
-    connection.setDataHost(TEST_DATA_HOST);
-    EXPECT_TRUE(connection.dataConfigured());
+        connection.setDataPort(atoi(TEST_DATA_PORT));
+        EXPECT_FALSE(connection.dataConfigured());
+        connection.setDataHost(TEST_DATA_HOST);
+        EXPECT_TRUE(connection.dataConfigured());
     
-    EXPECT_EQ(pConnection->connectionType(), PACONN_INSTRUMENT_TCP);
+        EXPECT_EQ(pConnection->connectionType(), PACONN_INSTRUMENT_TCP);
     
-    connection.initialize();
+        connection.initialize();
     
-    EXPECT_TRUE(connection.dataInitialized());
-    EXPECT_FALSE(connection.commandInitialized());
+        EXPECT_TRUE(connection.dataInitialized());
+        EXPECT_FALSE(connection.commandInitialized());
     
-    EXPECT_FALSE(connection.dataConnected());
-    EXPECT_FALSE(connection.commandConnected());
+        EXPECT_FALSE(connection.dataConnected());
+        EXPECT_FALSE(connection.commandConnected());
     
-    ASSERT_TRUE(connection.dataConnectionObject());
-    ASSERT_FALSE(connection.commandConnectionObject());
+        ASSERT_TRUE(connection.dataConnectionObject());
+        ASSERT_FALSE(connection.commandConnectionObject());
+    }
+    catch(OOIException &e) {
+		string err = e.what();
+		LOG(ERROR) << "EXCEPTION: " << err;
+		ASSERT_FALSE(false);
+	}
 }
 

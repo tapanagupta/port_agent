@@ -24,6 +24,10 @@ using namespace logger;
 using namespace publisher;
 using namespace packet;
 
+const int OBSERVATORY_COMMAND_PORT = 5001;
+const int OBSERVATORY_DATA_PORT    = 5002;
+const int INSTRUMENT_DATA_PORT     = 5003;
+
 class PublisherListTest : public testing::Test {
     protected:
         virtual void SetUp() {
@@ -41,11 +45,11 @@ TEST_F(PublisherListTest, CTOR) {
     
 	TCPCommSocket socketA;
     socketA.setHostname("localhost");
-    socketA.setPort(4001);
+    socketA.setPort(OBSERVATORY_COMMAND_PORT);
 	
 	TCPCommSocket socketB;
     socketB.setHostname("localhost");
-    socketB.setPort(4002);
+    socketB.setPort(OBSERVATORY_DATA_PORT);
 	
     InstrumentCommandPublisher publisherA(&socketA);
     InstrumentCommandPublisher publisherB(&socketB);
@@ -57,13 +61,13 @@ TEST_F(PublisherListTest, CTOR) {
 	comm = (TCPCommSocket *)(pub->commSocket());
 	
 	EXPECT_EQ(list.size(), 1);
-	EXPECT_EQ(comm->port(), 4001);
+	EXPECT_EQ(comm->port(), OBSERVATORY_COMMAND_PORT);
 	
 	list.add(&publisherB);
 	pub = ((InstrumentCommandPublisher *)(list.front()));
 	comm = (TCPCommSocket *)(pub->commSocket());
 	EXPECT_EQ(list.size(), 1);
-	EXPECT_EQ(comm->port(), 4002);
+	EXPECT_EQ(comm->port(), OBSERVATORY_DATA_PORT);
 }
 
 TEST_F(PublisherListTest, CommListener) {
@@ -71,16 +75,19 @@ TEST_F(PublisherListTest, CommListener) {
 		
 	PublisherList list;
     
-    TCPCommListener socketA;
-	socketA.setPort(4001);
-	EXPECT_EQ(socketA.port(), 4001);
+	LOG(DEBUG) << "Initialize Socket A";
+	TCPCommListener socketA;
+	socketA.setPort(OBSERVATORY_COMMAND_PORT);
+	EXPECT_EQ(socketA.port(), OBSERVATORY_COMMAND_PORT);
 	socketA.initialize();
-	EXPECT_EQ(socketA.getListenPort(), 4001);
+	EXPECT_EQ(socketA.getListenPort(), OBSERVATORY_COMMAND_PORT);
 	
+	LOG(DEBUG) << "Initialize Socket B";
 	TCPCommListener socketB;
-    socketB.setPort(4002);
+    socketB.setPort(OBSERVATORY_DATA_PORT);
 	socketB.initialize();
 	
+	LOG(DEBUG) << "Initialize Publishers";
     DriverCommandPublisher publisherA(&socketA);
     DriverCommandPublisher publisherB(&socketB);
 	TCPCommListener *comm;
@@ -91,13 +98,13 @@ TEST_F(PublisherListTest, CommListener) {
 	comm = (TCPCommListener *)(pub->commSocket());
 	
 	EXPECT_EQ(list.size(), 1);
-	EXPECT_EQ(comm->getListenPort(), 4001);
+	EXPECT_EQ(comm->getListenPort(), OBSERVATORY_COMMAND_PORT);
 	
 	list.add(&publisherB);
 	pub = ((DriverCommandPublisher *)(list.front()));
 	comm = (TCPCommListener *)(pub->commSocket());
 	EXPECT_EQ(list.size(), 1);
-	EXPECT_EQ(comm->getListenPort(), 4002);
+	EXPECT_EQ(comm->getListenPort(), OBSERVATORY_DATA_PORT);
 	}
 	catch(OOIException &e) {
 		string msg = e.what();
@@ -112,11 +119,11 @@ TEST_F(PublisherListTest, UDPSocket) {
     
 	UDPCommSocket socketA;
     socketA.setHostname("localhost");
-    socketA.setPort(4001);
+    socketA.setPort(OBSERVATORY_COMMAND_PORT);
 	
 	UDPCommSocket socketB;
     socketB.setHostname("localhost");
-    socketB.setPort(4002);
+    socketB.setPort(OBSERVATORY_DATA_PORT);
 	
     UDPPublisher publisherA(&socketA);
     UDPPublisher publisherB(&socketB);
@@ -128,13 +135,13 @@ TEST_F(PublisherListTest, UDPSocket) {
 	comm = (UDPCommSocket *)(pub->commSocket());
 	
 	EXPECT_EQ(list.size(), 1);
-	EXPECT_EQ(comm->port(), 4001);
+	EXPECT_EQ(comm->port(), OBSERVATORY_COMMAND_PORT);
 	
 	list.add(&publisherB);
 	pub = ((UDPPublisher *)(list.back()));
 	comm = (UDPCommSocket *)(pub->commSocket());
 	EXPECT_EQ(list.size(), 2);
-	EXPECT_EQ(comm->port(), 4002);
+	EXPECT_EQ(comm->port(), OBSERVATORY_DATA_PORT);
 }
 
 TEST_F(PublisherListTest, TCPSocket) {
@@ -142,11 +149,11 @@ TEST_F(PublisherListTest, TCPSocket) {
     
 	TCPCommSocket socketA;
     socketA.setHostname("localhost");
-    socketA.setPort(4001);
+    socketA.setPort(OBSERVATORY_COMMAND_PORT);
 	
 	TCPCommSocket socketB;
     socketB.setHostname("localhost");
-    socketB.setPort(4002);
+    socketB.setPort(OBSERVATORY_DATA_PORT);
 	
     TCPPublisher publisherA(&socketA);
     TCPPublisher publisherB(&socketB);
@@ -158,13 +165,13 @@ TEST_F(PublisherListTest, TCPSocket) {
 	comm = (TCPCommSocket *)(pub->commSocket());
 	
 	EXPECT_EQ(list.size(), 1);
-	EXPECT_EQ(comm->port(), 4001);
+	EXPECT_EQ(comm->port(), OBSERVATORY_COMMAND_PORT);
 	
 	list.add(&publisherB);
 	pub = ((TCPPublisher *)(list.back()));
 	comm = (TCPCommSocket *)(pub->commSocket());
 	EXPECT_EQ(list.size(), 2);
-	EXPECT_EQ(comm->port(), 4002);
+	EXPECT_EQ(comm->port(), OBSERVATORY_DATA_PORT);
 }
 
 TEST_F(PublisherListTest, File) {
@@ -180,7 +187,7 @@ TEST_F(PublisherListTest, PublishTest) {
 	LogPublisher publisher;
 	TCPCommSocket socketA;
     socketA.setHostname("localhost");
-    socketA.setPort(4001);
+    socketA.setPort(OBSERVATORY_COMMAND_PORT);
     TCPPublisher publisherA(&socketA);
             
 	Timestamp ts(1, 0x80000000);
@@ -201,12 +208,12 @@ TEST_F(PublisherListTest, DuplicateAddTest) {
 	
 	TCPCommSocket socketA;
     socketA.setHostname("localhost");
-    socketA.setPort(4001);
+    socketA.setPort(OBSERVATORY_COMMAND_PORT);
     TCPPublisher publisherA(&socketA);
             
 	TCPCommSocket socketB;
     socketB.setHostname("localhost");
-    socketB.setPort(4001);
+    socketB.setPort(OBSERVATORY_COMMAND_PORT);
     TCPPublisher publisherB(&socketB);
             
 	list.add(&publisher);

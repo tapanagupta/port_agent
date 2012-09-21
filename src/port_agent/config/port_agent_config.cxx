@@ -108,6 +108,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     }
     while (c > 0);
 
+    LOG(DEBUG) << "CONFIG: " << getConfig();
     verifyCommandLineParameters();
 }
 
@@ -322,6 +323,7 @@ bool PortAgentConfig::readConfig(const string & filename) {
     if(!infile)
         throw FileIOException();
     
+    LOG(DEBUG) << "Reading config from file: " << filename;
     while(infile.getline(buffer, 128)) {
         if(! parse(buffer) )
             success = false;     

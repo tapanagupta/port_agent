@@ -19,12 +19,14 @@ using namespace logger;
 using namespace std;
 using namespace port_agent;
 
-const char* TEST_OB_CMD_PORT = "4001";
-const char* TEST_OB_DATA_PORT = "4002";
-const char* TEST_IN_DATA_PORT = "4003";
+const char* TEST_OB_CMD_PORT = "9001";
+const char* TEST_OB_DATA_PORT = "9002";
+const char* TEST_IN_DATA_PORT = "9003";
 
 const char* RESPONSE_FILE="/tmp/gtest.rsp";
+const char* DUMP_FILE="/tmp/gtest.dmp";
 const char* CONFIG_FILE="/tmp/gtest.cfg";
+const char* CMD_FILE="/tmp/gtest.c,d";
 const char* TEST_LOG="/tmp/gtest.log";
 const char* FILE_LOG="/tmp/gtest.out";
 const char* SERVER_LOG="/tmp/gtest.srv";
@@ -92,9 +94,8 @@ class PortAgentUnitTest : public testing::Test {
             }
         }
     
-        void configurePortAgent(const string &config = "") {
-            stringstream cmd;
-            stringstream shell;
+        void writeConfig(const string &filename, const string &config = "") {
+			stringstream cmd;
             
             if(config.length())
                 cmd << config;
@@ -102,11 +103,19 @@ class PortAgentUnitTest : public testing::Test {
                 cmd << "instrument_type tcp" << endl
                     << "instrument_data_port " << TEST_IN_DATA_PORT << endl
                     << "instrument_addr localhost" << endl
-                    << "data_port " << TEST_OB_DATA_PORT << endl;
+                    << "data_port " << TEST_OB_DATA_PORT << endl
+                    << "command_port " << TEST_OB_CMD_PORT << endl;
                     
             LOG(DEBUG) << "Port agent config: " << cmd.str();
+			
+			create_file(filename.c_str(), cmd.str().c_str());
+		}
+		
+		void configurePortAgent(const string &config = "") {
+            stringstream shell;
             
-            create_file(CONFIG_FILE, cmd.str().c_str());
+			writeConfig(CONFIG_FILE, config);
+            
             shell << TOOLSDIR << "/tcp_client_write.py";
             
             LOG(DEBUG) << "Run process: " << shell.str();
@@ -129,13 +138,13 @@ class PortAgentUnitTest : public testing::Test {
             LOG(DEBUG) << "Issue port agent command: " << cmd;
             remove_file(RESPONSE_FILE);
             
-            create_file(CONFIG_FILE, cmd.c_str());
+            create_file(CMD_FILE, cmd.c_str());
             shell << TOOLSDIR << "/tcp_client_write.py";
             
             LOG(DEBUG) << "Run process: " << shell.str();
             
             SpawnProcess process(shell.str(), 8, "-p", TEST_OB_CMD_PORT,
-                                 "-f", CONFIG_FILE, "-r", RESPONSE_FILE,
+                                 "-f", CMD_FILE, "-r", RESPONSE_FILE,
                                  "-t", "3" );
             
             process.set_output_file(FILE_LOG);
@@ -155,17 +164,17 @@ class PortAgentUnitTest : public testing::Test {
             stringstream shell;
             string response;
             
-            remove_file(CONFIG_FILE);
+            remove_file(CMD_FILE);
             
             LOG(DEBUG) << "Send driver data on port " << TEST_OB_DATA_PORT << ": " << cmd;
             
-            create_file(CONFIG_FILE, cmd.c_str());
+            create_file(CMD_FILE, cmd.c_str());
             shell << TOOLSDIR << "/tcp_client_write.py";
             
             LOG(DEBUG) << "Run process: " << shell.str();
             
             SpawnProcess process(shell.str(), 4, "-p", TEST_OB_DATA_PORT,
-                                 "-f", CONFIG_FILE);
+                                 "-f", CMD_FILE);
             
             process.set_output_file(FILE_LOG);
             process.run();
@@ -211,29 +220,57 @@ class PortAgentUnitTest : public testing::Test {
 	    m_oProcess = process;
 	}
             
+        void stopTCPClientDump() {
+			m_oDumpProcess;
+            while(m_oDumpProcess.is_running()) {
+        		LOG(DEBUG) << "Waiting for process die.";
+		        sleep(1);
+	        }
+			
+			LOG(DEBUG) << "Dump output: " << read_file(DUMP_FILE);
+		}
+		
         void startTCPClientDump(uint16_t port, const string &hostname, const string &file, uint16_t timeout = 10) {
             stringstream cmd;
             
             cmd << TOOLSDIR << "/tcp_client_dump.py";
             stringstream portStr;
-            portStr << TEST_IN_DATA_PORT;
+            portStr << port;
 
             stringstream timeoutStr;
-            portStr << timeout;
+            timeoutStr << timeout;
+			
+			remove_file(DUMP_FILE);
 
-            SpawnProcess process(cmd.str(), 8, "-n", hostname.c_str(), "-p",
-                 "-f", file.c_str(),
-				 portStr.str().c_str(), "-t", timeoutStr.str().c_str() ); 
+            SpawnProcess process(cmd.str(), 8,
+									"-t", timeoutStr.str().c_str(),
+								    "-n", hostname.c_str(), 
+                                    "-f", file.c_str(),
+									"-p", portStr.str().c_str()
+			);
 
-            LOG(INFO) << "Start TCP Echo Server: " << process.cmd_as_string();
-	        process.set_output_file(SERVER_LOG);
+            LOG(INFO) << "Start TCP Dump Client: " << process.cmd_as_string();
+	        process.set_output_file(DUMP_FILE);
 	
+	        LOG(DEBUG) << "Program output: " << DUMP_FILE;
+	        LOG(DEBUG) << "Response file: " << file;
+			
             bool result = process.run();
+			
+			m_oDumpProcess = process;
         }
 	
+	    string getDataFile() {
+            stringstream file;
+            file << "/var/ooi/port_agent/port_agent_" << TEST_OB_CMD_PORT << "."
+			     << ".data";
+        
+		    return file.str();
+		}
 	
         protected:
 	    SpawnProcess m_oProcess;
+	    SpawnProcess m_oDumpProcess;
 };
 
 
@@ -242,20 +279,43 @@ class PortAgentUnitTest : public testing::Test {
 /////////////////////////////////////////////////////////////////////////////////
 
 /* Test Startup */
-TEST_F(PortAgentUnitTest, StartUp) {
+TEST_F(PortAgentUnitTest, StartUpWithConfigFile) {
     try {
         string response;
+		string datafile = getDataFile();
         
+		remove_file(RESPONSE_FILE);
+		remove_file(CONFIG_FILE);
+		
+		writeConfig(CONFIG_FILE);
+		
+        startPortAgent();
+    }
+    catch(exception &e) {
+        string err = e.what();
+        LOG(ERROR) << "Exception: " << err;
+        EXPECT_TRUE(false);
+    }
+}
+
+/* Test Startup */
+TEST_F(PortAgentUnitTest, DISABLED_StartUp) {
+    try {
+        string response;
+		string datafile = getDataFile();
+        
+		remove_file(RESPONSE_FILE);
+		
         startTCPEchoServer();
         startPortAgent();
         configurePortAgent();
         response = commandPortAgent("get status");
         
-        remove_file("/tmp/out");
-        //startTCPClientDump(atoi(TEST_OB_CMD_PORT), "localhost", "/tmp/out");
+        startTCPClientDump(atoi(TEST_OB_CMD_PORT), "localhost", RESPONSE_FILE);
         
         sendDriverData("foo");
-        
+		
+		stopTCPClientDump();
     }
     catch(exception &e) {
         string err = e.what();

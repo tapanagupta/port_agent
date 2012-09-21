@@ -73,6 +73,7 @@ namespace port_agent {
             int getObservatoryDataClientFD();
             int getInstrumentDataClientFD();
             
+            void initializeObservatoryConnection();
             void initializeObservatoryDataConnection();
             void initializeObservatoryCommandConnection();
             void initializeInstrumentConnection();

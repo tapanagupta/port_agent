@@ -47,7 +47,7 @@ class SpawnProcessTest : public testing::Test {
 };
 
 /* Test default ctor */
-TEST_F(SpawnProcessTest, DISABLED_SpawnProcessCtor) {
+TEST_F(SpawnProcessTest, SpawnProcessCtor) {
     SpawnProcess process;
     process.set_output_file(OUTFILE);
     
@@ -57,7 +57,7 @@ TEST_F(SpawnProcessTest, DISABLED_SpawnProcessCtor) {
 }
 
 /* Test ctor cmd only */
-TEST_F(SpawnProcessTest, DISABLED_SpawnProcessSingleCmd) {
+TEST_F(SpawnProcessTest, SpawnProcessSingleCmd) {
     SpawnProcess process(LS);
     process.set_output_file(OUTFILE);
     process.run();
@@ -82,7 +82,7 @@ TEST_F(SpawnProcessTest, SpawnProcessIsRunning) {
 }
 
 /* Test ctor cmd with args */
-TEST_F(SpawnProcessTest, DISABLED_SpawnProcessCmdWithArgs) {
+TEST_F(SpawnProcessTest, SpawnProcessCmdWithArgs) {
     SpawnProcess process(LS, 1, "-h");
     process.set_output_file(OUTFILE);
     stringstream cmd;
@@ -103,7 +103,7 @@ TEST_F(SpawnProcessTest, DISABLED_SpawnProcessCmdWithArgs) {
 }
 
 /* Test ctor cmd with array args */
-TEST_F(SpawnProcessTest, DISABLED_SpawnProcessCmdWithArrayArgs) {
+TEST_F(SpawnProcessTest, SpawnProcessCmdWithArrayArgs) {
     char *args[] = {"-h"};
     SpawnProcess process(LS, 1, args);
     
@@ -127,7 +127,7 @@ TEST_F(SpawnProcessTest, DISABLED_SpawnProcessCmdWithArrayArgs) {
 }
 
 /* Test command line args to echo */
-TEST_F(SpawnProcessTest, DISABLED_SpawnProcessCmdEcho) {
+TEST_F(SpawnProcessTest, SpawnProcessCmdEcho) {
     SpawnProcess process(ECHO, 2, "testing", ">boo");
     process.set_output_file(OUTFILE);
     
@@ -143,7 +143,7 @@ TEST_F(SpawnProcessTest, DISABLED_SpawnProcessCmdEcho) {
 }
 
 /* Test command line args to echo with array*/
-TEST_F(SpawnProcessTest, DISABLED_SpawnProcessCmdEchoArray) {
+TEST_F(SpawnProcessTest, SpawnProcessCmdEchoArray) {
     char *args[] = {"testing", ">boo"};
     SpawnProcess process(ECHO, 2, args);
     process.set_output_file(OUTFILE);
@@ -160,7 +160,7 @@ TEST_F(SpawnProcessTest, DISABLED_SpawnProcessCmdEchoArray) {
 }
 
 /* Test missing command */
-TEST_F(SpawnProcessTest, DISABLED_SpawnProcessMissingCmd) {
+TEST_F(SpawnProcessTest, SpawnProcessMissingCmd) {
     SpawnProcess process;
     process.set_output_file(OUTFILE);
     
@@ -177,7 +177,7 @@ TEST_F(SpawnProcessTest, DISABLED_SpawnProcessMissingCmd) {
 }
 
 /* Test command not found */
-TEST_F(SpawnProcessTest, DISABLED_SpawnProcessFailedCmd) {
+TEST_F(SpawnProcessTest, SpawnProcessFailedCmd) {
     SpawnProcess process("/bin/foo", 1, "-h");
     process.set_output_file(OUTFILE);
     
