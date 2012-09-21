@@ -124,7 +124,7 @@ bool TCPCommListener::initialize() {
 	int fflags;
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
-        int retval;
+    int retval;
 	int newsock;
 	
 	LOG(DEBUG) << "TCP Listener initialize()";
@@ -198,12 +198,17 @@ uint32_t TCPCommListener::writeData(const char *buffer, const uint32_t size) {
     int bytesRemaining = size;
     int count;
 
-    if(! listening())
-        throw(SocketNotInitialized());
+	if(! listening()) {
+		LOG(ERROR) << "Socket not initialized";
+		return 0;
+	}
 
-    if(! connected())
-        throw(SocketNotConnected());
+    if(! connected()) {
+		LOG(ERROR) << "Socket not connected";
+		return 0;
+    }
     
+    LOG(DEBUG) << "HERE";
     while( bytesRemaining > 0 ) {
         LOG(DEBUG) << "WRITE DEVICE: " << buffer << "FD: " << m_pClientFD;
         count = write(m_pClientFD, buffer + bytesWritten, bytesRemaining );

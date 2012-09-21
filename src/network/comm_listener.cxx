@@ -48,6 +48,20 @@ CommListener::CommListener() {
  * Description: Copy constructor.
  ******************************************************************************/
 CommListener::CommListener(const CommListener &rhs) : CommBase(rhs) {
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
+	LOG(DEBUG) << "CommListener Copy CTOR!!";
     m_iPort = rhs.m_iPort;
 	    
     m_pServerFD = rhs.m_pServerFD;
@@ -194,7 +208,7 @@ uint16_t CommListener::getListenPort() {
     LOG(DEBUG) << "Fetch listen port";
     
     if(!listening())
-        throw SocketNotInitialized();
+	    return 0;
 
     LOG(DEBUG2) << "get port from FD " << m_pServerFD;
 

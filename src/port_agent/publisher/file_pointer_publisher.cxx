@@ -51,7 +51,7 @@ FilePointerPublisher::FilePointerPublisher(const FilePointerPublisher &rhs) : Pu
 	LOG(DEBUG) << "FilePointerPublisher copy ctor";
 	
     m_pFilePointer = rhs.m_pFilePointer;
-    m_pCommSocket = rhs.m_pCommSocket->copy();
+    m_pCommSocket = rhs.m_pCommSocket;
 }
 
 /******************************************************************************
@@ -160,7 +160,7 @@ FilePointerPublisher::~FilePointerPublisher() {
  *    FILE* referencing a file descriptor.
  ******************************************************************************/
 void FilePointerPublisher::setCommObject(CommBase* comm) {
-    m_pCommSocket = comm->copy();
+    m_pCommSocket = comm;
 }
 
 /******************************************************************************
@@ -211,8 +211,12 @@ bool FilePointerPublisher::write(const char *buffer, uint32_t size) {
 	int count;
 	int total = 0;
 
-	if(size == 0)
+	if(size == 0) {
+		LOG(INFO) << "Empty buffer for write, bailing";
 	    return false;
+	}
+	
+	LOG(DEBUG) << "Write data byte count: " << size;
 
 	if(m_pFilePointer == NULL && m_pCommSocket == NULL)
 		throw FileDescriptorNULL();
@@ -224,11 +228,22 @@ bool FilePointerPublisher::write(const char *buffer, uint32_t size) {
 
 	// Try to write data three times.  Throw an error if we fail.
 	for( int i = 0; i < 3 && total < size; i++) {
+		LOG(DEBUG2) << "Packet write attempt #" << i+1;
+		
 		if(m_pCommSocket) {
+			LOG(DEBUG2) << "write with comm socket.";
 		    total += m_pCommSocket->writeData(buffer + total, size - total);
 		}
-		else
+		else if(m_pFilePointer) {
+			LOG(DEBUG2) << "write with file pointer";
 		    total += fwrite(buffer + total, 1, size - total, m_pFilePointer);
+		}
+		else {
+			LOG(ERROR) << "socket not intialized! Boom!";
+			throw PacketPublishFailure("socket not initialized");
+		}
+		
+		LOG(DEBUG2) << "write attempt complete";
 	}
 
 	if(total != size) {

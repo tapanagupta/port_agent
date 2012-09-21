@@ -200,8 +200,7 @@ bool ObservatoryConnection::commandConnected() {
  * Description: Initialize the data socket
  ******************************************************************************/
 void ObservatoryConnection::initializeDataSocket() {
-	if(! dataInitialized() )
-	    m_oDataSocket.initialize();
+    m_oDataSocket.initialize();
 }
 
 /******************************************************************************
@@ -209,8 +208,7 @@ void ObservatoryConnection::initializeDataSocket() {
  * Description: Initialize the command socket
  ******************************************************************************/
 void ObservatoryConnection::initializeCommandSocket() {
-	if(! commandInitialized() )
-        m_oCommandSocket.initialize();
+    m_oCommandSocket.initialize();
 }
 
 

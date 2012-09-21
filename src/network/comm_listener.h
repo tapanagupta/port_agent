@@ -36,7 +36,7 @@ namespace network {
 
             /* Accessors */
             bool listening() { return m_pServerFD > 0; }
-            bool connected() { return m_pClientFD > 0; }
+            bool connected() { LOG(DEBUG2) << "client fd: " << m_pClientFD << " addr: " << this; return m_pClientFD > 0; }
 			
 			bool connectClient() { return false; }
 	    

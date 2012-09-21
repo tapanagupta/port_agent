@@ -143,6 +143,8 @@ void PortAgent::initializeObservatoryDataConnection() {
     ObservatoryConnection *connection = (ObservatoryConnection*)m_pObservatoryConnection;
     TCPCommListener *listener = NULL;
     
+    LOG(INFO) << "Initialize observatory data connection";
+    
     if(connection) {
         listener = (TCPCommListener *)(connection->dataConnectionObject());
     
@@ -164,6 +166,8 @@ void PortAgent::initializeObservatoryDataConnection() {
     
     if(! connection->dataInitialized())
         connection->initializeDataSocket();
+    else 
+        LOG(DEBUG) << " - already initialized, all done";
 }
 
 /******************************************************************************
@@ -540,8 +544,8 @@ void PortAgent::handleStateUnconfigured(const fd_set &readFDs) {
 void PortAgent::handleStateConfigured(const fd_set &readFDs) {
     LOG(DEBUG) << "start state configured handler";
     
-    initializeInstrumentConnection();
     initializeObservatoryDataConnection();
+    initializeInstrumentConnection();
     initializePublishers();
 }
 
@@ -976,6 +980,7 @@ void PortAgent::handleObservatoryCommandRead(const fd_set &readFDs) {
         if(bytesRead) {
             LOG(DEBUG2) << "Bytes read: " << bytesRead;
             handlePortAgentCommand(buffer);
+            publishPacket(buffer, bytesRead, PORT_AGENT_COMMAND);
         }
     }
 }

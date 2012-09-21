@@ -11,7 +11,7 @@ import time
  
 ##let's set up some constants
 HOST = ''    #we are the host
-PORT = 40002    #arbitrary port not currently in use
+PORT = 4001    #arbitrary port not currently in use
 ADDR = (HOST,PORT)    #we need a tuple for the address
 BUFSIZE = 4096    #reasonably sized buffer for data
 TIMEOUT = 30         # Socket timeout
@@ -31,7 +31,7 @@ conn,addr = serv.accept() #accept the connection
 while True:
 	try:
 		conn.send("%19.9f\n" % time.time() );
-		time.sleep(1);
+		time.sleep(3);
 	except socket.error as e:
 		# [Errno 35] Resource temporarily unavailable.
 		if e.errno == errno.EAGAIN:
