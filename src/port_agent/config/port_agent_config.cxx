@@ -321,7 +321,7 @@ bool PortAgentConfig::readConfig(const string & filename) {
     bool success = true;
     
     if(!infile)
-        throw FileIOException();
+        throw FileIOException(filename);
     
     LOG(DEBUG) << "Reading config from file: " << filename;
     while(infile.getline(buffer, 128)) {
