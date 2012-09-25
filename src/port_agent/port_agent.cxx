@@ -601,11 +601,7 @@ void PortAgent::handleStateUnknown() {
  ******************************************************************************/
 void PortAgent::handleStateStartup() {
     // Setup logging
-    if(no_daemon()) {
-        Logger::SetLogFile("/dev/stderr");
-    } else {
-        Logger::SetLogFile(m_pConfig->logfile());
-    }
+    Logger::SetLogFile(m_pConfig->logfile());
         
     LOG(DEBUG) << "start up state handler";
     
