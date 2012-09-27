@@ -52,6 +52,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_observatoryCommandPort = 0;
     m_observatoryDataPort = 0;
     m_help = false;
+    m_kill = false;
     m_outputThrottle = 0;
     m_maxPacketSize = DEFAULT_PACKET_SIZE;
     
