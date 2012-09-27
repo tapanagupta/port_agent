@@ -13,7 +13,7 @@ using namespace port_agent;
 
 int main(int argc, char *argv[]) {
     // Added for testing
-    Logger::SetLogFile("/dev/stderr");
+    //Logger::SetLogFile("/dev/stderr");
     Logger::SetLogLevel("MESG");
 
     ostringstream msg;
