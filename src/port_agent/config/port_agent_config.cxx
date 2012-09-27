@@ -168,7 +168,10 @@ string PortAgentConfig::logfile() {
  ******************************************************************************/
 string PortAgentConfig::pidfile() {
     ostringstream out;
-    
+
+    if(m_pidfile.length())
+        return m_pidfile;
+
     out << piddir() << "/" << BASE_FILENAME << "_"
         << observatoryCommandPort() << ".pid";
     
@@ -944,7 +947,9 @@ bool PortAgentConfig::processCommand(const string & command) {
     }
     
     else if(cmd == "log_dir") {
-        addCommand(CMD_PATH_CONFIG_UPDATE);
+        string file = logfile();
+        if(file.length())
+            Logger::SetLogFile(file);
         m_logdir = param;
     }
     
