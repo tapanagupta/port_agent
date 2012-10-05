@@ -6,6 +6,7 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_RANLIB
 
+
 # Not sure if we need a config.h right now.  Uncomment this if we end up 
 # needing a package configuration file.
 # AC_CONFIG_HEADERS([config.h])
@@ -224,6 +225,9 @@ AS_IF([test -x ${SOCAT}],
   [AC_DEFINE(HAVE_SOCAT)],
   [AC_DEFINE(NO_SOCAT)])
 AC_DEFINE_UNQUOTED([SOCAT], "$SOCAT")
+
+CPPFLAGS="${GMOCK_CPPFLAGS} ${GTEST_CPPFLAGS} $CPPFLAGS" 
+LDFLAGS="${GTEST_LDFLAGS} ${GTEST_LDFLAGS} $LDFLAGS"
 
 # All Done.  Time to write.
 AC_OUTPUT
