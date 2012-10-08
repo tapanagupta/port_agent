@@ -3910,6 +3910,7 @@ else
 fi
 
 
+
 # Not sure if we need a config.h right now.  Uncomment this if we end up
 # needing a package configuration file.
 # AC_CONFIG_HEADERS([config.h])
@@ -4064,6 +4065,29 @@ else
 fi
 
 #AS_IF([test -x ${GMOCK_CONFIG}], [AC_DEFINE(HAVE_GMOCK)])
+as_ac_File=`$as_echo "ac_cv_file_${GMOCK_MAIN}" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ${GMOCK_MAIN}" >&5
+$as_echo_n "checking for ${GMOCK_MAIN}... " >&6; }
+if eval \${$as_ac_File+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "${GMOCK_MAIN}"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+eval ac_res=\$$as_ac_File
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
+  GMOCK_MAIN=${GMOCK_MAIN}
+else
+  "${GMOCK_LIBDIR}/libgmock_main.la"
+fi
+
 
 
 
@@ -4211,6 +4235,30 @@ else
 fi
 
 #AS_IF([test -x ${GTEST_CONFIG}], [AC_DEFINE(HAVE_GTEST)])
+as_ac_File=`$as_echo "ac_cv_file_${GTEST_MAIN}" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ${GTEST_MAIN}" >&5
+$as_echo_n "checking for ${GTEST_MAIN}... " >&6; }
+if eval \${$as_ac_File+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "${GTEST_MAIN}"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+eval ac_res=\$$as_ac_File
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
+  GTEST_MAIN=${GTEST_MAIN}
+else
+  "${GTEST_LIBDIR}/libgtest_main.la"
+fi
+
+
 
 
 ###
@@ -4278,6 +4326,9 @@ cat >>confdefs.h <<_ACEOF
 #define SOCAT "$SOCAT"
 _ACEOF
 
+
+CPPFLAGS="${GMOCK_CPPFLAGS} ${GTEST_CPPFLAGS} $CPPFLAGS"
+LDFLAGS="${GTEST_LDFLAGS} ${GTEST_LDFLAGS} $LDFLAGS"
 
 # All Done.  Time to write.
 cat >confcache <<\_ACEOF

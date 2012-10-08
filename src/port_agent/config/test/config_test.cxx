@@ -871,3 +871,54 @@ TEST_F(CommonTest, IsConfiguredSerial) {
     }
 }
 
+/* Test directory override method */
+ TEST_F(CommonTest, DirectoryOverride) {
+     try {
+         char* argv[] = { "port_agent_config_test", "-p", TEST_PORT };
+         int argc = sizeof(argv) / sizeof(char*);
+         ostringstream cfg;
+
+         PortAgentConfig config(argc, argv);
+
+         EXPECT_TRUE(config.parse("log_dir /tmp"));
+         EXPECT_TRUE(config.parse("data_dir /tmp"));
+         EXPECT_TRUE(config.parse("pid_dir /tmp"));
+         EXPECT_TRUE(config.parse("conf_dir /tmp"));
+
+         EXPECT_EQ(config.logdir(), "/tmp");
+         EXPECT_EQ(config.datadir(), "/tmp");
+         EXPECT_EQ(config.piddir(), "/tmp");
+         EXPECT_EQ(config.confdir(), "/tmp");
+     }
+     catch(OOIException &e) {
+ 	string errmsg = e.what();
+ 	LOG(ERROR) << "EXCEPTION: " << errmsg;
+         ASSERT_FALSE(true);
+     }
+}
+
+/* Test directory override with kill method */
+TEST_F(CommonTest, DirectoryOverrideKill) {
+    try {
+        char* argv[] = { "port_agent_config_test", "-k", "-p", TEST_PORT };
+        int argc = sizeof(argv) / sizeof(char*);
+        ostringstream cfg;
+
+        PortAgentConfig config(argc, argv);
+
+        EXPECT_TRUE(config.parse("log_dir /tmp"));
+        EXPECT_TRUE(config.parse("data_dir /tmp"));
+        EXPECT_TRUE(config.parse("pid_dir /tmp"));
+        EXPECT_TRUE(config.parse("conf_dir /tmp"));
+
+        EXPECT_EQ(config.logdir(), "/tmp");
+        EXPECT_EQ(config.datadir(), "/tmp");
+        EXPECT_EQ(config.piddir(), "/tmp");
+        EXPECT_EQ(config.confdir(), "/tmp");
+    }
+    catch(OOIException &e) {
+	string errmsg = e.what();
+	LOG(ERROR) << "EXCEPTION: " << errmsg;
+        ASSERT_FALSE(true);
+    }
+}

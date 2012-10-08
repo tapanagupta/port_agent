@@ -120,6 +120,9 @@ AS_IF([test "x${HAVE_BUILT_GMOCK}" = "xyes"],
 
 AM_CONDITIONAL([HAVE_GMOCK],[test -x ${GMOCK_CONFIG}])
 #AS_IF([test -x ${GMOCK_CONFIG}], [AC_DEFINE(HAVE_GMOCK)])
+AC_CHECK_FILE(${GMOCK_MAIN}, 
+              GMOCK_MAIN=${GMOCK_MAIN}, 
+              "${GMOCK_LIBDIR}/libgmock_main.la")
 
 
 
@@ -212,6 +215,10 @@ AS_IF([test "x${HAVE_BUILT_GTEST}" = "xyes"],
 
 AM_CONDITIONAL([HAVE_GTEST],[test -x ${GTEST_CONFIG}])
 #AS_IF([test -x ${GTEST_CONFIG}], [AC_DEFINE(HAVE_GTEST)])
+AC_CHECK_FILE(${GTEST_MAIN}, 
+              GTEST_MAIN=${GTEST_MAIN}, 
+              "${GTEST_LIBDIR}/libgtest_main.la")
+
 
 
 ###

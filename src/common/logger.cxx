@@ -177,11 +177,12 @@ void Logger::WriteLog(string message) {
     
             // We have made it this far.  So it must be an error
             if(instance->m_bRaiseErrors) {
-	        throw LoggerWriteError();
+	            throw LoggerWriteError();
+
             } else {
                 instance->clearError();
-		instance->close();
-	        instance->m_pException = new LoggerWriteError();
+		        instance->close();
+	            instance->m_pException = new LoggerWriteError();
             }
         }
     }
