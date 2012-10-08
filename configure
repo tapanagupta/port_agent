@@ -4085,7 +4085,7 @@ $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
   GMOCK_MAIN=${GMOCK_MAIN}
 else
-  "${GMOCK_LIBDIR}/libgmock_main.la"
+  GMOCK_MAIN="${GMOCK_LIBDIR}/libgmock_main.la"
 fi
 
 
@@ -4255,7 +4255,7 @@ $as_echo "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
   GTEST_MAIN=${GTEST_MAIN}
 else
-  "${GTEST_LIBDIR}/libgtest_main.la"
+  GTEST_MAIN="${GTEST_LIBDIR}/libgtest_main.la"
 fi
 
 
