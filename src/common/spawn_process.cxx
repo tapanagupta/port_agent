@@ -1,6 +1,7 @@
 #include "spawn_process.h"
 #include "logger.h"
 #include "exception.h"
+#include "util.h"
 
 #include <sys/stat.h>
 #include <spawn.h>

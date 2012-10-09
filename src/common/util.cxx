@@ -18,6 +18,8 @@
 #include <stdint.h>
 #include <sys/stat.h>
 #include <execinfo.h>
+#include <string.h>
+#include <errno.h>
 
 using namespace std;
 
@@ -146,3 +148,33 @@ string read_file(const char* filename)
     
     return buffer.str();
 }
+
+/******************************************************************************
+ * Method: mkpath
+ * Description: Create the base dir of a path if it doesn't exists.
+ * Parameters:
+ *   file_path - path to file
+ *   mode - mode to create the directory.
+ * Return:
+ ******************************************************************************/
+bool mkpath(string file_path, mode_t mode)
+{
+    if(! file_path.length() )
+	    return false;
+	
+    char* p;
+    for (p=strchr(file_path.c_str() + 1, '/'); p; p=strchr(p+1, '/')) {
+    *p='\0';
+    if (mkdir(file_path.c_str(), mode)==-1) {
+        if (errno != EEXIST) {
+		    *p='/';
+			return false;
+		}
+    }
+    *p='/';
+  }
+
+  return true;
+}
+
+

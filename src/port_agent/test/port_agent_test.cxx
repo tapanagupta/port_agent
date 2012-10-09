@@ -279,7 +279,7 @@ class PortAgentUnitTest : public testing::Test {
 /////////////////////////////////////////////////////////////////////////////////
 
 /* Test Startup */
-TEST_F(PortAgentUnitTest, StartUpWithConfigFile) {
+TEST_F(PortAgentUnitTest, DISABLED_StartUpWithConfigFile) {
     try {
         string response;
 		string datafile = getDataFile();

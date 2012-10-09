@@ -1,6 +1,7 @@
 #include "daemon_process.h"
 #include "logger.h"
 #include "exception.h"
+#include "util.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -27,7 +28,14 @@ void DaemonProcess::init_logfile() {
 
 void DaemonProcess::init_pidfile() {
     LOG(INFO) << "Daemon Process init_pidfile(): " << pid_file();
+    
+    if(! mkpath(pid_file()))
+        throw FileIOException("could not create pid directory");
+    
     ofstream outfile(pid_file().c_str());
+    
+    if(! outfile)
+        throw FileIOException("could not write pid file");
     
     outfile << getpid() << ends;
     outfile.close();
