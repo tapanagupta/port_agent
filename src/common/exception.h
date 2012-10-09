@@ -47,6 +47,11 @@ class OOIException : public exception {
         int m_errno;
 };
 
+class DaemonStartupException : public OOIException {
+    public: DaemonStartupException(const string & msg = "") :
+        OOIException("Failed to start process", 100, msg) {}
+};
+
 class FileIOException : public OOIException {
     public: FileIOException(const string & msg = "") :
         OOIException("File open failed", 101, msg) {}

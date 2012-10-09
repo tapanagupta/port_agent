@@ -30,12 +30,12 @@ void DaemonProcess::init_pidfile() {
     LOG(INFO) << "Daemon Process init_pidfile(): " << pid_file();
     
     if(! mkpath(pid_file()))
-        throw FileIOException("could not create pid directory");
+        throw DaemonStartupException("could not create pid directory");
     
     ofstream outfile(pid_file().c_str());
     
     if(! outfile)
-        throw FileIOException("could not write pid file");
+        throw DaemonStartupException("could not write pid file");
     
     outfile << getpid() << ends;
     outfile.close();
@@ -123,7 +123,8 @@ bool DaemonProcess::run() {
     catch(exception& e) {
         string error = e.what();
         LOG(ERROR) << "Exception: " << error;
-        return false;
+        cerr << "Execution Failure: " << error << endl;
+        exit(1);
     };
     
     return true;
