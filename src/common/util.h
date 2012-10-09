@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <sys/stat.h>
 
 using namespace std;
 
