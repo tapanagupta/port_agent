@@ -120,11 +120,6 @@ AS_IF([test "x${HAVE_BUILT_GMOCK}" = "xyes"],
 
 AM_CONDITIONAL([HAVE_GMOCK],[test -x ${GMOCK_CONFIG}])
 #AS_IF([test -x ${GMOCK_CONFIG}], [AC_DEFINE(HAVE_GMOCK)])
-AC_CHECK_FILE(${GMOCK_MAIN}, 
-              GMOCK_MAIN=${GMOCK_MAIN}, 
-              GMOCK_MAIN="${GMOCK_LIBDIR}/libgmock_main.la")
-
-
 
 # GoogleTest in the testing framework we use.  The google test checks
 # were ripped from the configure.ac of GoogleMock
@@ -209,16 +204,12 @@ AS_IF([test "x${HAVE_BUILT_GTEST}" = "xyes"],
       GTEST_CONFIG="`pwd -P`/gtest/scripts/gtest-config"
       GTEST_CPPFLAGS='-I$(top_srcdir)/gtest/include'
       GTEST_CXXFLAGS='-g'
-      GTEST_LDFLAGS=''
+      #GTEST_LDFLAGS=''
       GTEST_LIBS='$(top_builddir)/gtest/lib/libgtest.la'
       GTEST_VERSION="${GTEST_MIN_VERSION}"])
 
 AM_CONDITIONAL([HAVE_GTEST],[test -x ${GTEST_CONFIG}])
 #AS_IF([test -x ${GTEST_CONFIG}], [AC_DEFINE(HAVE_GTEST)])
-AC_CHECK_FILE(${GTEST_MAIN}, 
-              GTEST_MAIN=${GTEST_MAIN}, 
-              GTEST_MAIN="${GTEST_LIBDIR}/libgtest_main.la")
-
 
 
 ###

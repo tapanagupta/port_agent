@@ -4065,31 +4065,6 @@ else
 fi
 
 #AS_IF([test -x ${GMOCK_CONFIG}], [AC_DEFINE(HAVE_GMOCK)])
-as_ac_File=`$as_echo "ac_cv_file_${GMOCK_MAIN}" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ${GMOCK_MAIN}" >&5
-$as_echo_n "checking for ${GMOCK_MAIN}... " >&6; }
-if eval \${$as_ac_File+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  test "$cross_compiling" = yes &&
-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r "${GMOCK_MAIN}"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-eval ac_res=\$$as_ac_File
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
-  GMOCK_MAIN=${GMOCK_MAIN}
-else
-  GMOCK_MAIN="${GMOCK_LIBDIR}/libgmock_main.la"
-fi
-
-
-
 
 # GoogleTest in the testing framework we use.  The google test checks
 # were ripped from the configure.ac of GoogleMock
@@ -4221,7 +4196,7 @@ else
       GTEST_CONFIG="`pwd -P`/gtest/scripts/gtest-config"
       GTEST_CPPFLAGS='-I$(top_srcdir)/gtest/include'
       GTEST_CXXFLAGS='-g'
-      GTEST_LDFLAGS=''
+      #GTEST_LDFLAGS=''
       GTEST_LIBS='$(top_builddir)/gtest/lib/libgtest.la'
       GTEST_VERSION="${GTEST_MIN_VERSION}"
 fi
@@ -4235,30 +4210,6 @@ else
 fi
 
 #AS_IF([test -x ${GTEST_CONFIG}], [AC_DEFINE(HAVE_GTEST)])
-as_ac_File=`$as_echo "ac_cv_file_${GTEST_MAIN}" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ${GTEST_MAIN}" >&5
-$as_echo_n "checking for ${GTEST_MAIN}... " >&6; }
-if eval \${$as_ac_File+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  test "$cross_compiling" = yes &&
-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r "${GTEST_MAIN}"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-eval ac_res=\$$as_ac_File
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
-  GTEST_MAIN=${GTEST_MAIN}
-else
-  GTEST_MAIN="${GTEST_LIBDIR}/libgtest_main.la"
-fi
-
-
 
 
 ###
