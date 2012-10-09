@@ -114,7 +114,7 @@ AS_IF([test "x${HAVE_BUILT_GMOCK}" = "xyes"],
       GMOCK_CONFIG="`pwd -P`/gmock/scripts/gmock-config"
       GMOCK_CPPFLAGS='-I$(top_srcdir)/gmock/include'
       GMOCK_CXXFLAGS='-g'
-      GMOCK_LDFLAGS=''
+      #GMOCK_LDFLAGS=''
       GMOCK_LIBS='$(top_builddir)/gmock/lib/libgmock.la'
       GMOCK_VERSION="${GMOCK_MIN_VERSION}"])
 
