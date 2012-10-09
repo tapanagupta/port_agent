@@ -164,18 +164,22 @@ bool mkpath(string file_path, mode_t mode)
 	    return false;
 	
     char* p;
-    for (p=strchr(file_path.c_str() + 1, '/'); p; p=strchr(p+1, '/')) {
-    *p='\0';
-    if (mkdir(file_path.c_str(), mode)==-1) {
-        if (errno != EEXIST) {
-		    *p='/';
-			return false;
-		}
+	char* path = strdup(file_path.c_str());
+	
+    for (p=strchr(path + 1, '/'); p; p=strchr(p+1, '/')) {
+        *p='\0';
+        if (mkdir(path, mode)==-1) {
+            if (errno != EEXIST) {
+		        *p='/';
+			    delete [] path;
+    			return false;
+		    }
+        }
+        *p='/';
     }
-    *p='/';
-  }
 
-  return true;
+    delete [] path;
+    return true;
 }
 
 
