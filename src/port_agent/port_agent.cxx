@@ -110,7 +110,7 @@ bool PortAgent::no_daemon() {
  * Description: Tell the parent class the parent process id for a poison pill
  * Returns a pid to monitor.
  ******************************************************************************/
-uint16_t PortAgent::ppid() {
+uint32_t PortAgent::ppid() {
     return m_pConfig ? m_pConfig->ppid() : 0;
 }
 

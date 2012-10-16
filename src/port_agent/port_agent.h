@@ -53,7 +53,7 @@ namespace port_agent {
             // virtual method from daemon process
             const string pid_file();
             bool no_daemon();
-            uint16_t ppid();
+            uint32_t ppid();
             float sleep_time() { return 0; }
             
         private:

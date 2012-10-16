@@ -273,6 +273,6 @@ bool DaemonProcess::no_daemon() {
 // If you want a poison pill then overload this method in the derived class
 // so that it returns a parent process id.  If that processes is no longer
 // running then this process will die too.
-uint16_t DaemonProcess::ppid() {
+uint32_t DaemonProcess::ppid() {
     return 0;
 }
