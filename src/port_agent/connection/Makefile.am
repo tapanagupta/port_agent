@@ -9,7 +9,7 @@ libport_agent_connection_a_SOURCES = connection.cxx connection.h \
                                      observatory_connection.cxx observatory_connection.h
 
 libport_agent_connection_a_CXXFLAGS = -I$(top_builddir)/src
-libport_agent_connection_a_LIBADD = $(top_builddir)/src/common/libcommon.a \
-                                    $(top_builddir)/src/network/libnetwork_comm.a 
+libport_agent_connection_a_LIBADD = $(top_builddir)/src/network/libnetwork_comm.a \
+                                    $(top_builddir)/src/common/libcommon.a
 
 include $(top_builddir)/src/Makefile.am.inc
