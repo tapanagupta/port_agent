@@ -106,6 +106,15 @@ bool PortAgent::no_daemon() {
 }
 
 /******************************************************************************
+ * Method: ppid
+ * Description: Tell the parent class the parent process id for a poison pill
+ * Returns a pid to monitor.
+ ******************************************************************************/
+uint16_t PortAgent::ppid() {
+    return m_pConfig ? m_pConfig->ppid() : 0;
+}
+
+/******************************************************************************
  * Method: pid_file
  * Description: Overloaded virtual method from the Daemon Process class.
  * Returns the path to the daemon process PID file.

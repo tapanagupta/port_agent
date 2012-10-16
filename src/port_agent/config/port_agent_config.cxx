@@ -55,6 +55,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_kill = false;
     m_outputThrottle = 0;
     m_maxPacketSize = DEFAULT_PACKET_SIZE;
+    m_ppid = 0;
     
     m_instrumentConnectionType = TYPE_UNKNOWN;
     
@@ -73,7 +74,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_datadir = DEFAULT_DATA_DIR;
             
     // the getopt string representing command line options.
-    string optstr = "c:vhsp:k";
+    string optstr = "y:u:c:vhsp:k";
         
     // Long option equiviant of getopt string.
     static struct option long_options[] = {
@@ -82,6 +83,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
         {"help",      no_argument, 0,  'h' },
         {"kill",      no_argument, 0,  'k' },
         {"single",    no_argument, 0,  's' },
+        {"ppid",      required_argument, 0,  'y' },
         
         {"command_port",  required_argument, 0,  'p' },
         {NULL,         0,                 NULL,  0 }
@@ -203,6 +205,9 @@ string PortAgentConfig::Usage() {
        
        << "\t" << " --command_port (-p) port" 
                << "\t- Observatory command port number " << endl
+       
+       << "\t" << " --ppid (-y) parent_process_id" 
+               << "\t- Poison pill, if parent process is gone then shutdown " << endl
        
        << "\t" << " --single (-s)" 
                << "\t- Run in single thread mode. Do not detatch " << endl;
@@ -809,6 +814,12 @@ void PortAgentConfig::setParameter(char option, char *value) {
         case 'v':
             m_verbose++;
             Logger::IncreaseLogLevel(1);
+            break;
+        case 'y':
+            if(!value)
+                throw ParameterRequired("ppid");
+            
+            m_ppid = atoi(value);
             break;
         case '?':
             throw ParameterRequired();

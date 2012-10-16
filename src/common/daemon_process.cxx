@@ -160,7 +160,22 @@ void DaemonProcess::daemon_sleep() {
 
 
 bool DaemonProcess::stop_process() {
-    return trapped_signal ? true : false;
+    // have we been interupted?  Then stop
+    if(trapped_signal) {
+        LOG(DEBUG) << "Signal detected.  Shutdown.";
+        return true;
+    }
+    
+    // check for a parent if needed
+    if(ppid()) {
+        int running = kill(ppid(), 0);
+        if(running < 0) {
+            LOG(DEBUG) << "Parent process (" << ppid() << ") terminated (code: " << running << ").  Shutdown.";
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 void DaemonProcess::shutdown() {
@@ -253,4 +268,11 @@ bool DaemonProcess::is_configured() {
 
 bool DaemonProcess::no_daemon() {
     return true;
+}
+
+// If you want a poison pill then overload this method in the derived class
+// so that it returns a parent process id.  If that processes is no longer
+// running then this process will die too.
+uint16_t DaemonProcess::ppid() {
+    return 0;
 }

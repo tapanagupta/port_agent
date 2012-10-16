@@ -104,6 +104,7 @@ namespace port_agent {
             string programName() { return m_programName; }
             bool help() { return m_help; }
             bool kill() { return m_kill; }
+            uint16_t ppid() { return m_ppid; }
             
             string logfile();
             string pidfile();
@@ -154,6 +155,7 @@ namespace port_agent {
             bool m_help;
             bool m_kill;
             string m_programName;
+			uint16_t m_ppid;
             
             string m_pidfile;
             string m_logfile;

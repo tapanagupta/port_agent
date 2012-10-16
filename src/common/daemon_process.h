@@ -69,6 +69,7 @@ class DaemonProcess {
         virtual void duplicate_check();
         
         virtual bool no_daemon();
+        virtual uint16_t ppid();
         
     private:
         int read_pidfile();
