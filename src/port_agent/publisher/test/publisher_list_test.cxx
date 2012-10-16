@@ -40,7 +40,7 @@ class PublisherListTest : public testing::Test {
         }
 };
 
-TEST_F(PublisherListTest, CTOR) {
+TEST_F(PublisherListTest, DISABLED_CTOR) {
 	PublisherList list;
     
 	TCPCommSocket socketA;
@@ -70,7 +70,7 @@ TEST_F(PublisherListTest, CTOR) {
 	EXPECT_EQ(comm->port(), OBSERVATORY_DATA_PORT);
 }
 
-TEST_F(PublisherListTest, CommListener) {
+TEST_F(PublisherListTest, DISABLED_CommListener) {
 	try {
 		
 	PublisherList list;
@@ -114,7 +114,7 @@ TEST_F(PublisherListTest, CommListener) {
 }
 
 
-TEST_F(PublisherListTest, UDPSocket) {
+TEST_F(PublisherListTest, DISABLED_UDPSocket) {
 	PublisherList list;
     
 	UDPCommSocket socketA;
@@ -144,7 +144,7 @@ TEST_F(PublisherListTest, UDPSocket) {
 	EXPECT_EQ(comm->port(), OBSERVATORY_DATA_PORT);
 }
 
-TEST_F(PublisherListTest, TCPSocket) {
+TEST_F(PublisherListTest, DISABLED_TCPSocket) {
 	PublisherList list;
     
 	TCPCommSocket socketA;
@@ -174,7 +174,7 @@ TEST_F(PublisherListTest, TCPSocket) {
 	EXPECT_EQ(comm->port(), OBSERVATORY_DATA_PORT);
 }
 
-TEST_F(PublisherListTest, File) {
+TEST_F(PublisherListTest, DISABLED_File) {
     LogPublisher publisher;
 	PublisherList list;
     
@@ -182,7 +182,7 @@ TEST_F(PublisherListTest, File) {
 	EXPECT_EQ(list.size(), 1);
 }
 
-TEST_F(PublisherListTest, PublishTest) {
+TEST_F(PublisherListTest, DISABLED_PublishTest) {
 	PublisherList list;
 	LogPublisher publisher;
 	TCPCommSocket socketA;
@@ -202,7 +202,7 @@ TEST_F(PublisherListTest, PublishTest) {
 	list.publish(&packet);
 }
 
-TEST_F(PublisherListTest, DuplicateAddTest) {
+TEST_F(PublisherListTest, DISABLED_DuplicateAddTest) {
 	PublisherList list;
 	LogPublisher publisher;
 	

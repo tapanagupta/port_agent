@@ -55,7 +55,7 @@ TEST_F(UDPPublisherTest, SingleBinaryOut) {
 }
 
 /* Test publication failures */
-TEST_F(UDPPublisherTest, FailureNoFile) {
+TEST_F(UDPPublisherTest, DISABLED_FailureNoFile) {
 	UDPPublisher publisher;
 	EXPECT_TRUE(testPublishFailure(publisher, DATA_FROM_DRIVER));
 }

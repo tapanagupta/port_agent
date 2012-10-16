@@ -61,7 +61,7 @@ TEST_F(DriverDataPublisherTest, SingleBinaryOut) {
 }
 
 /* Test publication failures */
-TEST_F(DriverDataPublisherTest, FailureNoFile) {
+TEST_F(DriverDataPublisherTest, DISABLED_FailureNoFile) {
 	DriverDataPublisher publisher;
 	EXPECT_TRUE(testPublishFailure(publisher, DATA_FROM_INSTRUMENT));
 }

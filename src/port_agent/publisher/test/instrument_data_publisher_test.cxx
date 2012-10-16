@@ -70,7 +70,7 @@ TEST_F(InstrumentDataPublisherTest, SingleBinaryOut) {
 }
 
 /* Test publication failures */
-TEST_F(InstrumentDataPublisherTest, FailureNoFile) {
+TEST_F(InstrumentDataPublisherTest, DISABLED_FailureNoFile) {
 	InstrumentDataPublisher publisher;
 	EXPECT_TRUE(testPublishFailure(publisher, DATA_FROM_DRIVER));
 }

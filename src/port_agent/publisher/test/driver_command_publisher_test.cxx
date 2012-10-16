@@ -60,13 +60,13 @@ TEST_F(DriverCommandPublisherTest, SingleBinaryOut) {
 }
 
 /* Test publication failures */
-TEST_F(DriverCommandPublisherTest, FailureNoFile) {
+TEST_F(DriverCommandPublisherTest, DISABLED_FailureNoFile) {
 	DriverCommandPublisher publisher;
 	EXPECT_TRUE(testPublishFailure(publisher, INSTRUMENT_COMMAND));
 }
 
 /* Test with a tcp comm socket */
-TEST_F(DriverCommandPublisherTest, CommSocketWrite) {
+TEST_F(DriverCommandPublisherTest, DISABLED_CommSocketWrite) {
     try {
 	    TCPCommSocket socket;
         socket.setHostname("localhost");
