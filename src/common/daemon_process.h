@@ -24,6 +24,8 @@
 #define DAEMON_PROCESS_H
 
 #include <string>
+#include <stdint.h>
+
 using namespace std;
 
 #define DEFAULT_SLEEP_TIME 1
