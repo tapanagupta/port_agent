@@ -63,8 +63,8 @@ AR = ar
 ARFLAGS = cru
 libport_agent_connection_a_AR = $(AR) $(ARFLAGS)
 libport_agent_connection_a_DEPENDENCIES =  \
-	$(top_builddir)/src/common/libcommon.a \
-	$(top_builddir)/src/network/libnetwork_comm.a
+	$(top_builddir)/src/network/libnetwork_comm.a \
+	$(top_builddir)/src/common/libcommon.a
 am_libport_agent_connection_a_OBJECTS =  \
 	libport_agent_connection_a-connection.$(OBJEXT) \
 	libport_agent_connection_a-instrument_tcp_connection.$(OBJEXT) \
@@ -245,8 +245,8 @@ libport_agent_connection_a_SOURCES = connection.cxx connection.h \
                                      observatory_connection.cxx observatory_connection.h
 
 libport_agent_connection_a_CXXFLAGS = -I$(top_builddir)/src
-libport_agent_connection_a_LIBADD = $(top_builddir)/src/common/libcommon.a \
-                                    $(top_builddir)/src/network/libnetwork_comm.a 
+libport_agent_connection_a_LIBADD = $(top_builddir)/src/network/libnetwork_comm.a \
+                                    $(top_builddir)/src/common/libcommon.a
 
 all: all-recursive
 
