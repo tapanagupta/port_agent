@@ -247,8 +247,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 @HAVE_GMOCK_TRUE@SUBDIRS = test
-DEPLIBS = $(top_builddir)/src/common/libcommon.a \
-          $(top_builddir)/src/port_agent/packet/libport_agent_packet.a 
+DEPLIBS = $(top_builddir)/src/port_agent/packet/libport_agent_packet.a \
+          $(top_builddir)/src/common/libcommon.a 
 
 noinst_LIBRARIES = libport_agent_publisher.a
 libport_agent_publisher_a_SOURCES = publisher.cxx publisher.h \

@@ -71,11 +71,10 @@ am_driver_command_publisher_test_OBJECTS =  \
 driver_command_publisher_test_OBJECTS =  \
 	$(am_driver_command_publisher_test_OBJECTS)
 am__DEPENDENCIES_1 =
-am__DEPENDENCIES_2 = $(top_builddir)/src/common/libcommon.a \
-	$(top_builddir)/src/network/libnetwork_comm.a \
+am__DEPENDENCIES_2 = $(top_builddir)/src/port_agent/publisher/libport_agent_publisher.a \
 	$(top_builddir)/src/port_agent/packet/libport_agent_packet.a \
-	$(top_builddir)/src/port_agent/publisher/libport_agent_publisher.a \
-	$(am__DEPENDENCIES_1)
+	$(top_builddir)/src/network/libnetwork_comm.a \
+	$(top_builddir)/src/common/libcommon.a $(am__DEPENDENCIES_1)
 driver_command_publisher_test_DEPENDENCIES = $(am__DEPENDENCIES_2)
 am_driver_data_publisher_test_OBJECTS =  \
 	driver_data_publisher_test.$(OBJEXT)
@@ -249,10 +248,10 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CXXFLAGS = -I$(top_builddir)/src -I.. -Wno-write-strings -DTOOLSDIR=\"$(top_builddir)/tools\"
-DEPLIBS = $(top_builddir)/src/common/libcommon.a \
-          $(top_builddir)/src/network/libnetwork_comm.a \
+DEPLIBS = $(top_builddir)/src/port_agent/publisher/libport_agent_publisher.a \
           $(top_builddir)/src/port_agent/packet/libport_agent_packet.a \
-          $(top_builddir)/src/port_agent/publisher/libport_agent_publisher.a \
+          $(top_builddir)/src/network/libnetwork_comm.a \
+          $(top_builddir)/src/common/libcommon.a \
           $(GTEST_MAIN)
 
 log_publisher_test_SOURCES = publisher_test.h log_publisher_test.cxx 
