@@ -479,7 +479,7 @@ TEST_F(TCPListenerTest, NotInitialized) {
 }
 
 /* test write on non-initialized server, SocketNotInitialized */
-TEST_F(TCPListenerTest, NotInitializedWrite) {
+TEST_F(TCPListenerTest, DISABLED_NotInitializedWrite) {
     bool exceptionRaised = false;
     TCPCommListener server;
     
@@ -497,7 +497,7 @@ TEST_F(TCPListenerTest, NotInitializedWrite) {
 }
 
 /* test write on initialized server, but no client connection, SocketNotConnected */
-TEST_F(TCPListenerTest, NotInitializedNotConnectedWrite) {
+TEST_F(TCPListenerTest, DISABLED_NotInitializedNotConnectedWrite) {
     bool exceptionRaised = false;
     TCPCommListener server;
     

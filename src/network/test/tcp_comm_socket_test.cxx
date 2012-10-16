@@ -77,7 +77,7 @@ class TCPSocketTest : public testing::Test {
 };
 
 /* Test the basic blocking connection */
-TEST_F(TCPSocketTest, BlockingConnection) {
+TEST_F(TCPSocketTest, DISABLED_BlockingConnection) {
     string testData = "Test";
     char buffer[128];
     uint16_t writeCount, readCount;
@@ -124,7 +124,7 @@ TEST_F(TCPSocketTest, BlockingConnection) {
 }
 
 /* Test the non blocking connection */
-TEST_F(TCPSocketTest, NonBlockingConnection) {
+TEST_F(TCPSocketTest, DISABLED_NonBlockingConnection) {
     Timestamp ts;
     string testData = "Test";
     char buffer[128];
@@ -189,7 +189,7 @@ TEST_F(TCPSocketTest, NonBlockingConnection) {
 /* Test Exceptions */
 /////////////////////
 /* Test missing command */
-TEST_F(TCPSocketTest, ExceptionNotConfigured) {
+TEST_F(TCPSocketTest, DISABLED_ExceptionNotConfigured) {
     bool exceptionRaised = false;
     TCPCommSocket noHost, noPort, noConfig;
     
@@ -235,7 +235,7 @@ TEST_F(TCPSocketTest, ExceptionNotConfigured) {
 }
 
 /* Test connection to a bad host name */
-TEST_F(TCPSocketTest, ExceptionBadHost) {
+TEST_F(TCPSocketTest, DISABLED_ExceptionBadHost) {
     bool exceptionRaised = false;
     TCPCommSocket badHost;
     
@@ -257,7 +257,7 @@ TEST_F(TCPSocketTest, ExceptionBadHost) {
 }
     
 /* Test connection to a bad port */
-TEST_F(TCPSocketTest, ExceptionBadPort) {
+TEST_F(TCPSocketTest, DISABLED_ExceptionBadPort) {
     bool exceptionRaised = false;
     TCPCommSocket socket;
     
@@ -279,7 +279,7 @@ TEST_F(TCPSocketTest, ExceptionBadPort) {
 }
 
 /* Test connection to a priv blocking port */
-TEST_F(TCPSocketTest, ExceptionPrivPortBlocking) {
+TEST_F(TCPSocketTest, DISABLED_ExceptionPrivPortBlocking) {
     bool exceptionRaised = false;
     TCPCommSocket socket;
     
@@ -301,7 +301,7 @@ TEST_F(TCPSocketTest, ExceptionPrivPortBlocking) {
 }
 
 /* Test connection to a priv port */
-TEST_F(TCPSocketTest, ExceptionPrivPortNonBlock) {
+TEST_F(TCPSocketTest, DISABLED_ExceptionPrivPortNonBlock) {
     bool exceptionRaised = false;
     TCPCommSocket socket;
     
@@ -322,7 +322,7 @@ TEST_F(TCPSocketTest, ExceptionPrivPortNonBlock) {
 }
 
 /* Test write failure */
-TEST_F(TCPSocketTest, ExceptionWriteFailure) {
+TEST_F(TCPSocketTest, DISABLED_ExceptionWriteFailure) {
     bool exceptionRaised = false;
     TCPCommSocket socket;
     
@@ -349,7 +349,7 @@ TEST_F(TCPSocketTest, ExceptionWriteFailure) {
 }
 
 /* Test read failure */
-TEST_F(TCPSocketTest, ExceptionReadFailure) {
+TEST_F(TCPSocketTest, DISABLED_ExceptionReadFailure) {
     string testData = "Test";
     char buffer[128];
     bool exceptionRaised = false;
