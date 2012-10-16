@@ -9,9 +9,9 @@
 #include "port_agent/publisher/udp_publisher.h"
 #include "port_agent/publisher/log_publisher.h"
 
-#include "network/udp_comm_socket.h";
-#include "network/tcp_comm_socket.h";
-#include "network/tcp_comm_listener.h";
+#include "network/udp_comm_socket.h"
+#include "network/tcp_comm_socket.h"
+#include "network/tcp_comm_listener.h"
 
 #include "gtest/gtest.h"
 
