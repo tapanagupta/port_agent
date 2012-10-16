@@ -10,6 +10,7 @@
 
 #include "gtest/gtest.h"
 
+#include <netinet/in.h>
 #include <sstream>
 #include <string.h>
 #include <stdio.h>
