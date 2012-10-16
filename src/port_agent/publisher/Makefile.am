@@ -2,8 +2,8 @@ if HAVE_GMOCK
   SUBDIRS = test
 endif
 
-DEPLIBS = $(top_builddir)/src/common/libcommon.a \
-          $(top_builddir)/src/port_agent/packet/libport_agent_packet.a 
+DEPLIBS = $(top_builddir)/src/port_agent/packet/libport_agent_packet.a \
+          $(top_builddir)/src/common/libcommon.a 
 
 noinst_LIBRARIES= libport_agent_publisher.a
 
