@@ -64,9 +64,9 @@ PROGRAMS = $(noinst_PROGRAMS)
 am_basic_packet_test_OBJECTS = basic_packet_test.$(OBJEXT)
 basic_packet_test_OBJECTS = $(am_basic_packet_test_OBJECTS)
 am__DEPENDENCIES_1 =
-am__DEPENDENCIES_2 = $(top_builddir)/src/common/libcommon.a \
+am__DEPENDENCIES_2 =  \
 	$(top_builddir)/src/port_agent/packet/libport_agent_packet.a \
-	$(am__DEPENDENCIES_1)
+	$(top_builddir)/src/common/libcommon.a $(am__DEPENDENCIES_1)
 basic_packet_test_DEPENDENCIES = $(am__DEPENDENCIES_2)
 am_buffered_single_char_test_OBJECTS =  \
 	buffered_single_char_test.$(OBJEXT)
@@ -205,8 +205,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CXXFLAGS = -I$(top_builddir)/src -I.. -Wno-write-strings 
-DEPLIBS = $(top_builddir)/src/common/libcommon.a \
-          $(top_builddir)/src/port_agent/packet/libport_agent_packet.a \
+DEPLIBS = $(top_builddir)/src/port_agent/packet/libport_agent_packet.a \
+          $(top_builddir)/src/common/libcommon.a \
           $(GTEST_MAIN)
 
 basic_packet_test_SOURCES = basic_packet_test.cxx 
