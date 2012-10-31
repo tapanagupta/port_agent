@@ -20,6 +20,25 @@ AC_CONFIG_FILES variable in the configure.ac file in the project source dir.
 We are using the google test framework for unit testing.  Every source directory
 should have a test directory.
 
+Binary Releases
+===============
+Release are number in dotted format following the major/minor/bug versioning
+scheme.  When making a modification to any source files you need to tag the
+repository after all files are committed and checked in.  Make sure that if
+you do make code modifications that you do a point release.
+
+Procedure:
+- verify that you have bumped all impacted binary version in version.h
+- commit all changes
+- run all tests
+   * make check
+- tag the repository with a version release
+   * git tag -a v1.0.0 -m "Some comment"
+- tag the repository as the currenty port agent
+   * git tag -a current -m "Bumping current"
+- push changes
+   * git push
+   
 Updating Makefile.am or configure.ac
 ====================================
 Whenever Makefile.am or configure.ac are update files must be rebuild.  To do
