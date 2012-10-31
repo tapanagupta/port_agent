@@ -6,6 +6,7 @@
  *
  * Main controlling class for the port agent
  ******************************************************************************/
+#include "version.h"
 #include "port_agent.h"
 #include "config/port_agent_config.h"
 #include "connection/observatory_connection.h"
@@ -136,11 +137,21 @@ bool PortAgent::start() {
         
     else if(m_pConfig->kill())
         kill_process();
+    else if(m_pConfig->version())
+        displayVersion();
     else {
         return DaemonProcess::start();
     }
     
     return true;
+}
+
+/******************************************************************************
+ * Method: display_version
+ * Description: print the binary version to stdout
+ ******************************************************************************/
+void PortAgent::displayVersion() {
+    cout << PORT_AGENT_VERSION << endl;
 }
 
 /******************************************************************************

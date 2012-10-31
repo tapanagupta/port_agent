@@ -111,6 +111,8 @@ namespace port_agent {
             void publishFault(const string &msg);
             void publishPacket(Packet *packet);
             void publishPacket(char *payload, uint16_t size, PacketType type);
+
+            void displayVersion();
             
         /////
         // Members

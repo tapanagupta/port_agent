@@ -53,6 +53,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_observatoryDataPort = 0;
     m_help = false;
     m_kill = false;
+    m_version = false;
     m_outputThrottle = 0;
     m_maxPacketSize = DEFAULT_PACKET_SIZE;
     m_ppid = 0;
@@ -83,6 +84,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
         {"help",      no_argument, 0,  'h' },
         {"kill",      no_argument, 0,  'k' },
         {"single",    no_argument, 0,  's' },
+        {"version",   no_argument, 0, 'n' },
         {"ppid",      required_argument, 0,  'y' },
         
         {"command_port",  required_argument, 0,  'p' },
@@ -195,6 +197,8 @@ string PortAgentConfig::Usage() {
     os << "USAGE: " << "port_agent" << endl
        << "\t" << " --help" 
                << "\t\t\t- Display this message " << endl
+       << "\t" << " --version" 
+               << "\t\t\t- Display the port agent version " << endl
        << "\t" << " --kill" 
                << "\t\t\t- Kill a daemon processes associated to a command port " << endl
        << "\t" << " --verbose (-v) " 
@@ -807,6 +811,10 @@ void PortAgentConfig::setParameter(char option, char *value) {
             addCommand(CMD_HELP);
             m_help = true;
             break;
+        case 'n':
+            addCommand(CMD_SHUTDOWN);
+            m_version = true;
+            break;
         case 'k':
             addCommand(CMD_SHUTDOWN);
             m_kill = true;
@@ -836,7 +844,7 @@ void PortAgentConfig::setParameter(char option, char *value) {
  *****************************************************************************/
 void PortAgentConfig::verifyCommandLineParameters() {
     // If help then no verification needed.
-    if(m_help == CMD_HELP)
+    if(m_help == CMD_HELP || m_version )
         return;
 
     // Ensure we have an observatory command port because that's is the

@@ -104,6 +104,7 @@ namespace port_agent {
             string programName() { return m_programName; }
             bool help() { return m_help; }
             bool kill() { return m_kill; }
+            bool version() { return m_version; }
             uint32_t ppid() { return m_ppid; }
             
             string logfile();
@@ -154,6 +155,7 @@ namespace port_agent {
             // public methods post construction.
             bool m_help;
             bool m_kill;
+            bool m_version;
             string m_programName;
 			uint32_t m_ppid;
             
