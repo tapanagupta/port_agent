@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(top_builddir)/src -I.. -Wno-write-strings 
+AM_CXXFLAGS = -I$(top_builddir)/src -I.. -Wno-write-strings -DTOOLSDIR=\"$(top_builddir)/tools\"
 DEPLIBS = $(top_builddir)/src/port_agent/connection/libport_agent_connection.a \
           $(top_builddir)/src/network/libnetwork_comm.a \
           $(top_builddir)/src/common/libcommon.a \

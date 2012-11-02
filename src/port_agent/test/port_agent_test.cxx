@@ -79,13 +79,13 @@ class PortAgentUnitTest : public testing::Test {
                 stringstream portStr;
                 portStr << TEST_OB_CMD_PORT;
 
-                SpawnProcess process(cmd.str(), 8, "-v", "-v", "-v", "-v", "-v", "-v", "-p",
+                SpawnProcess process(cmd.str(), 9, "-s", "-v", "-v", "-v", "-v", "-v", "-v", "-p",
                 portStr.str().c_str()); 
 
-                LOG(INFO) << "Start TCP Echo Server: " << process.cmd_as_string();
+                LOG(INFO) << "Start Port Agent: " << process.cmd_as_string();
 
                 process.run();
-                sleep(1);
+				sleep(10);
             }
             catch(exception &e) {
                 string err = e.what();
@@ -290,6 +290,8 @@ TEST_F(PortAgentUnitTest, DISABLED_StartUpWithConfigFile) {
 		writeConfig(CONFIG_FILE);
 		
         startPortAgent();
+		
+		sleep(10);
     }
     catch(exception &e) {
         string err = e.what();
@@ -306,10 +308,12 @@ TEST_F(PortAgentUnitTest, DISABLED_StartUp) {
         
 		remove_file(RESPONSE_FILE);
 		
-        startTCPEchoServer();
+        //startTCPEchoServer();
         startPortAgent();
         configurePortAgent();
         response = commandPortAgent("get status");
+		
+		LOG(DEBUG) << response;
         
         startTCPClientDump(atoi(TEST_OB_CMD_PORT), "localhost", RESPONSE_FILE);
         
