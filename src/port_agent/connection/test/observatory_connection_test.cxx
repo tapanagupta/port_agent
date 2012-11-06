@@ -88,7 +88,7 @@ class ObservatoryConnectionTest : public testing::Test {
 };
 
 /* Test Normal Observatory Connection */
-TEST_F(ObservatoryConnectionTest, NormalConnection) {
+TEST_F(ObservatoryConnectionTest, DISABLED_NormalConnection) {
 	CommBase *dataConnection;
 	CommBase *commandConnection;
 	
