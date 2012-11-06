@@ -34,6 +34,8 @@ Procedure:
    * make check
 - tag the repository with a version release
    * git tag -a v1.0.0 -m "Some comment"
+- tag the repository as the currenty port agent
+   * git tag -a current -m "Bumping current"
 - push changes
    * git push
    
