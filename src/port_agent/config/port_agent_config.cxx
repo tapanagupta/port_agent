@@ -10,6 +10,7 @@
 #include "port_agent_config.h"
 #include "common/logger.h"
 #include "common/exception.h"
+#include "common/util.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -843,6 +844,7 @@ void PortAgentConfig::setParameter(char option, char *value) {
  *     ParameterRequired()
  *****************************************************************************/
 void PortAgentConfig::verifyCommandLineParameters() {
+    string error;
     // If help then no verification needed.
     if(m_help == CMD_HELP || m_version )
         return;
@@ -851,6 +853,20 @@ void PortAgentConfig::verifyCommandLineParameters() {
     // port agent's unique identifier.
     if(observatoryCommandPort() == 0)
         throw ParameterRequired("observatoryCommandPort");
+    
+    // Ensure the key directories exist and are writable.
+    if(! mkpath(logdir()) ) {
+        error = "could not create logdir, " + logdir();
+    }
+    if(! mkpath(piddir()) ) {
+        error = "could not create piddir, " + piddir();
+    }
+    if(! mkpath(datadir()) ) {
+        error = "could not create datadir, " + datadir();
+    }
+        
+    if(error.length())
+        throw FileIOException(error);
         
 }
 
