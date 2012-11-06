@@ -725,19 +725,12 @@ int PortAgent::buildFDSet(fd_set &readFDs) {
 void PortAgent::addObservatoryCommandListenerFD(int &maxFD, fd_set &readFDs) {
     CommBase *pConnection;
     
-    
-    if(! m_pObservatoryConnection) {
-        initializeObservatoryCommandConnection();
-    }
-    
     if(m_pObservatoryConnection) {
         pConnection = m_pObservatoryConnection->commandConnectionObject();
         int fd = 0;
     
         if(m_pObservatoryConnection->commandInitialized())
             fd = getObservatoryCommandListenerFD();
-        else 
-            initializeObservatoryCommandConnection();
     
         if(m_pObservatoryConnection->commandInitialized() && fd) {
             LOG(DEBUG2) << "add observatory command listener FD";
@@ -788,18 +781,12 @@ void PortAgent::addObservatoryCommandClientFD(int &maxFD, fd_set &readFDs) {
 void PortAgent::addObservatoryDataListenerFD(int &maxFD, fd_set &readFDs) {
     CommBase *pConnection;
     
-    if(! m_pObservatoryConnection) {
-        initializeObservatoryDataConnection();
-    }
-    
     if(m_pObservatoryConnection) {
         pConnection = m_pObservatoryConnection->dataConnectionObject();
         int fd = 0;
     
         if(m_pObservatoryConnection->dataInitialized())
             fd = getObservatoryDataListenerFD();
-        else 
-            initializeObservatoryDataConnection();
     
         if(m_pObservatoryConnection->dataInitialized() && fd) {
             LOG(DEBUG2) << "add observatory data listener FD";
@@ -981,12 +968,6 @@ void PortAgent::handleObservatoryCommandAccept(const fd_set &readFDs) {
     LOG(DEBUG) << "handleObservatoryCommandAccept - do we need to accept a new connection?";
     LOG(DEBUG2) << "Observatory Command Listener FD: " << serverFD;
         
-    if(! serverFD) {
-        serverFD = getObservatoryCommandListenerFD();
-        initializeObservatoryCommandConnection();
-        LOG(DEBUG) << "listener not initialized.  Reinit FD: " << serverFD;
-    }
-    
     // Accept a new observatory command client
     if(serverFD && FD_ISSET(serverFD, &readFDs)) {
         LOG(DEBUG) << "Observatory command listener has data";
@@ -1031,12 +1012,6 @@ void PortAgent::handleObservatoryDataAccept(const fd_set &readFDs) {
     LOG(DEBUG) << "handleObservatoryDataAccept - do we need to accept a new connection?";
     LOG(DEBUG2) << "Observatory Data Listener FD: " << serverFD;
         
-    if(! serverFD) {
-        initializeObservatoryDataConnection();
-        serverFD = getObservatoryDataListenerFD();
-        LOG(DEBUG) << "listener not initialized.  Reinit FD: " << serverFD;
-    }
-    
     // Accept a new observatory command client
     if(serverFD && FD_ISSET(serverFD, &readFDs)) {
         LOG(DEBUG) << "Observatory data listener has data";

@@ -199,7 +199,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CXXFLAGS = -I$(top_builddir)/src -I.. -Wno-write-strings -DTOOLSDIR=\"$(top_builddir)/tools\"
+AM_CXXFLAGS = -I$(top_builddir)/src -I.. -Wno-write-strings 
 DEPLIBS = $(top_builddir)/src/port_agent/connection/libport_agent_connection.a \
           $(top_builddir)/src/network/libnetwork_comm.a \
           $(top_builddir)/src/common/libcommon.a \
