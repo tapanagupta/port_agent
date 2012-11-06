@@ -102,7 +102,7 @@ Logger::~Logger() {
 void Logger::close()
 {
     if(m_sLogfileStream) {
-    	//m_sLogfileStream->close();
+    	m_sLogfileStream->close();
 	    delete m_sLogfileStream;
 	    m_sLogfileStream = NULL;
     }
@@ -221,6 +221,7 @@ void Logger::Reset()
  *   string file - path to the log file
  ******************************************************************************/
 void Logger::SetLogFile(const string& file) {
+	Logger::Instance()->close();
     Logger::Instance()->m_sLogFileName = file;
 }
 

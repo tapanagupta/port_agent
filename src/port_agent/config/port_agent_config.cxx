@@ -967,10 +967,10 @@ bool PortAgentConfig::processCommand(const string & command) {
     }
     
     else if(cmd == "log_dir") {
+        m_logdir = param;
         string file = logfile();
         if(file.length())
             Logger::SetLogFile(file);
-        m_logdir = param;
     }
     
     else if(cmd == "pid_dir") {

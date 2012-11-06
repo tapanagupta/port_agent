@@ -872,7 +872,7 @@ void PortAgent::addInstrumentDataClientFD(int &maxFD, fd_set &readFDs) {
  ******************************************************************************/
 int PortAgent::getObservatoryCommandListenerFD() {
     CommBase *pConnection = m_pObservatoryConnection->commandConnectionObject();
-    if(m_pObservatoryConnection->commandInitialized() && ! m_pObservatoryConnection->commandConnected()) {
+    if(m_pObservatoryConnection->commandInitialized()) {
         return ((TCPCommListener*)pConnection)->serverFD();
     }
     
@@ -898,7 +898,7 @@ int PortAgent::getObservatoryCommandClientFD() {
  ******************************************************************************/
 int PortAgent::getObservatoryDataListenerFD() {
     CommBase *pConnection = m_pObservatoryConnection->dataConnectionObject();
-    if(m_pObservatoryConnection->dataInitialized() && ! m_pObservatoryConnection->dataConnected()) {
+    if(m_pObservatoryConnection->dataInitialized()) {
         return ((TCPCommListener*)pConnection)->serverFD();
     }
     
