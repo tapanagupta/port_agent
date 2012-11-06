@@ -9,6 +9,6 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define PORT_AGENT_VERSION "0.1.2"
+#define PORT_AGENT_VERSION "0.1.3"
 
 #endif // VERSION_H

@@ -27,10 +27,10 @@ using namespace std;
 
 #define BASE_FILENAME "port_agent"
 
-#define DEFAULT_LOG_DIR   "/var/ooi/port_agent"
-#define DEFAULT_CONF_DIR  "/var/ooi/port_agent"
-#define DEFAULT_PID_DIR   "/var/ooi/port_agent"
-#define DEFAULT_DATA_DIR  "/var/ooi/port_agent"
+#define DEFAULT_LOG_DIR   "/tmp"
+#define DEFAULT_CONF_DIR  "/tmp"
+#define DEFAULT_PID_DIR   "/tmp"
+#define DEFAULT_DATA_DIR  "/tmp"
 
 
 namespace port_agent {
