@@ -49,19 +49,6 @@ CommListener::CommListener() {
  ******************************************************************************/
 CommListener::CommListener(const CommListener &rhs) : CommBase(rhs) {
 	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
-	LOG(DEBUG) << "CommListener Copy CTOR!!";
     m_iPort = rhs.m_iPort;
 	    
     m_pServerFD = rhs.m_pServerFD;
@@ -163,8 +150,14 @@ bool CommListener::acceptClient() {
     if(!listening())
         throw SocketNotInitialized();
 
-    if(connected())
+    if(connected()) {
+        clilen = sizeof(cli_addr);
+        newsockfd = accept(m_pServerFD, 
+                    (struct sockaddr *) &cli_addr, 
+                    &clilen);
+		if(newsockfd) close(newsockfd);
         throw SocketAlreadyConnected();
+	}
 
     LOG(DEBUG) << "accepting client connection";
      

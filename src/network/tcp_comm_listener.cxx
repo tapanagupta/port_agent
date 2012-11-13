@@ -148,7 +148,7 @@ bool TCPCommListener::initialize() {
             SocketConnectFailure(strerror(errno));
 	    
 	LOG(DEBUG2) << "Starting server";
-	retval = listen(newsock, 5);
+	retval = listen(newsock, 0);
 	LOG(DEBUG3) << "listen return value: " << retval;
 	
 	if (retval < 0)

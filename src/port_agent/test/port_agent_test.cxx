@@ -30,7 +30,7 @@ const char* CMD_FILE="/tmp/gtest.c,d";
 const char* TEST_LOG="/tmp/gtest.log";
 const char* FILE_LOG="/tmp/gtest.out";
 const char* SERVER_LOG="/tmp/gtest.srv";
-const char* PORT_AGENT_LOGBASE="/var/ooi/port_agent/port_agent";
+const char* PORT_AGENT_LOGBASE="/tmp/port_agent";
 
 class PortAgentUnitTest : public testing::Test {
     protected:
