@@ -1067,11 +1067,11 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
     if(clientFD && FD_ISSET(clientFD, &readFDs)) {
         LOG(DEBUG) << "Read data from instrument data socket";
         bytesRead = pConnection->readData(buffer, 1023);
-        buffer[bytesRead] = '\0';
         
         if(bytesRead) {
             LOG(DEBUG2) << "Bytes read: " << bytesRead;
             publishPacket(buffer, bytesRead, DATA_FROM_INSTRUMENT);
+            //buffer[bytesRead] = '\0';
         }
     }
 }
