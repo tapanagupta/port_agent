@@ -28,15 +28,13 @@ repository after all files are committed and checked in.  Make sure that if
 you do make code modifications that you do a point release.
 
 Procedure:
-- verify that you have bumped all impacted binary version in version.h
-- commit all changes
 - run all tests
    * make check
-- tag the repository with a version release
-   * git tag -a v1.0.0 -m "Some comment"
-- push changes
-   * git push
-   
+- Release in a virtualenv with fabric installed. (makevirtualenv fab,
+  easy_install fabric)
+- workon fab (work in your fab virtualenv)
+- fab release (following the prompts)
+
 Updating Makefile.am or configure.ac
 ====================================
 Whenever Makefile.am or configure.ac are update files must be rebuild.  To do
