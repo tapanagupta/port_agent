@@ -70,7 +70,6 @@ bool SerialCommSocket::compare(CommBase *rhs) {
 		return false;
 }
 
-
 /******************************************************************************
  * Method: assignment operator
  * Description: overloaded assignment operator.
@@ -79,5 +78,23 @@ SerialCommSocket & SerialCommSocket::operator=(const SerialCommSocket &rhs) {
 	return *this;
 }
 
+/******************************************************************************
+ * Method: initialize
+ * Description: Perform required initialization.
+ ******************************************************************************/
+bool SerialCommSocket::initialize() {
+	bool bReturnCode = true;
+
+	bIsConfigured = true;
+	return bReturnCode;
+}
+
+/******************************************************************************
+ * Method: isInitialized
+ * Description: Has this object been configured?
+ ******************************************************************************/
+bool SerialCommSocket::isConfigured() {
+	return bIsConfigured;
+}
 
 

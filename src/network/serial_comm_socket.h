@@ -33,13 +33,18 @@ namespace network {
             
             virtual bool operator==(SerialCommSocket &rhs);
 			CommType type() { return COMM_SERIAL_SOCKET; }
+
+            // Initialize
+            bool initialize();
 			
-	    virtual CommBase *copy();
+            // Does this object have a complete configuration?
+            bool isConfigured();
+
+            virtual CommBase *copy();
 	    
             virtual bool compare(CommBase *rhs);
-            virtual bool initialize() { return false; }
             virtual bool connectClient() { return false; }
-	    
+
             virtual uint32_t writeData(const char *buffer, uint32_t size) { return 0; }
             virtual uint32_t readData(char *buffer, uint32_t size) { return 0; }
             
@@ -58,7 +63,11 @@ namespace network {
          ********************/
         
         protected:
+
+        private:
             
+            bool bIsConfigured;
+
     };
 }
 
