@@ -79,6 +79,7 @@ namespace port_agent {
             void initializeObservatoryCommandConnection();
             void initializeInstrumentConnection();
             void initializeTCPInstrumentConnection();
+            void initializeSerialInstrumentConnection();
             
             // Publisher initializers
             void initializePublishers();

@@ -688,6 +688,21 @@ bool PortAgentConfig::setLogLevel(const string &param) {
 }
 
 /******************************************************************************
+ * Method: setDevice
+ * Description: Set the device path
+ * Return:
+ *     return true if set correctly, otherwise false.
+ *****************************************************************************/
+bool PortAgentConfig::setDevice(const string &param) {
+    string device = param;
+
+    // DHE TODO
+    // Some sort of sanity check is in order here
+    m_device = device;
+    return true;
+}
+
+/******************************************************************************
  * Method: setBaud
  * Description: Change the baud
  * Return:
@@ -1014,6 +1029,11 @@ bool PortAgentConfig::processCommand(const string & command) {
         m_instrumentAddr = param;
     }
     
+    else if(cmd == "device") {
+        addCommand(CMD_COMM_CONFIG_UPDATE);
+        return setDevice(param);
+    }
+
     else if(cmd == "baud") {
         addCommand(CMD_COMM_CONFIG_UPDATE);
         return setBaud(param);

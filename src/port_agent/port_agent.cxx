@@ -11,6 +11,7 @@
 #include "config/port_agent_config.h"
 #include "connection/observatory_connection.h"
 #include "connection/instrument_tcp_connection.h"
+#include "connection/instrument_serial_connection.h"
 #include "packet/packet.h"
 #include "packet/buffered_single_char.h"
 
@@ -234,8 +235,16 @@ void PortAgent::initializeObservatoryCommandConnection() {
  * this method will need to support more types.
  ******************************************************************************/
 void PortAgent::initializeInstrumentConnection() {
-    if(m_pConfig->instrumentConnectionType() == TYPE_TCP)
+    if (m_pConfig->instrumentConnectionType() == TYPE_TCP) {
         initializeTCPInstrumentConnection();
+    }
+    if (m_pConfig->instrumentConnectionType() == TYPE_SERIAL) {
+        initializeSerialInstrumentConnection();
+    }
+    else {
+        LOG(ERROR) << "Instrument connection type not recognized.";
+   }
+
 }
 
 /******************************************************************************
@@ -294,6 +303,56 @@ void PortAgent::initializeTCPInstrumentConnection() {
     
     if(connection->connected())
         setState(STATE_CONNECTED);
+}
+
+/******************************************************************************
+ * Method: initializeSerialInstrumentConnection
+ * Description: Connect to a Serial type instrument.
+ *
+ * State Transitions:
+ *  Connected - if we can connect to an instrument
+ *  Disconnected - if we fail to connect to an instrument
+ ******************************************************************************/
+void PortAgent::initializeSerialInstrumentConnection() {
+    InstrumentSerialConnection *connection = (InstrumentSerialConnection *) m_pInstrumentConnection;
+
+    // Clear if we have already initialized the wrong type
+    if (connection && connection->connectionType() != PACONN_INSTRUMENT_SERIAL) {
+        LOG(INFO) << "Detected connection type change.  rebuilding connection.";
+        delete connection;
+        connection = NULL;
+    }
+
+    // Create the connection object
+    if (!connection)
+        m_pInstrumentConnection = connection = new InstrumentSerialConnection();
+
+    /****
+    if (!connection->connected()) {
+        LOG(DEBUG) << "Instrument not connected, attempting to reconnect";
+        LOG(DEBUG2) << "host: " << connection->dataHost() << " port: " << connection->dataPort();
+
+        setState(STATE_DISCONNECTED);
+
+        try {
+            connection->initialize();
+        }
+        // DHE TODO:
+        // throw the correct exception for the serial connection
+        catch(SocketConnectFailure &e) {
+            connection->disconnect();
+            string msg = e.what();
+            LOG(ERROR) << msg;
+        };
+
+        // Let everything connect
+        sleep(SELECT_SLEEP_TIME);
+    }
+
+
+    if (connection->connected())
+        setState(STATE_CONNECTED);
+    ****/
 }
 
 /******************************************************************************
