@@ -417,6 +417,34 @@ string PortAgentConfig::getConfig() {
  *     return true if the type was set correctly, otherwise false for unknown
  *     types.
  *****************************************************************************/
+bool PortAgentConfig::setInstrumentBreakDuration(const string &param) {
+    const char* v = param.c_str();
+
+    int value = atoi(v);
+    m_breakDuration = 0;
+
+    if(value == 0 && v[0] != '0') {
+        LOG(ERROR) << "invalid output break duration, " << param;
+        return false;
+    }
+
+    if(value < 0) {
+        LOG(ERROR) << "attempt to set break duration to a negative.  0 instead.";
+        return false;
+    }
+
+    LOG(INFO) << "set break duration to " << value;
+    m_breakDuration = value;
+    return true;
+}
+
+/******************************************************************************
+ * Method: setInstrumentConnectionType
+ * Description: Set the configuration instrument connection type
+ * Return:
+ *     return true if the type was set correctly, otherwise false for unknown
+ *     types.
+ *****************************************************************************/
 bool PortAgentConfig::setInstrumentConnectionType(const string &param) {
     m_instrumentConnectionType = TYPE_UNKNOWN;
     
@@ -693,13 +721,17 @@ bool PortAgentConfig::setLogLevel(const string &param) {
  * Return:
  *     return true if set correctly, otherwise false.
  *****************************************************************************/
-bool PortAgentConfig::setDevice(const string &param) {
-    string device = param;
+bool PortAgentConfig::setDevicePath(const string &param) {
+    bool    bReturnCode = true;
+    string  devicePath = param;
 
-    // DHE TODO
-    // Some sort of sanity check is in order here
-    m_device = device;
-    return true;
+    if (!param.size() > 0) {
+        bReturnCode = false;
+    }
+    else {
+        m_devicePath = devicePath;
+    }
+    return bReturnCode;
 }
 
 /******************************************************************************
@@ -940,9 +972,6 @@ bool PortAgentConfig::processCommand(const string & command) {
     else if( command == "ping" )
         addCommand(CMD_PING);
         
-    else if( command == "break" )
-        addCommand(CMD_BREAK);
-        
     else if( command == "shutdown" )
         addCommand(CMD_SHUTDOWN);
         
@@ -951,6 +980,11 @@ bool PortAgentConfig::processCommand(const string & command) {
     // Check for parameters
     ///////////////////////////
     
+    else if( command == "break" ) {
+        addCommand(CMD_BREAK);
+        return setInstrumentBreakDuration(param);
+    }
+
     else if(cmd == "instrument_type") {
         addCommand(CMD_COMM_CONFIG_UPDATE);
         return setInstrumentConnectionType(param);
@@ -1031,7 +1065,7 @@ bool PortAgentConfig::processCommand(const string & command) {
     
     else if(cmd == "device") {
         addCommand(CMD_COMM_CONFIG_UPDATE);
-        return setDevice(param);
+        return setDevicePath(param);
     }
 
     else if(cmd == "baud") {

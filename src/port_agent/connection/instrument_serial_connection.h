@@ -73,13 +73,16 @@ namespace port_agent {
             PortAgentConnectionType connectionType() { return PACONN_INSTRUMENT_TCP; }
             
             // Custom configurations for the observatory connection
-            void setDataPort(uint16_t port);
-            void setDataHost(const string &host);
+            void setDevicePath(const string &devicePath);
+            void setBaud(const uint32_t &iBaud);
+            void setFlowControl(const uint16_t &iFlowControl);
+            void setStopBits(const uint16_t &iStopBits);
+            void setDataBits(const uint16_t &iDataBits);
+            void setParity(const uint16_t &iParity);
             
-            //const string & dataHost() { return m_oDataSocket.hostname(); }
-            //uint16_t dataPort() { return m_oDataSocket.port(); }
-            //bool connected() { return m_oDataSocket.connected(); }
-            //bool disconnect() { return m_oDataSocket.disconnect(); }
+            const string & devicePath() { return m_oDataSocket.devicePath(); }
+            bool connected() { return m_oDataSocket.connected(); }
+            bool disconnect() { return m_oDataSocket.disconnect(); }
             
             /* Query Methods */
             
@@ -101,6 +104,10 @@ namespace port_agent {
             // Initialize sockets
             void initializeDataSocket();
             void initializeCommandSocket();
+
+            // Send break condition for duration (milliseconds)
+            virtual bool sendBreak(const uint32_t duration);
+
         
         protected:
 
@@ -118,4 +125,4 @@ namespace port_agent {
     };
 }
 
-#endif //__INSTRUMENT_TCP_CONNECTION_H_
+#endif //__INSTRUMENT_SERIAL_CONNECTION_H_

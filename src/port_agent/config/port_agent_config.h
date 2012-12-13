@@ -87,12 +87,13 @@ namespace port_agent {
             // Set methods
             bool setObservatoryDataPort(const string &param);
             bool setObservatoryCommandPort(const string &param);
+            bool setInstrumentBreakDuration(const string &param);
             bool setInstrumentConnectionType(const string &param);
             bool setSentinleSequence(const string &param);
             bool setOutputThrottle(const string &param);
             bool setMaxPacketSize(const string &param);
             bool setLogLevel(const string &param);
-            bool setDevice(const string &param);
+            bool setDevicePath(const string &param);
             bool setBaud(const string &param);
             bool setStopbits(const string &param);
             bool setDatabits(const string &param);
@@ -129,7 +130,8 @@ namespace port_agent {
             uint32_t maxPacketSize() { return m_maxPacketSize; }
             
             
-            const string & device() { return m_device; }
+            const string & devicePath() { return m_devicePath; }
+            uint32_t breakDuration() { return m_breakDuration; }
             uint32_t baud() { return m_baud; }
             uint16_t stopbits() { return m_stopbits; }
             uint16_t databits() { return m_databits; }
@@ -182,7 +184,8 @@ namespace port_agent {
             
             InstrumentConnectionType m_instrumentConnectionType;
             
-            string m_device;
+            string m_devicePath;
+            uint32_t m_breakDuration;
             uint32_t m_baud;
             uint16_t m_stopbits;
             uint16_t m_databits;

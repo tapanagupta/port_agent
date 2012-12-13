@@ -9,7 +9,8 @@ from socket import *
 import sys
  
 HOST = 'localhost'
-PORT = 4010    #our port from before
+#PORT = 4010    #our port from before
+PORT = 9002   #our port from before
 ADDR = (HOST,PORT)
  
 cli = socket( AF_INET,SOCK_STREAM)

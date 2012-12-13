@@ -78,7 +78,7 @@ InstrumentSerialConnection::~InstrumentSerialConnection() {
 }
 
 /******************************************************************************
- * Method: Assignemnt operator
+ * Method: Assignment operator
  * Description: Deep copy
  *
  * Parameters:
@@ -103,33 +103,56 @@ void InstrumentSerialConnection::copy(const InstrumentSerialConnection &copy) {
 }
 
 /******************************************************************************
- * Method: setDataPort
- * Description: Set the port.  If we are already connected then we need to
- * disconnect and reconnect to the new port.
+ * Method: setDevicePath
+ * Description: Set the device path to the device driver for the serial port.
  ******************************************************************************/
-void InstrumentSerialConnection::setDataPort(uint16_t port) {
-	// DHE 12/3/12
-    //uint16_t oldPort = m_oDataSocket.port();
-    //m_oDataSocket.setPort(port);
-    
-    //if(m_oDataSocket.connected() && m_oDataSocket.port() != oldPort) {
-	m_oDataSocket.initialize();
-    //}
+void InstrumentSerialConnection::setDevicePath(const string & devicePath) {
+	m_oDataSocket.setDevicePath(devicePath);
 }
 
 /******************************************************************************
- * Method: setDataHost
- * Description: Set the host.  If we are already connected then we need to
- * disconnect and reconnect to the new port.
+ * Method: setBaud
+ * Description: Set the baud.
  ******************************************************************************/
-void InstrumentSerialConnection::setDataHost(const string & host) {
-    // DHE 12/3/12
-	//string oldhost = m_oDataSocket.hostname();
-    //m_oDataSocket.setHostname(host);
-    
-    //if(m_oDataSocket.connected() && m_oDataSocket.hostname() != oldhost) {
-	m_oDataSocket.initialize();
-    //}
+void InstrumentSerialConnection::setBaud(const uint32_t &iBaud) {
+    LOG(INFO) << "setBaud: " << iBaud;
+    m_oDataSocket.setBaud(iBaud);
+}
+
+/******************************************************************************
+ * Method: setFlowControl
+ * Description: Set the baud.
+ ******************************************************************************/
+void InstrumentSerialConnection::setFlowControl(const uint16_t &iFlowControl) {
+    LOG(INFO) << "setFlowControl: " << iFlowControl;
+    m_oDataSocket.setFlowControl(iFlowControl);
+}
+
+/******************************************************************************
+ * Method: setStopBits
+ * Description: Set the baud.
+ ******************************************************************************/
+void InstrumentSerialConnection::setStopBits(const uint16_t &iStopBits) {
+    LOG(INFO) << "setStopBits: " << iStopBits;
+    m_oDataSocket.setStopBits(iStopBits);
+}
+
+/******************************************************************************
+ * Method: setDataBits
+ * Description: Set the baud.
+ ******************************************************************************/
+void InstrumentSerialConnection::setDataBits(const uint16_t &iDataBits) {
+    LOG(INFO) << "setDataBits: " << iDataBits;
+    m_oDataSocket.setDataBits(iDataBits);
+}
+
+/******************************************************************************
+ * Method: setParity
+ * Description: Set the baud.
+ ******************************************************************************/
+void InstrumentSerialConnection::setParity(const uint16_t &iParity) {
+    LOG(INFO) << "setParity: " << iParity;
+    m_oDataSocket.setParity(iParity);
 }
 
 /******************************************************************************
@@ -232,4 +255,17 @@ void InstrumentSerialConnection::initialize() {
     } 
 }
 
+/******************************************************************************
+ * Method: sendBreak
+ * Description: Send a break condition for the given duration.
+ ******************************************************************************/
+bool InstrumentSerialConnection::sendBreak(const uint32_t iDuration) {
+    bool bReturnCode = true;
 
+     if (!m_oDataSocket.sendBreak(iDuration)) {
+        LOG(ERROR) << "Failed to send break.";
+        bReturnCode = false;
+    }
+
+    return bReturnCode;
+}

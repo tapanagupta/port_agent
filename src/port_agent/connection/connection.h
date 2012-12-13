@@ -73,6 +73,9 @@ namespace port_agent {
             
             // Not every connection type has a command socket.
             virtual void initializeCommandSocket() {};
+
+            // Send break condition for duration (milliseconds)
+            virtual bool sendBreak(uint32_t duration) { return false; }
         
         protected:
 

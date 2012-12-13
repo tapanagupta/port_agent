@@ -203,8 +203,8 @@ class PortAgentUnitTest : public testing::Test {
 
         void startTCPEchoServer() {
             stringstream cmd;
-            //cmd << TOOLSDIR << "/tcp_server_echo.py";
-            cmd << TOOLSDIR << "/testme.py";
+            cmd << TOOLSDIR << "/tcp_server_echo.py";
+            //cmd << TOOLSDIR << "/testme.py";
             stringstream portStr;
             portStr << TEST_IN_DATA_PORT;
 
@@ -314,15 +314,15 @@ TEST_F(PortAgentUnitTest, DISABLED_StartUp) {
         remove_file(RESPONSE_FILE);
         
         startTCPEchoServer();
-        //startPortAgent();
-        //configurePortAgent();
-        //response = commandPortAgent("get status");
+        startPortAgent();
+        configurePortAgent();
+        response = commandPortAgent("get status");
         
-        //startTCPClientDump(atoi(TEST_OB_CMD_PORT), "localhost", RESPONSE_FILE);
+        startTCPClientDump(atoi(TEST_OB_CMD_PORT), "localhost", RESPONSE_FILE);
         
-        //sendDriverData("foo");
+        sendDriverData("foo");
         
-        //stopTCPClientDump();
+        stopTCPClientDump();
     }
     catch(exception &e) {
         string err = e.what();

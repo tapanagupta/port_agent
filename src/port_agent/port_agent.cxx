@@ -271,7 +271,7 @@ void PortAgent::initializeTCPInstrumentConnection() {
         m_pInstrumentConnection = connection = new InstrumentTCPConnection();
        
     // If we have changed out configuration the set the new values and try to connect
-    if(connection->dataHost() != m_pConfig->instrumentAddr() ||
+    if (connection->dataHost() != m_pConfig->instrumentAddr() ||
        connection->dataPort() != m_pConfig->instrumentDataPort() ) {
         LOG(INFO) << "Detected connection configuration change.  reconfiguring.";
         
@@ -281,7 +281,7 @@ void PortAgent::initializeTCPInstrumentConnection() {
         connection->setDataPort(m_pConfig->instrumentDataPort());
     }
     
-    if(!connection->connected()) {
+    if (!connection->connected()) {
         LOG(DEBUG) << "Instrument not connected, attempting to reconnect";
         LOG(DEBUG2) << "host: " << connection->dataHost() << " port: " << connection->dataPort();
         
@@ -324,13 +324,23 @@ void PortAgent::initializeSerialInstrumentConnection() {
     }
 
     // Create the connection object
-    if (!connection)
+    // DHE TODO: Need to check for configuration change here and reinitialize if so,
+    // but for now...
+    if (!connection) {
         m_pInstrumentConnection = connection = new InstrumentSerialConnection();
 
-    /****
+        connection->setDevicePath(m_pConfig->devicePath());
+        connection->setBaud(m_pConfig->baud());
+        connection->setFlowControl(m_pConfig->flow());
+        connection->setStopBits(m_pConfig->stopbits());
+        connection->setDataBits(m_pConfig->databits());
+        connection->setParity(m_pConfig->parity());
+        connection->initialize();
+    }
+
     if (!connection->connected()) {
         LOG(DEBUG) << "Instrument not connected, attempting to reconnect";
-        LOG(DEBUG2) << "host: " << connection->dataHost() << " port: " << connection->dataPort();
+        LOG(DEBUG2) << "device path: " << connection->devicePath();
 
         setState(STATE_DISCONNECTED);
 
@@ -352,7 +362,6 @@ void PortAgent::initializeSerialInstrumentConnection() {
 
     if (connection->connected())
         setState(STATE_CONNECTED);
-    ****/
 }
 
 /******************************************************************************
@@ -575,6 +584,8 @@ void PortAgent::processPortAgentCommands() {
                 break;
             case CMD_BREAK:
                 LOG(DEBUG) << "break command";
+                m_pInstrumentConnection->sendBreak(m_pConfig->breakDuration());
+
                 break;
             case CMD_SHUTDOWN:
                 LOG(DEBUG) << "shutdown command";
