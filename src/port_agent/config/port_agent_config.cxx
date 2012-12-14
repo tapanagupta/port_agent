@@ -418,24 +418,26 @@ string PortAgentConfig::getConfig() {
  *     types.
  *****************************************************************************/
 bool PortAgentConfig::setInstrumentBreakDuration(const string &param) {
-    const char* v = param.c_str();
-
-    int value = atoi(v);
     m_breakDuration = 0;
+    bool bReturnCode = true;
 
-    if(value == 0 && v[0] != '0') {
-        LOG(ERROR) << "invalid output break duration, " << param;
-        return false;
+    if (0 == param.size()) {
+        LOG(ERROR) << "break duration not specified; using 0.";
+        bReturnCode = false;
+    }
+    else {
+        const char* v = param.c_str();
+        int value = atoi(v);
+        if (value < 0) {
+            LOG(ERROR) << "attempt to set break duration to a negative.  using 0 instead.";
+            value = 0;
+            bReturnCode = false;
+        }
+        m_breakDuration = value;
     }
 
-    if(value < 0) {
-        LOG(ERROR) << "attempt to set break duration to a negative.  0 instead.";
-        return false;
-    }
-
-    LOG(INFO) << "set break duration to " << value;
-    m_breakDuration = value;
-    return true;
+    LOG(INFO) << "set break duration to " << m_breakDuration;
+    return bReturnCode;
 }
 
 /******************************************************************************
@@ -980,7 +982,7 @@ bool PortAgentConfig::processCommand(const string & command) {
     // Check for parameters
     ///////////////////////////
     
-    else if( command == "break" ) {
+    else if(cmd == "break" ) {
         addCommand(CMD_BREAK);
         return setInstrumentBreakDuration(param);
     }

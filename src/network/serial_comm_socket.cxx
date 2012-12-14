@@ -116,6 +116,11 @@ bool SerialCommSocket::initialize() {
 
     // TODO: after setting new configuration, compare to make sure it was
     // actually set: if not set bIsConfigured to false.
+    // TODO: this open needs to be separate; we need the ability to change
+    // the configuration (termios settings) independently of opening the device.
+    if (m_pSocketFD) {
+        close(m_pSocketFD);
+    }
     m_pSocketFD = open(m_sDevicePath.c_str(), O_RDWR);
     if (0 > m_pSocketFD) {
         LOG(ERROR) << "Failed to open device: "; //<< pDeviceName;

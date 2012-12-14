@@ -70,7 +70,7 @@ namespace port_agent {
             CommBase *dataConnectionObject() { return &m_oDataSocket; }
             CommBase *commandConnectionObject() { return NULL; }
             
-            PortAgentConnectionType connectionType() { return PACONN_INSTRUMENT_TCP; }
+            PortAgentConnectionType connectionType() { return PACONN_INSTRUMENT_SERIAL; }
             
             // Custom configurations for the observatory connection
             void setDevicePath(const string &devicePath);

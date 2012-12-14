@@ -536,7 +536,7 @@ void PortAgent::initializePublisherUDP() {
  *   commands - newline delimeted string of port agent commands.
  ******************************************************************************/
 void PortAgent::handlePortAgentCommand(const char * commands) {
-    LOG(DEBUG2) << "DATA: " << commands;
+    LOG(DEBUG2) << "COMMAND DATA: " << commands;
     
     if(!m_pConfig)
         return;
