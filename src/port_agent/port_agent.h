@@ -80,6 +80,7 @@ namespace port_agent {
             void initializeInstrumentConnection();
             void initializeTCPInstrumentConnection();
             void initializeSerialInstrumentConnection();
+            void initializeSerialSettings();
             
             // Publisher initializers
             void initializePublishers();

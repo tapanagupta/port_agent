@@ -333,6 +333,11 @@ void PortAgent::initializeSerialInstrumentConnection() {
         LOG(INFO) << "Detected device path change.  closing and reopening.";
         m_pInstrumentConnection->initialize();
         m_pConfig->clearDevicePathChanged();
+
+        // If the devicePath has changed, we need to initialize the serial settings
+        // regardless of whether they have changed.
+        initializeSerialSettings();
+        m_pConfig->clearSerialSettingsChanged();  // clear so we don't re-initialize
     }
 
     if (m_pConfig->serialSettingsChanged()) {
@@ -342,26 +347,13 @@ void PortAgent::initializeSerialInstrumentConnection() {
     }
 
     if (!connection->connected()) {
-        LOG(DEBUG) << "Instrument not connected, attempting to reconnect";
+        LOG(DEBUG) << "Instrument not connected, attempting to open device";
         LOG(DEBUG2) << "device path: " << connection->devicePath();
 
         setState(STATE_DISCONNECTED);
 
-        try {
-            connection->initialize();
-        }
-        // DHE TODO:
-        // throw the correct exception for the serial connection
-        catch(SocketConnectFailure &e) {
-            connection->disconnect();
-            string msg = e.what();
-            LOG(ERROR) << msg;
-        };
-
-        // Let everything connect
-        sleep(SELECT_SLEEP_TIME);
+        connection->initialize();
     }
-
 
     if (connection->connected())
         setState(STATE_CONNECTED);
