@@ -324,18 +324,21 @@ void PortAgent::initializeSerialInstrumentConnection() {
     }
 
     // Create the connection object
-    // DHE TODO: Need to check for configuration change here and reinitialize if so,
-    // but for now...
     if (!connection) {
         m_pInstrumentConnection = connection = new InstrumentSerialConnection();
-
         connection->setDevicePath(m_pConfig->devicePath());
-        connection->setBaud(m_pConfig->baud());
-        connection->setFlowControl(m_pConfig->flow());
-        connection->setStopBits(m_pConfig->stopbits());
-        connection->setDataBits(m_pConfig->databits());
-        connection->setParity(m_pConfig->parity());
-        connection->initialize();
+    }
+
+    if (m_pConfig->devicePathChanged()) {
+        LOG(INFO) << "Detected device path change.  closing and reopening.";
+        m_pInstrumentConnection->initialize();
+        m_pConfig->clearDevicePathChanged();
+    }
+
+    if (m_pConfig->serialSettingsChanged()) {
+        LOG(INFO) << "Detected connection configuration change.  reconfiguring.";
+        initializeSerialSettings();
+        m_pConfig->clearSerialSettingsChanged();
     }
 
     if (!connection->connected()) {
@@ -362,6 +365,25 @@ void PortAgent::initializeSerialInstrumentConnection() {
 
     if (connection->connected())
         setState(STATE_CONNECTED);
+}
+
+
+/******************************************************************************
+ * Method: initializeSerialSettings
+ * Description: initialize serial settings; can be done independently of opening
+ * the device driver (i.e., we can change serial settings without closing the
+ * device driver and re-opening).
+ ******************************************************************************/
+void PortAgent::initializeSerialSettings() {
+    InstrumentSerialConnection *pConnection = (InstrumentSerialConnection *) m_pInstrumentConnection;
+
+    pConnection->setBaud(m_pConfig->baud());
+    pConnection->setFlowControl(m_pConfig->flow());
+    pConnection->setStopBits(m_pConfig->stopbits());
+    pConnection->setDataBits(m_pConfig->databits());
+    pConnection->setParity(m_pConfig->parity());
+    pConnection->initializeSerialSettings();
+
 }
 
 /******************************************************************************
@@ -545,9 +567,11 @@ void PortAgent::handlePortAgentCommand(const char * commands) {
     
     processPortAgentCommands();
     // TODO: Add code for commands. i.e. Configuration Update, shutdown, etc...
-    
-    if(m_pConfig->isConfigured())
-        setState(STATE_CONFIGURED);
+
+    // TODO: This messes things up; when a command like BREAK comes in, we don't
+    // want to go to STATE_CONFIGURED.
+    //if(m_pConfig->isConfigured())
+    //    setState(STATE_CONFIGURED);
 }
 
 /******************************************************************************

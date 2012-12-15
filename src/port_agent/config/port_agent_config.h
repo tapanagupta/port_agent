@@ -129,7 +129,10 @@ namespace port_agent {
             uint32_t outputThrottle() { return m_outputThrottle; }
             uint32_t maxPacketSize() { return m_maxPacketSize; }
             
-            
+            bool    devicePathChanged() { return m_bDevicePathChanged; }
+            void    clearDevicePathChanged() { m_bDevicePathChanged = false; }
+            bool    serialSettingsChanged() { return m_bSerialSettingsChanged; }
+            void    clearSerialSettingsChanged() { m_bSerialSettingsChanged = false; }
             const string & devicePath() { return m_devicePath; }
             uint32_t breakDuration() { return m_breakDuration; }
             uint32_t baud() { return m_baud; }
@@ -184,7 +187,9 @@ namespace port_agent {
             
             InstrumentConnectionType m_instrumentConnectionType;
             
-            string m_devicePath;
+            bool    m_bDevicePathChanged;
+            bool    m_bSerialSettingsChanged;
+            string  m_devicePath;
             uint32_t m_breakDuration;
             uint32_t m_baud;
             uint16_t m_stopbits;

@@ -62,6 +62,8 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_instrumentConnectionType = TYPE_UNKNOWN;
     
     // Connection settings
+    m_bDevicePathChanged = true;
+    m_bSerialSettingsChanged = true;
     m_baud = 0;
     m_stopbits = 1;
     m_databits = 8;
@@ -263,7 +265,7 @@ bool PortAgentConfig::parse(const string &commands) {
         LOG(DEBUG) << "Config CMD: " << cmd;
         
         if(!processCommand(cmd)) {
-            LOG(DEBUG) << "failed to parse: " << cmd;
+            LOG(ERROR) << "failed to parse: " << cmd;
             return false;
         }
     }
@@ -1065,32 +1067,43 @@ bool PortAgentConfig::processCommand(const string & command) {
         m_instrumentAddr = param;
     }
     
-    else if(cmd == "device") {
+    else if(cmd == "device_path") {
+        m_bDevicePathChanged = true;
         addCommand(CMD_COMM_CONFIG_UPDATE);
         return setDevicePath(param);
     }
 
+    // For baud, stopbits, databits, parity, and flow we set the
+    // m_bSerialSettingsChanged flag; if just the serial settings
+    // have changed (and not the device_path), we don't want to
+    // close the device driver but rather just reinitialize the
+    // serial settings.
     else if(cmd == "baud") {
+        m_bSerialSettingsChanged = true;
         addCommand(CMD_COMM_CONFIG_UPDATE);
         return setBaud(param);
     }
     
     else if(cmd == "stopbits") {
+        m_bSerialSettingsChanged = true;
         addCommand(CMD_COMM_CONFIG_UPDATE);
         return setStopbits(param);
     }
     
     else if(cmd == "databits") {
+        m_bSerialSettingsChanged = true;
         addCommand(CMD_COMM_CONFIG_UPDATE);
         return setDatabits(param);
     }
     
     else if(cmd == "parity") {
+        m_bSerialSettingsChanged = true;
         addCommand(CMD_COMM_CONFIG_UPDATE);
         return setParity(param);
     }
     
     else if(cmd == "flow") {
+        m_bSerialSettingsChanged = true;
         addCommand(CMD_COMM_CONFIG_UPDATE);
         return setFlow(param);
     }

@@ -79,6 +79,7 @@ namespace port_agent {
             void setStopBits(const uint16_t &iStopBits);
             void setDataBits(const uint16_t &iDataBits);
             void setParity(const uint16_t &iParity);
+            void initializeSerialSettings();
             
             const string & devicePath() { return m_oDataSocket.devicePath(); }
             bool connected() { return m_oDataSocket.connected(); }

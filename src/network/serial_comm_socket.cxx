@@ -108,135 +108,142 @@ bool SerialCommSocket::initialize() {
  * Method: initializeDevice
  * Description: Perform required initialization.
  ******************************************************************************/
-//bool SerialCommSocket::initializeDevice(string pDeviceName) {
 bool SerialCommSocket::initialize() {
     bool bReturnCode = true;
 
-    bIsConfigured = true;
-
-    // TODO: after setting new configuration, compare to make sure it was
-    // actually set: if not set bIsConfigured to false.
-    // TODO: this open needs to be separate; we need the ability to change
-    // the configuration (termios settings) independently of opening the device.
     if (m_pSocketFD) {
         close(m_pSocketFD);
     }
     m_pSocketFD = open(m_sDevicePath.c_str(), O_RDWR);
     if (0 > m_pSocketFD) {
         LOG(ERROR) << "Failed to open device: "; //<< pDeviceName;
-    }
-    else {
-        // configure the port here.
-        struct termios config, saveconfig, newconfig;
-
-        // save the current config first
-        tcgetattr(m_pSocketFD, &saveconfig);
-
-        // now get one to modify
-        tcgetattr(m_pSocketFD, &config);
-
-        // Input flags - Turn off input processing
-        // convert break to null byte, no CR to NL translation,
-        // no NL to CR translation, don't mark parity errors or breaks
-        // no input parity check, don't strip high bit off,
-        // no XON/XOFF software flow control
-        //
-        config.c_iflag &= ~(IGNBRK | BRKINT | ICRNL |
-                            INLCR | PARMRK | INPCK | ISTRIP | IXON);
-
-        //
-        // Output flags - Turn off output processing
-        // no CR to NL translation, no NL to CR-NL translation,
-        // no NL to CR translation, no column 0 CR suppression,
-        // no Ctrl-D suppression, no fill characters, no case mapping,
-        // no local output processing
-        //
-        // config.c_oflag &= ~(OCRNL | ONLCR | ONLRET |
-        //                     ONOCR | ONOEOT| OFILL | OLCUC | OPOST);
-        config.c_oflag = 0;
-
-        //
-        // Set flow control
-        //
-        if (m_flowControl == FLOW_CONTROL_NONE) {
-            config.c_lflag &= ~CRTSCTS;
-        }
-        else if (m_flowControl == FLOW_CONTROL_HARDWARE) {
-            config.c_lflag |= CRTSCTS;
-        }
-        else if (m_flowControl == FLOW_CONTROL_SOFTWARE) {
-            config.c_lflag &= ~CRTSCTS;
-            config.c_lflag |= IXON;
-        }
-
-        //
-        // No line processing:
-        // echo off, echo newline off, canonical mode off,
-        // extended input processing off, signal chars off
-        //
-        config.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
-
-        //
-        // Set parity based on given param.
-        if (m_parity == PARITY_ODD) {
-            config.c_cflag |= (PARENB | PARODD);
-        }
-        else if (m_parity == PARITY_EVEN) {
-            config.c_cflag |= PARENB;
-        }
-        else {
-            config.c_cflag &= ~PARENB;
-        }
-
-        //
-        // Now set data bits based on given param; clear first
-        //
-        config.c_cflag &= ~(CSIZE);
-        if (m_dataBits == DATABITS_5) {
-            config.c_cflag |= CS5;
-        }
-        else if (m_dataBits == DATABITS_6) {
-            config.c_cflag |= CS6;
-        }
-        else if (m_dataBits == DATABITS_7) {
-            config.c_cflag |= CS7;
-        }
-        else {
-            config.c_cflag |= CS8;
-        }
-
-        // Set stop bits.  If set to 2, set, otherwise clear.
-        if (m_stopBits == STOPBITS_2) {
-            config.c_cflag |= CSTOPB;
-        }
-        else {
-            config.c_cflag &= ~CSTOPB;
-        }
-
-        //
-        // One input byte is enough to return from read()
-        // Inter-character timer off
-        //
-        config.c_cc[VMIN]  = 1;
-        config.c_cc[VTIME] = 0;
-        //
-        // Communication speed (simple version, using the predefined
-        // constants)
-        //
-        if (cfsetispeed(&config, m_baud) < 0 || cfsetospeed(&config, m_baud) < 0) {
-            LOG(ERROR) << "set baud failed.";
-            bIsConfigured = false;
-        }
-        //
-        // Finally, apply the configuration
-        //
-        if (tcsetattr(m_pSocketFD, TCSAFLUSH, &config) < 0) {
-            LOG(ERROR) << "set serial attribute failed: " << strerror(errno);
-            bIsConfigured = false;
-        }
+        bReturnCode = false;
     }
 
     return bReturnCode;
+}
+
+/******************************************************************************
+ * Method: initializeSerialSettings
+ * Description: Initialize all serial settings
+ ******************************************************************************/
+bool SerialCommSocket::initializeSerialSettings() {
+    bIsConfigured = true;
+
+    // TODO: after setting new configuration, compare to make sure it was
+    // actually set: if not set bIsConfigured to false.
+    // TODO: this open needs to be separate; we need the ability to change
+    // the configuration (termios settings) independently of opening the device.
+
+    struct termios config, saveconfig, newconfig;
+
+    // save the current config first
+    tcgetattr(m_pSocketFD, &saveconfig);
+
+    // now get one to modify
+    tcgetattr(m_pSocketFD, &config);
+
+    // Input flags - Turn off input processing
+    // convert break to null byte, no CR to NL translation,
+    // no NL to CR translation, don't mark parity errors or breaks
+    // no input parity check, don't strip high bit off,
+    // no XON/XOFF software flow control
+    //
+    config.c_iflag &= ~(IGNBRK | BRKINT | ICRNL |
+                        INLCR | PARMRK | INPCK | ISTRIP | IXON);
+
+    //
+    // Output flags - Turn off output processing
+    // no CR to NL translation, no NL to CR-NL translation,
+    // no NL to CR translation, no column 0 CR suppression,
+    // no Ctrl-D suppression, no fill characters, no case mapping,
+    // no local output processing
+    //
+    // config.c_oflag &= ~(OCRNL | ONLCR | ONLRET |
+    //                     ONOCR | ONOEOT| OFILL | OLCUC | OPOST);
+    config.c_oflag = 0;
+
+    //
+    // Set flow control
+    //
+    if (m_flowControl == FLOW_CONTROL_NONE) {
+        config.c_lflag &= ~CRTSCTS;
+    }
+    else if (m_flowControl == FLOW_CONTROL_HARDWARE) {
+        config.c_lflag |= CRTSCTS;
+    }
+    else if (m_flowControl == FLOW_CONTROL_SOFTWARE) {
+        config.c_lflag &= ~CRTSCTS;
+        config.c_lflag |= IXON;
+    }
+
+    //
+    // No line processing:
+    // echo off, echo newline off, canonical mode off,
+    // extended input processing off, signal chars off
+    //
+    config.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
+
+    //
+    // Set parity based on given param.
+    if (m_parity == PARITY_ODD) {
+        config.c_cflag |= (PARENB | PARODD);
+    }
+    else if (m_parity == PARITY_EVEN) {
+        config.c_cflag |= PARENB;
+    }
+    else {
+        config.c_cflag &= ~PARENB;
+    }
+
+    //
+    // Now set data bits based on given param; clear first
+    //
+    config.c_cflag &= ~(CSIZE);
+    if (m_dataBits == DATABITS_5) {
+        config.c_cflag |= CS5;
+    }
+    else if (m_dataBits == DATABITS_6) {
+        config.c_cflag |= CS6;
+    }
+    else if (m_dataBits == DATABITS_7) {
+        config.c_cflag |= CS7;
+    }
+    else {
+        config.c_cflag |= CS8;
+    }
+
+    // Set stop bits.  If set to 2, set, otherwise clear.
+    if (m_stopBits == STOPBITS_2) {
+        config.c_cflag |= CSTOPB;
+    }
+    else {
+        config.c_cflag &= ~CSTOPB;
+    }
+
+    //
+    // One input byte is enough to return from read()
+    // Inter-character timer off
+    //
+    config.c_cc[VMIN]  = 1;
+    config.c_cc[VTIME] = 0;
+    //
+    // Communication speed (simple version, using the predefined
+    // constants)
+    //
+    if (cfsetispeed(&config, m_baud) < 0 || cfsetospeed(&config, m_baud) < 0) {
+        LOG(ERROR) << "set baud failed.";
+        bIsConfigured = false;
+    }
+    //
+    // Finally, apply the configuration
+    //
+    if (tcsetattr(m_pSocketFD, TCSAFLUSH, &config) < 0) {
+        LOG(ERROR) << "set serial attribute failed: " << strerror(errno);
+        bIsConfigured = false;
+    }
+
+    return bIsConfigured;
 }
 
 /******************************************************************************

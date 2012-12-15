@@ -50,6 +50,7 @@ namespace network {
 			CommType type() { return COMM_SERIAL_SOCKET; }
 
             // Initialize
+            bool initializeSerialSettings();
             bool initialize();
 			
             // Does this object have a complete configuration?
