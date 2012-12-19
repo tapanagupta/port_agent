@@ -329,34 +329,31 @@ void PortAgent::initializeSerialInstrumentConnection() {
         connection->setDevicePath(m_pConfig->devicePath());
     }
 
-    if (m_pConfig->devicePathChanged()) {
-        LOG(INFO) << "Detected device path change.  closing and reopening.";
+    if (m_pConfig->devicePathChanged() || !connection->connected()) {
+        LOG(INFO) << "Detected device path change or not opened.  closing and reopening.";
         m_pInstrumentConnection->initialize();
         m_pConfig->clearDevicePathChanged();
 
         // If the devicePath has changed, we need to initialize the serial settings
         // regardless of whether they have changed.
-        initializeSerialSettings();
-        m_pConfig->clearSerialSettingsChanged();  // clear so we don't re-initialize
+        if (initializeSerialSettings()) {
+            m_pConfig->clearSerialSettingsChanged();  // clear so we don't re-initialize
+        }
     }
 
-    if (m_pConfig->serialSettingsChanged()) {
+    // If any of the serial settings have changed, reinitialize them.
+    if (m_pConfig->serialSettingsChanged() && connection->connected()) {
         LOG(INFO) << "Detected connection configuration change.  reconfiguring.";
         initializeSerialSettings();
         m_pConfig->clearSerialSettingsChanged();
     }
 
-    if (!connection->connected()) {
-        LOG(DEBUG) << "Instrument not connected, attempting to open device";
-        LOG(DEBUG2) << "device path: " << connection->devicePath();
-
-        setState(STATE_DISCONNECTED);
-
-        connection->initialize();
-    }
-
-    if (connection->connected())
+    if (connection->connected()) {
         setState(STATE_CONNECTED);
+    }
+    else {
+        setState(STATE_DISCONNECTED);
+    }
 }
 
 
@@ -366,7 +363,7 @@ void PortAgent::initializeSerialInstrumentConnection() {
  * the device driver (i.e., we can change serial settings without closing the
  * device driver and re-opening).
  ******************************************************************************/
-void PortAgent::initializeSerialSettings() {
+bool PortAgent::initializeSerialSettings() {
     InstrumentSerialConnection *pConnection = (InstrumentSerialConnection *) m_pInstrumentConnection;
 
     pConnection->setBaud(m_pConfig->baud());
@@ -374,7 +371,7 @@ void PortAgent::initializeSerialSettings() {
     pConnection->setStopBits(m_pConfig->stopbits());
     pConnection->setDataBits(m_pConfig->databits());
     pConnection->setParity(m_pConfig->parity());
-    pConnection->initializeSerialSettings();
+    return pConnection->initializeSerialSettings();
 
 }
 

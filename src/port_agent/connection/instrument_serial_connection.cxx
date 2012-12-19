@@ -245,8 +245,8 @@ void InstrumentSerialConnection::initializeCommandSocket() {
  * Method: initializeSerialSettings
  * Description: Initialize serial settings.
  ******************************************************************************/
-void InstrumentSerialConnection::initializeSerialSettings() {
-        m_oDataSocket.initializeSerialSettings();
+bool InstrumentSerialConnection::initializeSerialSettings() {
+        return m_oDataSocket.initializeSerialSettings();
 }
 
 /******************************************************************************

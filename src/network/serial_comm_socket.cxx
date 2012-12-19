@@ -116,7 +116,11 @@ bool SerialCommSocket::initialize() {
     }
     m_pSocketFD = open(m_sDevicePath.c_str(), O_RDWR);
     if (0 > m_pSocketFD) {
-        LOG(ERROR) << "Failed to open device: "; //<< pDeviceName;
+        ostringstream os;
+        os << "Failed to open device: " << m_sDevicePath << ": " << strerror(errno);
+        string errorString = os.str();
+        LOG(ERROR) << errorString;
+        throw DeviceOpenFailure(errorString);
         bReturnCode = false;
     }
 
@@ -130,15 +134,7 @@ bool SerialCommSocket::initialize() {
 bool SerialCommSocket::initializeSerialSettings() {
     bIsConfigured = true;
 
-    // TODO: after setting new configuration, compare to make sure it was
-    // actually set: if not set bIsConfigured to false.
-    // TODO: this open needs to be separate; we need the ability to change
-    // the configuration (termios settings) independently of opening the device.
-
-    struct termios config, saveconfig, newconfig;
-
-    // save the current config first
-    tcgetattr(m_pSocketFD, &saveconfig);
+    struct termios config, newconfig;
 
     // now get one to modify
     tcgetattr(m_pSocketFD, &config);
@@ -186,6 +182,7 @@ bool SerialCommSocket::initializeSerialSettings() {
 
     //
     // Set parity based on given param.
+    //
     if (m_parity == PARITY_ODD) {
         config.c_cflag |= (PARENB | PARODD);
     }
@@ -213,7 +210,9 @@ bool SerialCommSocket::initializeSerialSettings() {
         config.c_cflag |= CS8;
     }
 
+    //
     // Set stop bits.  If set to 2, set, otherwise clear.
+    //
     if (m_stopBits == STOPBITS_2) {
         config.c_cflag |= CSTOPB;
     }
@@ -227,6 +226,7 @@ bool SerialCommSocket::initializeSerialSettings() {
     //
     config.c_cc[VMIN]  = 1;
     config.c_cc[VTIME] = 0;
+
     //
     // Communication speed (simple version, using the predefined
     // constants)
@@ -235,6 +235,7 @@ bool SerialCommSocket::initializeSerialSettings() {
         LOG(ERROR) << "set baud failed.";
         bIsConfigured = false;
     }
+
     //
     // Finally, apply the configuration
     //
