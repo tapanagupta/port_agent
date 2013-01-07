@@ -159,6 +159,7 @@ TEST_F(CommonTest, Commands) {
     commands << "get_state\n";
     commands << "ping\n";
     commands << "break\n";
+    commands << "break 1000\n";
     commands << "shutdown\n";
     
     EXPECT_TRUE(config.parse(commands.str()));
