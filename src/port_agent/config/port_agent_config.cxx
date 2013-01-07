@@ -421,25 +421,23 @@ string PortAgentConfig::getConfig() {
  *****************************************************************************/
 bool PortAgentConfig::setInstrumentBreakDuration(const string &param) {
     m_breakDuration = 0;
-    bool bReturnCode = true;
 
     if (0 == param.size()) {
-        LOG(ERROR) << "break duration not specified; using 0.";
-        bReturnCode = false;
+        LOG(INFO) << "break duration not specified; using " << DEFAULT_BREAK_DURATION;
+        m_breakDuration = DEFAULT_BREAK_DURATION;
     }
     else {
         const char* v = param.c_str();
         int value = atoi(v);
         if (value < 0) {
-            LOG(ERROR) << "attempt to set break duration to a negative.  using 0 instead.";
-            value = 0;
-            bReturnCode = false;
+            LOG(INFO) << "attempt to set break duration to a negative.  using default.";
+            value = DEFAULT_BREAK_DURATION;
         }
         m_breakDuration = value;
     }
 
     LOG(INFO) << "set break duration to " << m_breakDuration;
-    return bReturnCode;
+    return true;
 }
 
 /******************************************************************************
@@ -1110,6 +1108,7 @@ bool PortAgentConfig::processCommand(const string & command) {
     
     // Couldn't parse this command
     else {
+        LOG(ERROR) << "Failed to parse command: " << cmd;
         return false;
     }
     

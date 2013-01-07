@@ -147,7 +147,8 @@ TEST_F(CommonTest, Commands) {
     
     PortAgentConfig config(argc, argv);
 
-    // Test a single line parse
+    LOG(ERROR) << "FOOBAR";
+	// Test a single line parse
     EXPECT_TRUE(config.parse("help"));
     
     // Test a multiline parse
