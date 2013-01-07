@@ -82,6 +82,7 @@ Logger::Logger()
     m_pException = NULL;
     m_iLastLogDate = 0;
     m_sLogfileStream = NULL;
+	m_sLogoutStream = NULL;
 }
 
 
@@ -149,9 +150,10 @@ string Logger::getLogFilename() {
 void Logger::Flush() {
     Logger* instance = Logger::Instance();
     instance->clearError();
-    
-    WriteLog(m_sLogoutStream.str());
-    
+    ostringstream *stream = instance->getBufferStream();
+	
+    WriteLog(stream->str());
+	instance->clearBufferStream();
 }
 
 /******************************************************************************
@@ -166,7 +168,7 @@ void Logger::WriteLog(string message) {
     if(message.length()) {
         ofstream* logout = instance->getLogStream();
         if(logout){
-	    *logout << message << endl;
+	        *logout << message << endl;
 	    if(logout->good())
 	        return;
     
@@ -345,23 +347,24 @@ OOIException* Logger::GetError() {
  *   file - filename of caller
  *   fun - function name of caller
  *   line - line number of caller
- * Return:^^
+ * Return:
  *   ostringstream object with the message buffered.
  ******************************************************************************/
 ostringstream& Logger::Get(TLogLevel level, const string &file, int line)
 {
     Logger* instance = Logger::Instance();
+	ostringstream *stream = instance->getBufferStream();
     
     if(level <= GetLogLevel()) {
-        m_sLogoutStream << instance->nowTime() << " " << file << " " << " [" << line << "] ";
-        m_sLogoutStream << " " << instance->levelToString(level) << ": ";
+        *stream << instance->nowTime() << " " << file << " " << " [" << line << "] ";
+        *stream << " " << instance->levelToString(level) << ": ";
     
         // Indent debug messages
 	if(level < MESG && level >= DEBUG)
-	    m_sLogoutStream << string(level > DEBUG ? level - DEBUG : 0, '\t');
+	    *stream << string(level > DEBUG ? level - DEBUG : 0, '\t');
     }
     
-    return m_sLogoutStream;
+    return *stream;
 }
 
 
@@ -406,6 +409,34 @@ int Logger::fileDate()
     return atoi(buffer);
 }
 
+/******************************************************************************
+ * Method: clearBufferStream
+ * Description: clear out the current buffer stream
+ ******************************************************************************/
+void Logger::clearBufferStream() {
+    if(m_sLogoutStream) {
+		delete m_sLogoutStream;
+	}
+		
+	m_sLogoutStream = NULL;
+}
+
+/******************************************************************************
+ * Method: getBufferStream
+ * Description: return a pointer to an ostringstream object for buffering a log
+ * message
+ * 
+ * Return:
+ *   ostrstream* pointer to an ostringstream object
+ ******************************************************************************/
+ostringstream* Logger::getBufferStream() {
+    if(! m_sLogoutStream) {
+		m_sLogoutStream = new ostringstream;
+	}
+	
+	return m_sLogoutStream;
+}
+	
 /******************************************************************************
  * Method: getLogStream
  * Description: return a pointer to an ofstream object for writing to a log

@@ -138,7 +138,7 @@ namespace logger {
 		static string ToString(TLogLevel level);
 
 		// Write the current log buffer to the file
-		void Flush();
+		static void Flush();
 
 		// Write a message to the log file right away
 		static void WriteLog(string message);
@@ -156,12 +156,12 @@ namespace logger {
 	protected:
 		static Logger* m_pInstance;
 
-		ostringstream m_sLogoutStream;
+		ostringstream* m_sLogoutStream;
 		ofstream* m_sLogfileStream;
 
-                string m_sCallerFile;
-                string m_sCallerFunction;
-                int m_iCallerLine;
+        string m_sCallerFile;
+        string m_sCallerFunction;
+        int m_iCallerLine;
                 
 		TLogLevel m_tLogLevel;
 		string m_sLogFileBase;
@@ -184,6 +184,12 @@ namespace logger {
 
 		// Get / Create a ofstream object to write the log file.
 		ofstream* getLogStream();
+
+		// Get / Create a ostringstream object for buffering log messages
+		ostringstream* getBufferStream();
+
+		// Clear the log buffer
+		void clearBufferStream();
 
 		// Return a formatted date/time string for the log message
 		string nowTime();
