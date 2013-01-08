@@ -120,6 +120,10 @@ bool SerialCommSocket::initialize() {
         os << "Failed to open device: " << m_sDevicePath << ": " << strerror(errno);
         string errorString = os.str();
         LOG(ERROR) << errorString;
+        // DHE: I've noticed that without this, CPU runs to 99/100 percent.
+        // Doesn't seem like the select() sleep is working.  This definitely
+        // helps; leaving it in until select() sleep is resolved.
+        sleep(OPEN_FAIL_SLEEP_TIME);
         throw DeviceOpenFailure(errorString);
         bReturnCode = false;
     }
