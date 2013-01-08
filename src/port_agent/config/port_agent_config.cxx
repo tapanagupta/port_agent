@@ -420,7 +420,7 @@ string PortAgentConfig::getConfig() {
  *     types.
  *****************************************************************************/
 bool PortAgentConfig::setInstrumentBreakDuration(const string &param) {
-    m_breakDuration = 0;
+    m_breakDuration = DEFAULT_BREAK_DURATION;
 
     if (0 == param.size()) {
         LOG(INFO) << "break duration not specified; using " << DEFAULT_BREAK_DURATION;

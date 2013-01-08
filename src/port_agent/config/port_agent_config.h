@@ -23,7 +23,7 @@
 using namespace std;
 
 #define DEFAULT_PACKET_SIZE   1024
-#define DEFAULT_BREAK_DURATION 500
+#define DEFAULT_BREAK_DURATION 0
 #define MAX_PACKET_SIZE       65472
 
 #define BASE_FILENAME "port_agent"

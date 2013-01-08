@@ -336,8 +336,6 @@ OOIException* Logger::GetError() {
     return instance->m_pException;
 }
 
-
-
 /******************************************************************************
  * Method: Get
  * Description: Construct a log message timestamp using an ostringstream.
@@ -367,11 +365,9 @@ ostringstream& Logger::Get(TLogLevel level, const string &file, int line)
     return *stream;
 }
 
-
 /******************************************************************************
  *   PRIVATE METHODS
  ******************************************************************************/
-
 
 /******************************************************************************
  * Method: NowTime
