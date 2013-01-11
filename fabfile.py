@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from fabric.api import *
+from fabric.contrib.console import confirm
 import os
 import re
 
@@ -137,3 +138,30 @@ def release(branch):
     # Push commits and tags
     local('git push %s --tags' % (remote))
     local('git push %s %s' % (remote, branch))
+
+env.hosts = ['rsn-port-agent-test.oceanobservatories.org']
+env.user = 'buildbot-runner'
+
+def deploy():
+    with cd('~/port_agent'):
+        run("rm -rf port_agent")
+        run("git clone git://github.com/ooici/port_agent.git port_agent")
+    code_dir = '~/port_agent/port_agent'
+    with cd(code_dir):
+        run("echo PORT AGENT VERSIONS")
+        run('git tag | sort -r')
+        currentVersionStr = run('git tag | sort -r | head -1').strip()
+        versionStr = prompt('Please enter version to be deployed:',
+               default=currentVersionStr)
+        run("git checkout %s" % versionStr)
+        run('./configure --prefix=/opt/ooi/port_agent.%s' % versionStr[1:])
+        with settings(warn_only=True):
+            result = run('make check')
+            if result.failed and not confirm("Tests failed.  Continue anyway?"):
+                abort("Aborting at user request.")
+        run("make install")
+        if confirm("Soft link /opt/ooi/port_agent.%s to \
+                /opt/ooi/port_agent?" % versionStr[1:]):
+            run('echo Linking now')
+            run("rm /opt/ooi/port_agent")
+            run("ln -s /opt/ooi/port_agent.%s/ /opt/ooi/port_agent" % versionStr[1:])
