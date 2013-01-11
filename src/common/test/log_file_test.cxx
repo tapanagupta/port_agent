@@ -35,6 +35,8 @@ class LogFileTest : public testing::Test {
         }
     
         virtual void TearDown() {
+			remove_file(LOGFILE);
+            remove_file(Logger::Instance()->getLogFilename().c_str());
         }
     
         ~LogFileTest() {
