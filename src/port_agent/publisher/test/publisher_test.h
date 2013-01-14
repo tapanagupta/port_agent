@@ -81,7 +81,7 @@ class FilePointerPublisherTest : public PublisherTest {
     
             for(int i = 0; i < 20; i++) {
                 if(i < 6 || i > 7)
-                    checksum += expected[i];
+                    checksum = checksum ^ byteToUnsignedInt(expected[i]);
 
                 buffer[i] = expected[i];
             }
