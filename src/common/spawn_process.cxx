@@ -61,12 +61,11 @@ string SpawnProcess::cmd_as_string() {
     stringstream cmd;
     list<string>::iterator i;
     
-    LOG(DEBUG) << "cma_as_string: size: " << m_cmd_argv.size();
+    LOG(DEBUG) << "cmd_as_string cmd: " << m_cmd;
+    LOG(DEBUG) << "cmd_as_string args size: " << m_cmd_argv.size();
     cmd << m_cmd << " ";
     for(i=m_cmd_argv.begin(); i != m_cmd_argv.end(); ++i)
         cmd << *i << " "; 
-    
-    //cmd << ends;
     
     return cmd.str();
 }
@@ -93,7 +92,9 @@ bool SpawnProcess::run() {
     int result;
     int j = 0;
     
-    LOG(DEBUG) << "Spawn process: " << cmd_as_string();
+    string cmd = cmd_as_string();
+	LOG(DEBUG) << "Spawn process: " << cmd << endl;
+    LOG(DEBUG) << "Spawn process length: " << cmd  << endl;
     
     if(! m_cmd.length())
         throw LaunchCommandMissing();

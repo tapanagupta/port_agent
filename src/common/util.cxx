@@ -42,6 +42,8 @@ string stackTrace(const unsigned int levels = 99) {
 
     stack_depth = backtrace(stack_addrs, levels);
     stack_strings = backtrace_symbols(stack_addrs, stack_depth);
+	cout << "Depth: " << stack_depth << endl;
+	cout << "Strings: " << stack_strings << endl;
 
     for (size_t i = 1; i < stack_depth; i++) {
         out << "\t" << stack_strings[i] << endl;
