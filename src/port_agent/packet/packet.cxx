@@ -218,7 +218,7 @@ string Packet::pretty() {
     ostringstream out;
     
     char* packetBuffer = packet();
-
+	
     // Output some pretty header information from the packet.  Ready to send
     // is not part of the packet header, but it sure is useful information.
     out << endl;
@@ -232,6 +232,8 @@ string Packet::pretty() {
     out << "Size: " << m_iPacketSize << endl;
     out << "Checksum: " << hex << m_iChecksum << dec << endl;
     out << "Timestamp: " << m_oTimestamp.asNumber() << endl;
+	
+	LOG(DEBUG) << "Size: " << m_iPacketSize;
     
     // Let's dump some raw data, first as ascii.
     out << "Payload (ascii): ";
@@ -246,6 +248,7 @@ string Packet::pretty() {
         out << "<NULL>" << endl;
     }
     out << endl;
+	LOG(DEBUG) << "Completed acsii generation";
 
     // Hex out, packet data
     out << "Payload (hex): ";
@@ -260,6 +263,7 @@ string Packet::pretty() {
         out << "<NULL>" << endl;
     }
     out << endl;
+	LOG(DEBUG) << "Completed hex generation";
     
     // Finally the full packet hex output.  Shows the header.
     out << "Full Packet (hex): ";
@@ -273,6 +277,7 @@ string Packet::pretty() {
     } else {
         out << "<NULL>" << endl;
     }
+	LOG(DEBUG) << "Completed hex packet generation";
     
     return out.str();
 }
@@ -292,7 +297,7 @@ char* Packet::packet() {
     uint64_t ts = m_oTimestamp.asBinary();
     uint32_t sync = htonl(SYNC) >> 8;
     uint16_t size = htons(m_iPacketSize);
-    uint16_t checksum;
+    uint16_t checksum = 0;
 
     if(m_pPacket) {
         memcpy(m_pPacket, &sync, 3);
@@ -335,12 +340,15 @@ uint16_t Packet::calculateChecksum() {
         for(int i = 0; i < packetSize(); i++) {
         	// Make sure we ignore the part of the buffer where we store the
         	// checksum value.
-        	if(i < 6 || i > 7)
-                 checksum += m_pPacket[i];
+        	if(i < 6 || i > 7) {
+                    checksum = checksum ^ byteToUnsignedInt(m_pPacket[i]);
+                    LOG(DEBUG) << "Interm Checksum: " << checksum;
+                }
         }
     }
         
-    return checksum;
+    LOG(DEBUG2) << "Checksum: " << checksum;
+	return checksum;
 }
 
 /******************************************************************************
