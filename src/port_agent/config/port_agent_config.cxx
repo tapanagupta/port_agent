@@ -263,6 +263,7 @@ bool PortAgentConfig::parse(const string &commands) {
     
     while(iss.getline(buffer, 1024)) {
         string cmd(buffer);
+        chomp(cmd);
         LOG(DEBUG) << "Config CMD: " << cmd;
         
         if(!processCommand(cmd)) {
@@ -1183,6 +1184,8 @@ bool PortAgentConfig::splitCommand(const string &raw, string & cmdResult, string
     }
     
     // We made it through the parser, store the results
+    chomp(cmd);
+    chomp(param);
     cmdResult = cmd;
     paramResult = param;
     return true;

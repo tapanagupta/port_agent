@@ -16,7 +16,7 @@ using namespace packet;
 using namespace network;
 using namespace publisher;
 
-#define SELECT_SLEEP_TIME 1
+#define SELECT_SLEEP_TIME 5
 
 namespace port_agent {
     
@@ -111,6 +111,7 @@ namespace port_agent {
             void handleInstrumentDataRead(const fd_set &readFDs);
             
             void publishFault(const string &msg);
+            void publishStatus(const string &msg);
             void publishPacket(Packet *packet);
             void publishPacket(char *payload, uint16_t size, PacketType type);
 

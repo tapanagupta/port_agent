@@ -27,6 +27,8 @@ bool file_exists(const char* filename);
 bool create_file(const char* filename, const char* content);
 string read_file(const char* filename);
 
+void chomp(string &target);
+
 bool mkpath(string file_path, mode_t mode = 0755);
 
 

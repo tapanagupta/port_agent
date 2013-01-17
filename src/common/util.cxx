@@ -184,4 +184,25 @@ bool mkpath(string file_path, mode_t mode)
     return true;
 }
 
+/******************************************************************************
+ * Method: chomp
+ * Description: remove newlines from the end of a string. it will remove:
+ *   \n, \r\n, \n\r, \r
+ * Parameters:
+ *   str - target string by reference
+ ******************************************************************************/
+void chomp(string &str)
+{
+	int len;
+	for(int i = 0; i <= 1; i++) {
+	    len = str.length();
+	    if(len == 0)
+		    return;
+        else if(str[len-1] == '\n' || str[len-1] == '\r')
+		    str.resize(len-1);
+		else
+		    return;
+	}
+	
+}
 

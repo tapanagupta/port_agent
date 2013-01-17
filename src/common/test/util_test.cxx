@@ -124,3 +124,39 @@ TEST_F(UtilTest, DISABLED_StackTrace) {
     EXPECT_TRUE(trace.length());
 }
 
+/* Test chomp */
+TEST_F(UtilTest, Chomp) {
+    string target;
+    string expected = "foo";
+    
+    // No newlines
+    target = "foo";
+    chomp(target);
+    EXPECT_EQ(target, expected);
+    
+    // \n
+    target = "foo\n";
+    chomp(target);
+    EXPECT_EQ(target, expected);
+    
+    // \r
+    target = "foo\r";
+    chomp(target);
+    EXPECT_EQ(target, expected);
+    
+    // \r\n
+    target = "foo\r\n";
+    chomp(target);
+    EXPECT_EQ(target, expected);
+    
+    // \n\r
+    target = "foo\n\r";
+    chomp(target);
+    EXPECT_EQ(target, expected);
+    
+    // This is not trailing so it won't be chomped
+    target = "foo\n\rbar";
+    expected = "foo\n\rbar";
+    EXPECT_EQ(target, expected);
+}
+

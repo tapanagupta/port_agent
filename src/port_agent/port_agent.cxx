@@ -584,15 +584,19 @@ void PortAgent::processPortAgentCommands() {
                 break;
             case CMD_SAVE_CONFIG:
                 LOG(DEBUG) << "same config command";
+                publishFault("not implemented");
                 break;
             case CMD_GET_CONFIG:
                 LOG(DEBUG) << "get config command";
+                publishFault("not implemented");
                 break;
             case CMD_GET_STATE:
                 LOG(DEBUG) << "get state command";
+                publishStatus(getCurrentStateAsString());
                 break;
             case CMD_PING:
                 LOG(DEBUG) << "ping command";
+                publishStatus("ping");
                 break;
             case CMD_BREAK:
                 LOG(DEBUG) << "break command";
@@ -604,6 +608,7 @@ void PortAgent::processPortAgentCommands() {
                 break;
             case CMD_SHUTDOWN:
                 LOG(DEBUG) << "shutdown command";
+                shutdown();
                 break;
         };
     }
@@ -1019,6 +1024,18 @@ void PortAgent::publishFault(const string &msg) {
     Packet packet(PORT_AGENT_FAULT, ts, (char *)(msg.c_str()), msg.length());
 
     LOG(ERROR) << "Port Agent Fault: " << msg;
+    publishPacket(&packet);
+}
+
+/******************************************************************************
+ * Method: publishStatus
+ * Description: Generate a status packet and send it to the publishers.
+ ******************************************************************************/
+void PortAgent::publishStatus(const string &msg) {
+    Timestamp ts;
+    Packet packet(PORT_AGENT_STATUS, ts, (char *)(msg.c_str()), msg.length());
+
+    LOG(ERROR) << "Port Agent Status: " << msg;
     publishPacket(&packet);
 }
 

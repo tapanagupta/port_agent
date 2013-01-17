@@ -342,7 +342,6 @@ uint16_t Packet::calculateChecksum() {
         	// checksum value.
         	if(i < 6 || i > 7) {
                     checksum = checksum ^ byteToUnsignedInt(m_pPacket[i]);
-                    LOG(DEBUG) << "Interm Checksum: " << checksum;
                 }
         }
     }
