@@ -51,7 +51,7 @@ namespace publisher {
         
         public:
 
-    	    FilePublisher() {}
+    	    FilePublisher(RotationType interval = DAILY) : m_tRotationInterval(interval) {}
 
             virtual bool operator==(FilePublisher &rhs);
             virtual bool compare(Publisher *rhs);
@@ -61,6 +61,9 @@ namespace publisher {
 
             // Set the file path and extension for rolling logs
              void setFilebase(string filebase, string fileext = "");
+
+            // Set the rotation interval
+             void setRotationInterval(RotationType interval);
 
             // Explicitly close the log file
             void close() { m_oLogger.close(); }
@@ -80,6 +83,7 @@ namespace publisher {
             
         private:
             LogFile m_oLogger;
+			RotationType m_tRotationInterval;
     };
 }
 

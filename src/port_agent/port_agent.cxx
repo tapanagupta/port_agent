@@ -69,7 +69,6 @@ PortAgent::PortAgent(int argc, char *argv[]) {
     
     m_pInstrumentConnection = NULL;
     m_pObservatoryConnection = NULL;
-    
 }
 
 /******************************************************************************
@@ -598,7 +597,10 @@ void PortAgent::processPortAgentCommands() {
             case CMD_BREAK:
                 LOG(DEBUG) << "break command";
                 m_pInstrumentConnection->sendBreak(m_pConfig->breakDuration());
-
+                break;
+            case CMD_ROTATION_INTERVAL:
+                LOG(DEBUG) << "set rotation interval";
+                setRotationInterval();
                 break;
             case CMD_SHUTDOWN:
                 LOG(DEBUG) << "shutdown command";
@@ -1192,5 +1194,19 @@ void PortAgent::setState(const PortAgentState &state) {
         LOG(DEBUG) << "***********************************************";
         LOG(DEBUG) << "State transition from " << previousState << " TO " << getCurrentStateAsString();
         LOG(DEBUG) << "***********************************************";
+    }
+}
+
+/******************************************************************************
+ * Method: setRotationInterval
+ * Description: Change the rotation interval for the data log publisher
+ ******************************************************************************/
+void PortAgent::setRotationInterval() {
+    RotationType type = m_pConfig->rotation_interval();
+        
+    Publisher *found = m_oPublishers.searchByType(PUBLISHER_FILE);
+    if(found) {
+        LOG(DEBUG) << "Found publisher.  Setting rotation interval";
+        ((FilePublisher*)found)->setRotationInterval(type);
     }
 }

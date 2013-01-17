@@ -115,6 +115,7 @@ namespace port_agent {
             void publishPacket(char *payload, uint16_t size, PacketType type);
 
             void displayVersion();
+            void setRotationInterval();
             
         /////
         // Members

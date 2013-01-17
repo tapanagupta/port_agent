@@ -1,5 +1,6 @@
 #include "common/exception.h"
 #include "common/logger.h"
+#include "common/log_file.h"
 #include "common/util.h"
 #include "port_agent/packet/packet.h"
 #include "port_agent/publisher/log_publisher.h"
@@ -135,9 +136,31 @@ TEST_F(LogPublisherTest, FailureNoFile) {
     EXPECT_FALSE(publisher.publish(&packet));
 }
 
+/* Test log rotation switching */
+TEST_F(LogPublisherTest, LogRotation) {
+    LogPublisher publisher;
+    publisher.setFilebase(DATAFILE);
+    
+	Timestamp ts(1, 0x80000000);
+	Packet packet(DATA_FROM_DRIVER, ts, "data", 4);
+
+    EXPECT_TRUE(publisher.publish(&packet));
+	
+	publisher.setRotationInterval(HOURLY);
+    EXPECT_TRUE(publisher.publish(&packet));
+    
+	publisher.setRotationInterval(QUARTER_HOURLY);
+	EXPECT_TRUE(publisher.publish(&packet));
+	
+	publisher.setRotationInterval(MINUTE);
+	EXPECT_TRUE(publisher.publish(&packet));
+	
+	publisher.setRotationInterval(SECOND);
+	EXPECT_TRUE(publisher.publish(&packet));
+}
 
 // Test equality operator
-TEST_F(LogPublisherTest, TCPCommSocketEqualityOperator) {
+TEST_F(LogPublisherTest, EqualityOperator) {
 	try {
     	LogPublisher leftPublisher, rightPublisher;
     	

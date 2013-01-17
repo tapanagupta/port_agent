@@ -1,5 +1,6 @@
 #include "publisher_test.h"
 #include "common/logger.h"
+#include "common/log_file.h"
 #include "common/util.h"
 #include "port_agent/packet/packet.h"
 #include "port_agent/publisher/publisher_list.h"
@@ -226,3 +227,24 @@ TEST_F(PublisherListTest, DISABLED_DuplicateAddTest) {
 	EXPECT_EQ(list.size(), 2);
 }
 
+TEST_F(PublisherListTest, SearchAndSetRotation) {
+	PublisherList list;
+	LogPublisher publisher;
+	
+	TCPCommSocket socketA;
+    socketA.setHostname("localhost");
+    socketA.setPort(OBSERVATORY_COMMAND_PORT);
+    TCPPublisher publisherA(&socketA);
+            
+	list.add(&publisherA);
+	EXPECT_EQ(list.size(), 1);
+	
+	EXPECT_FALSE(list.searchByType(PUBLISHER_FILE));
+	
+	list.add(&publisher);
+	EXPECT_EQ(list.size(), 2);
+	Publisher *found = list.searchByType(PUBLISHER_FILE);
+	EXPECT_TRUE(found);
+	
+	((FilePublisher*)found)->setRotationInterval(HOURLY);
+}
