@@ -40,7 +40,7 @@ using namespace port_agent;
  ******************************************************************************/
 PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     
-    char c = 0;
+    int c = 0;
     
     
     if(argc) 
