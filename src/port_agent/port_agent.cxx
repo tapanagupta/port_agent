@@ -735,6 +735,15 @@ void PortAgent::poll() {
     // Main select to see if any incoming pipes have data.
     LOG(DEBUG) << "Start select process";
     readyCount = select(maxFD+1, &readFDs, NULL, NULL, &tv);
+    if(readyCount < 0) {
+        if (errno != EINTR) 
+            LOG(ERROR) << "Socket select error: " << strerror(errno);
+        else
+            LOG(DEBUG) << "Socket select error: " << strerror(errno) << " IGNORED";
+        
+        return;
+    }
+    
     LOG(DEBUG2) << "On select: ready to read on " << readyCount << " connections";
     
     LOG(DEBUG) << "CURRENT STATE: " << getCurrentStateAsString();
