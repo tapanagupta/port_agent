@@ -19,8 +19,10 @@
 #include <string>
 #include <list>
 #include <stdint.h>
+#include "common/log_file.h"
 
 using namespace std;
+using namespace logger;
 
 #define DEFAULT_PACKET_SIZE   1024
 #define DEFAULT_BREAK_DURATION 0
@@ -49,7 +51,8 @@ namespace port_agent {
         CMD_GET_STATE               = 0x00000007,
         CMD_PING                    = 0x00000008,
         CMD_BREAK                   = 0x00000009,
-        CMD_SHUTDOWN                = 0x00000010
+        CMD_SHUTDOWN                = 0x00000010,
+        CMD_ROTATION_INTERVAL       = 0x00000011
     } PortAgentCommand;
     typedef list<PortAgentCommand>  CommandQueue;
     
@@ -102,6 +105,7 @@ namespace port_agent {
             bool setFlow(const string &param);
             bool setInstrumentDataPort(const string &param);
             bool setInstrumentCommandPort(const string &param);
+            bool setRotationInterval(const string &param);
             
             // Common Config
             string programName() { return m_programName; }
@@ -119,6 +123,8 @@ namespace port_agent {
             string piddir() { return m_piddir; }
             string confdir() { return m_confdir; }
             string datadir() { return m_datadir; }
+            
+			RotationType rotation_interval() { return m_eRotationInterval; }
             
             bool noDetatch() { return m_noDetatch; }
             unsigned short verbose() { return m_verbose; }
@@ -187,8 +193,9 @@ namespace port_agent {
             uint32_t m_maxPacketSize;
             
             InstrumentConnectionType m_instrumentConnectionType;
-            
-            bool    m_bDevicePathChanged;
+            RotationType m_eRotationInterval;
+			
+			bool    m_bDevicePathChanged;
             bool    m_bSerialSettingsChanged;
             string  m_devicePath;
             uint32_t m_breakDuration;

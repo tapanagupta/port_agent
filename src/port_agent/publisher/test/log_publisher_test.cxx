@@ -1,5 +1,6 @@
 #include "common/exception.h"
 #include "common/logger.h"
+#include "common/log_file.h"
 #include "common/util.h"
 #include "port_agent/packet/packet.h"
 #include "port_agent/publisher/log_publisher.h"
@@ -81,7 +82,7 @@ TEST_F(LogPublisherTest, SingleBinaryOut) {
     LogPublisher publisher;
     char result[1024];
     int count;
-    char expected[20] = { 0xa3, 0x9d, 0x7a,  0x02, 0x00,  0x14, 0x00,  0xeb,  0x00,  0x00,
+    char expected[20] = { 0xa3, 0x9d, 0x7a,  0x02, 0x00,  0x14, 0x00,  0xc3,  0x00,  0x00,
     		              0x00, 0x01,  0x80, 0x00,  0x00,  0x00, 0x64, 0x61, 0x74, 0x61 };
 
     publisher.setFilename(DATAFILE);
@@ -102,9 +103,9 @@ TEST_F(LogPublisherTest, DoubleBinaryOut) {
     LogPublisher publisher;
     char result[1024];
     int count;
-    char expected[40] = { 0xa3, 0x9d, 0x7a,  0x02, 0x00,  0x14, 0x00,  0xeb, 0x00, 0x00,
+    char expected[40] = { 0xa3, 0x9d, 0x7a,  0x02, 0x00,  0x14, 0x00,  0xc3, 0x00, 0x00,
                           0x00, 0x01,  0x80, 0x00,  0x00,  0x00, 0x64, 0x61, 0x74, 0x61,
-                          0xa3, 0x9d, 0x7a,  0x02, 0x00,  0x14, 0x00,  0xeb, 0x00, 0x00,
+                          0xa3, 0x9d, 0x7a,  0x02, 0x00,  0x14, 0x00,  0xc3, 0x00, 0x00,
                 		  0x00, 0x01,  0x80, 0x00,  0x00,  0x00, 0x64, 0x61, 0x74, 0x61 };
 
     publisher.setFilename(DATAFILE);
@@ -135,9 +136,31 @@ TEST_F(LogPublisherTest, FailureNoFile) {
     EXPECT_FALSE(publisher.publish(&packet));
 }
 
+/* Test log rotation switching */
+TEST_F(LogPublisherTest, LogRotation) {
+    LogPublisher publisher;
+    publisher.setFilebase(DATAFILE);
+    
+	Timestamp ts(1, 0x80000000);
+	Packet packet(DATA_FROM_DRIVER, ts, "data", 4);
+
+    EXPECT_TRUE(publisher.publish(&packet));
+	
+	publisher.setRotationInterval(HOURLY);
+    EXPECT_TRUE(publisher.publish(&packet));
+    
+	publisher.setRotationInterval(QUARTER_HOURLY);
+	EXPECT_TRUE(publisher.publish(&packet));
+	
+	publisher.setRotationInterval(MINUTE);
+	EXPECT_TRUE(publisher.publish(&packet));
+	
+	publisher.setRotationInterval(SECOND);
+	EXPECT_TRUE(publisher.publish(&packet));
+}
 
 // Test equality operator
-TEST_F(LogPublisherTest, TCPCommSocketEqualityOperator) {
+TEST_F(LogPublisherTest, EqualityOperator) {
 	try {
     	LogPublisher leftPublisher, rightPublisher;
     	

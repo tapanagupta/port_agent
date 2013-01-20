@@ -35,6 +35,9 @@ TEST_F(PortAgentPacketTest, CTOR) {
     
     Packet packet(DATA_FROM_DRIVER, timestamp, payload, length);
     char* packetBuffer = packet.packet();
+	
+	string pretty = packet.pretty();
+	LOG(DEBUG) << "Packet: " << pretty;
     
     EXPECT_EQ(packet.packetType(), DATA_FROM_DRIVER);
     EXPECT_EQ(packet.packetSize(), length + HEADER_SIZE);
@@ -58,7 +61,7 @@ TEST_F(PortAgentPacketTest, CTOR) {
 
     // Check the checksum
     EXPECT_EQ(byteToUnsignedInt(packetBuffer[6]), 0x00);
-    EXPECT_EQ(byteToUnsignedInt(packetBuffer[7]), 0x14);
+    EXPECT_EQ(byteToUnsignedInt(packetBuffer[7]), 0xd0);
 
     // Check the timestamp
     EXPECT_EQ(byteToUnsignedInt(packetBuffer[8]),  0x00);

@@ -63,6 +63,7 @@ namespace publisher {
 			uint32_t size() const { return m_oPublishers.size(); }
 			Publisher * front() { return m_oPublishers.front(); }
 			Publisher * back() { return m_oPublishers.back(); }
+			Publisher * searchByType(PublisherType type);
 
         protected:
 

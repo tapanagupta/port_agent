@@ -69,7 +69,6 @@ PortAgent::PortAgent(int argc, char *argv[]) {
     
     m_pInstrumentConnection = NULL;
     m_pObservatoryConnection = NULL;
-    
 }
 
 /******************************************************************************
@@ -585,23 +584,31 @@ void PortAgent::processPortAgentCommands() {
                 break;
             case CMD_SAVE_CONFIG:
                 LOG(DEBUG) << "same config command";
+                publishFault("not implemented");
                 break;
             case CMD_GET_CONFIG:
                 LOG(DEBUG) << "get config command";
+                publishFault("not implemented");
                 break;
             case CMD_GET_STATE:
                 LOG(DEBUG) << "get state command";
+                publishStatus(getCurrentStateAsString());
                 break;
             case CMD_PING:
                 LOG(DEBUG) << "ping command";
+                publishStatus("ping");
                 break;
             case CMD_BREAK:
                 LOG(DEBUG) << "break command";
                 m_pInstrumentConnection->sendBreak(m_pConfig->breakDuration());
-
+                break;
+            case CMD_ROTATION_INTERVAL:
+                LOG(DEBUG) << "set rotation interval";
+                setRotationInterval();
                 break;
             case CMD_SHUTDOWN:
                 LOG(DEBUG) << "shutdown command";
+                shutdown();
                 break;
         };
     }
@@ -1021,6 +1028,18 @@ void PortAgent::publishFault(const string &msg) {
 }
 
 /******************************************************************************
+ * Method: publishStatus
+ * Description: Generate a status packet and send it to the publishers.
+ ******************************************************************************/
+void PortAgent::publishStatus(const string &msg) {
+    Timestamp ts;
+    Packet packet(PORT_AGENT_STATUS, ts, (char *)(msg.c_str()), msg.length());
+
+    LOG(ERROR) << "Port Agent Status: " << msg;
+    publishPacket(&packet);
+}
+
+/******************************************************************************
  * Method: publishPacket
  * Description: Publish a packet. Just iterate over all publisher and call
  * the publish method.  Easy Peasy
@@ -1192,5 +1211,19 @@ void PortAgent::setState(const PortAgentState &state) {
         LOG(DEBUG) << "***********************************************";
         LOG(DEBUG) << "State transition from " << previousState << " TO " << getCurrentStateAsString();
         LOG(DEBUG) << "***********************************************";
+    }
+}
+
+/******************************************************************************
+ * Method: setRotationInterval
+ * Description: Change the rotation interval for the data log publisher
+ ******************************************************************************/
+void PortAgent::setRotationInterval() {
+    RotationType type = m_pConfig->rotation_interval();
+        
+    Publisher *found = m_oPublishers.searchByType(PUBLISHER_FILE);
+    if(found) {
+        LOG(DEBUG) << "Found publisher.  Setting rotation interval";
+        ((FilePublisher*)found)->setRotationInterval(type);
     }
 }

@@ -9,6 +9,7 @@
  ******************************************************************************/
 #include "port_agent_config.h"
 #include "common/logger.h"
+#include "common/log_file.h"
 #include "common/exception.h"
 #include "common/util.h"
 
@@ -39,7 +40,7 @@ using namespace port_agent;
  ******************************************************************************/
 PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     
-    char c = 0;
+    int c = 0;
     
     
     if(argc) 
@@ -262,6 +263,7 @@ bool PortAgentConfig::parse(const string &commands) {
     
     while(iss.getline(buffer, 1024)) {
         string cmd(buffer);
+        chomp(cmd);
         LOG(DEBUG) << "Config CMD: " << cmd;
         
         if(!processCommand(cmd)) {
@@ -838,6 +840,44 @@ bool PortAgentConfig::setFlow(const string &param) {
 }
 
 /******************************************************************************
+ * Method: setRotationInterval
+ * Description: Set data log rotation interval
+ * Return:
+ *     return true if the type was set correctly, otherwise false for unknown
+ *     types. Default to DAILY
+ *****************************************************************************/
+bool PortAgentConfig::setRotationInterval(const string &param) {
+    m_eRotationInterval = DAILY;
+    
+    if(param == "daily") {
+        LOG(INFO) << "data log rotation set to daily";
+        m_eRotationInterval = DAILY;
+    }
+    
+    else if(param == "hourly") {
+        LOG(INFO) << "data log rotation set to hourly";
+        m_eRotationInterval = HOURLY;
+    }
+    
+    else if(param == "quarter_hourly") {
+        LOG(INFO) << "data log rotation set to quarter hourly";
+        m_eRotationInterval = QUARTER_HOURLY;
+    }
+    
+    else if(param == "minute") {
+        LOG(INFO) << "data log rotation set to minute";
+        m_eRotationInterval = MINUTE;
+    }
+    
+    else {
+        LOG(ERROR) << "unknown log rotation type: " << param;
+        return false;
+    }
+    
+    return true;
+}
+
+/******************************************************************************
  *   PRIVATE METHODS
  ******************************************************************************/
 /******************************************************************************
@@ -1106,6 +1146,11 @@ bool PortAgentConfig::processCommand(const string & command) {
         return setFlow(param);
     }
     
+    else if(cmd == "rotation_interval") {
+        addCommand(CMD_ROTATION_INTERVAL);
+        return setRotationInterval(param);
+    }
+    
     // Couldn't parse this command
     else {
         LOG(ERROR) << "Failed to parse command: " << cmd;
@@ -1139,6 +1184,8 @@ bool PortAgentConfig::splitCommand(const string &raw, string & cmdResult, string
     }
     
     // We made it through the parser, store the results
+    chomp(cmd);
+    chomp(param);
     cmdResult = cmd;
     paramResult = param;
     return true;

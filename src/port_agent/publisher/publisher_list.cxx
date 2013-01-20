@@ -96,6 +96,26 @@ bool PublisherList::publish(Packet *packet) {
     return true;
 }
 
+/******************************************************************************
+ * Method: searchByType
+ * Description: search for the first occurance of a publisher with passed type
+ *
+ * Parameters:
+ *   type - publisher type
+ *
+ * Return:
+ *   pointer to the found publisher if found otherwise null
+ ******************************************************************************/
+Publisher* PublisherList::searchByType(PublisherType type) {
+    PublisherObjectList::iterator i = m_oPublishers.begin();
+    string error;
+	
+    for(i = m_oPublishers.begin(); i != m_oPublishers.end(); i++)
+	    if((*i)->publisherType() == type)
+		    return *i;
+		
+    return NULL;
+}
 
 /******************************************************************************
  * Method: add

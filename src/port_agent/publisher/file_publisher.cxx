@@ -25,6 +25,7 @@ using namespace publisher;
  ******************************************************************************/
 void FilePublisher::setFilename(string filename) {
     m_oLogger = LogFile(filename.c_str());
+	m_oLogger.setRotation(m_tRotationInterval);
 }
 
 /******************************************************************************
@@ -38,7 +39,19 @@ void FilePublisher::setFilename(string filename) {
  *    fileext  - the extension to add on to the filename
  ******************************************************************************/
 void FilePublisher::setFilebase(string filebase, string fileext) {
-    m_oLogger = LogFile(filebase.c_str(), fileext.c_str());
+    m_oLogger = LogFile(filebase.c_str(), fileext.c_str(), m_tRotationInterval);
+}
+
+/******************************************************************************
+ * Method: setRotationInterval
+ * Description: set the rotation interval in the logfile object
+ *
+ * Parameter:
+ *    interval - log interval to use
+ ******************************************************************************/
+void FilePublisher::setRotationInterval(RotationType interval) {
+	m_tRotationInterval = interval;
+    m_oLogger.setRotation(interval);
 }
 
 /******************************************************************************
