@@ -59,6 +59,8 @@
 #include <stdio.h>
 
 #include "exception.h"
+	
+#define LOG_EXTENSION "log"
 
 using namespace std;
 
@@ -66,7 +68,6 @@ namespace logger {
 
 	enum TLogLevel {ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2, DEBUG3, MESG};
 	const TLogLevel DEFAULT_LOG_LEVEL = WARNING;
-	#define LOG_EXTENSION "log"
 
 	class Logger
 	{
@@ -82,7 +83,7 @@ namespace logger {
 		virtual ~Logger();
 
 		// Get a reference to an ostringstream object to store the log message in
-		ostringstream& Get(TLogLevel level, const string &file, int line);
+		ostringstream& get(TLogLevel level, const string &file, int line);
 
 		// Return the generated logfile name.  If m_sLogFileName is set then
 		// use that, otherwise try to generate a log file name from the base.
@@ -91,7 +92,7 @@ namespace logger {
 		// Explicitly close the log file handle.  Mostly used for testing.
 		void close();
                 
-                void setCaller(const char *file, const char *function, int linenum);
+        void setCaller(const char *file, const char *function, int linenum);
 
 
 		/******************
@@ -141,7 +142,7 @@ namespace logger {
 		static void Flush();
 
 		// Write a message to the log file right away
-		static void WriteLog(string message);
+		static void WriteLog(string message, TLogLevel level, string file, int line);
 
 		// Clear the current singleton
 		static void Reset();
@@ -156,7 +157,7 @@ namespace logger {
 	protected:
 		static Logger* m_pInstance;
 
-		ostringstream* m_sLogoutStream;
+		ostringstream m_sLogoutStream;
 		ofstream* m_sLogfileStream;
 
         string m_sCallerFile;
@@ -185,12 +186,6 @@ namespace logger {
 		// Get / Create a ofstream object to write the log file.
 		ofstream* getLogStream();
 
-		// Get / Create a ostringstream object for buffering log messages
-		ostringstream* getBufferStream();
-
-		// Clear the log buffer
-		void clearBufferStream();
-
 		// Return a formatted date/time string for the log message
 		string nowTime();
 
@@ -204,7 +199,7 @@ namespace logger {
 
 #define LOG(level) \
     if (level > logger::Logger::GetLogLevel()) ; \
-    else logger::Logger().Get(level, __FILE__, __LINE__)
+    else logger::Logger().get(level, __FILE__, __LINE__)
 
 #endif //__LOGGER_H__
     

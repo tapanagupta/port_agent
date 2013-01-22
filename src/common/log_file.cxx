@@ -43,10 +43,12 @@
 #include "logger.h"
 #include "exception.h"
 
+#include <iostream>
 #include <sstream>
 #include <fstream>
 #include <string>
 #include <stdio.h>
+#include <time.h>
 #include <string.h>
 #include <errno.h>
 
@@ -62,6 +64,7 @@ using namespace logger;
  ******************************************************************************/
 LogFile::LogFile() {
 	m_pOutStream = NULL;
+	m_eRotationType = DAILY;
 }
 
 /******************************************************************************
@@ -77,9 +80,10 @@ LogFile::LogFile(string filename) {
  * Method: Constructor
  * Description: Constructor to set log basename
  ******************************************************************************/
-LogFile::LogFile(string filebase, string extention) {
+LogFile::LogFile(string filebase, string extention, RotationType type) {
 	m_pOutStream = NULL;
 	setBase(filebase, extention);
+    setRotation(type);
 }
 
 /******************************************************************************
@@ -112,7 +116,8 @@ bool LogFile::operator==(const LogFile & rhs) const {
 	
 	return m_sFileName == rhs.m_sFileName &&
 	       m_sFileBase == rhs.m_sFileBase &&
-	       m_sFileExtention == rhs.m_sFileExtention;
+	       m_sFileExtention == rhs.m_sFileExtention &&
+		   m_eRotationType == rhs.m_eRotationType;
 }
 
 /******************************************************************************
@@ -123,6 +128,7 @@ void LogFile::copy(const LogFile & rhs) {
 	m_sFileName = rhs.m_sFileName;
 	m_sFileBase = rhs.m_sFileBase;
 	m_sFileExtention = rhs.m_sFileExtention;
+	m_eRotationType = rhs.m_eRotationType;
 
 	m_pOutStream = NULL;
 }
@@ -170,13 +176,18 @@ void LogFile::flush()
 string LogFile::getFilename() {
     ostringstream out;
     
-    if(m_sFileName.length())
+    // Explicit filename is set, no rolling
+	if(m_sFileName.length())
         return m_sFileName;
     
+	// A file base is set, so return a rolled filename
     if(m_sFileBase.length()) {
         out << m_sFileBase << "." << fileDate();
 
-        if(m_sFileExtention.length())
+        if(m_eRotationType != DAILY)
+		    out << "_" << fileTime();
+			
+		if(m_sFileExtention.length())
         	out << "." << m_sFileExtention;
 
     	return out.str();
@@ -193,16 +204,53 @@ string LogFile::getFilename() {
  * Method: fileDate
  * Description: Build a date for the log file
  * Return:
- *   int serialized date YYYYMMDD
+ *   string serialized date YYYYMMDD
  ******************************************************************************/
-int LogFile::fileDate()
+string LogFile::fileDate()
 {
     char buffer[11];
     time_t t;
     time(&t);
     tm r = {0};
     strftime(buffer, sizeof(buffer), "%Y%m%d", localtime_r(&t, &r));
-    return atoi(buffer);
+    return buffer;
+}
+
+/******************************************************************************
+ * Method: fileTime
+ * Description: Build a time for the log file This will help log rotation
+ * because we will return edges based on rotation scheme.
+ * Return:
+ *   string serialized time HH:MM:SS
+ ******************************************************************************/
+string LogFile::fileTime()
+{
+    char buffer[7];
+	time_t ts;
+    time (&ts);
+    struct tm * timeinfo = localtime(&ts);
+  
+	int hour = timeinfo->tm_hour;
+	int min = timeinfo->tm_min;
+	int sec = timeinfo->tm_sec;
+	
+	if(m_eRotationType == HOURLY) {
+		min = 0;
+		sec = 0;
+	}
+	
+	if(m_eRotationType == QUARTER_HOURLY) {
+		min = (min / 15) * 15;
+		sec = 0;
+	}
+	
+	if(m_eRotationType == MINUTE) {
+	    min = timeinfo->tm_min;
+		sec = 0;
+	}
+	
+	sprintf(buffer, "%02d%02d%02d", hour, min, sec);
+	return buffer;
 }
 
 /******************************************************************************
@@ -233,8 +281,8 @@ ofstream * LogFile::getStreamObject() {
 	        throw LoggerOpenFailure(strerror( errno ));
     }
 
-    // Close the file if we havedetected an error
-    if(m_pOutStream->fail())
+    // Close the file if we have detected an error
+    else if(m_pOutStream->fail())
     	close();
 
     // Explicitly check to see if the file still exists.  This will
@@ -245,7 +293,7 @@ ofstream * LogFile::getStreamObject() {
 	
     // We can fall into this if the logfile was closed above OR this is
 	// our first call to this method.
-	if(! m_pOutStream->good() ) {
+	if(!m_pOutStream || !m_pOutStream->good() ) {
     	m_pOutStream = new ofstream(file.c_str(), ios::out | ios::app);
 	    
 	    if(m_pOutStream->fail())
@@ -279,6 +327,16 @@ void LogFile::setBase(string path, string ext) {
 }
 
 /******************************************************************************
+ * Method: setRotation
+ * Description: Set the file rotation type
+ * Parameter:
+ *   type - type of rotation
+ ******************************************************************************/
+void LogFile::setRotation(RotationType type) {
+	m_eRotationType = type;
+}
+
+/******************************************************************************
  * Method: write
  * Description: Raw write to the log file.  Intended for binary data.
  * Parameter:
@@ -302,9 +360,10 @@ bool LogFile::write(const char *buffer, uint16_t size) {
  ******************************************************************************/
 LogFile & LogFile::operator<<(const string & a) {
 	ofstream *out = getStreamObject();
-    *out << a;
-	
+    
+	*out << a;
 	out->flush();
+	
     return *this;
 }
 

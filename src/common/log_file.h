@@ -30,6 +30,9 @@
  *   // the second option (extension) is optional
  *   file.setBase("/tmp/testfile", "log");
  *   
+ *   // Set log rotation type
+ *   file.setRotation(DAILY)
+ *   
  *   // Get the stream object.
  *   ofstream outfile = file.getStreamObject();
  *
@@ -54,6 +57,15 @@
 using namespace std;
 
 namespace logger {
+	/* Log rotation types */
+	enum RotationType {
+	    DAILY,
+		HOURLY,
+		QUARTER_HOURLY,
+		MINUTE,
+		SECOND // for testing
+	};
+	
 	class LogFile
 	{
 		public:
@@ -65,7 +77,7 @@ namespace logger {
 		    LogFile(string filename);
 
     		// Ctor
-	    	LogFile(string filebase, string extention);
+	    	LogFile(string filebase, string extention, RotationType type = DAILY);
 
 			// Ctor
 			LogFile();
@@ -99,6 +111,9 @@ namespace logger {
 			// Set the file base name
 			void setBase(string filebase, string fileext = "");
 
+			// Set the rotation type
+			void setRotation(RotationType type);
+
 			// Explicitly close the log file handle.  Mostly used for testing.
 			void close();
 
@@ -109,7 +124,10 @@ namespace logger {
 			bool write(const char *buffer, uint16_t size);
 
 			// Get a date to use for file rotation.
-			int fileDate();
+			string fileDate();
+
+			// Get a time to use for file rotation.
+			string fileTime();
 
 		private:
 			void copy(const LogFile & rhs);
@@ -124,6 +142,7 @@ namespace logger {
 
 		    ofstream * m_pOutStream;
 
+			RotationType m_eRotationType;
 		    string m_sFileName;
 		    string m_sFileBase;
 		    string m_sFileExtention;

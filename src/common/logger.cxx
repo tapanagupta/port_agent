@@ -82,7 +82,6 @@ Logger::Logger()
     m_pException = NULL;
     m_iLastLogDate = 0;
     m_sLogfileStream = NULL;
-	m_sLogoutStream = NULL;
 }
 
 
@@ -92,7 +91,7 @@ Logger::Logger()
  * Write messages to the log that are stored in the stringstream buffer.
  ******************************************************************************/
 Logger::~Logger() {
-    Flush();
+	WriteLog(m_sLogoutStream.str(), m_tLogLevel, m_sCallerFile, m_iCallerLine);
 }
 
 /******************************************************************************
@@ -132,7 +131,7 @@ string Logger::getLogFilename() {
         clearError();
 	throw LoggerFileNotSet();
     } else {
-	m_pException = new LoggerFileNotSet();
+	    m_pException = new LoggerFileNotSet();
     }
     
     return string();
@@ -143,24 +142,10 @@ string Logger::getLogFilename() {
  ******************************************************************************/
 
 /******************************************************************************
- * Method: Flush
- * Description: If we have anything in our buffer, write it to the log and then
- * reset the buffer.
- ******************************************************************************/
-void Logger::Flush() {
-    Logger* instance = Logger::Instance();
-    instance->clearError();
-    ostringstream *stream = instance->getBufferStream();
-	
-    WriteLog(stream->str());
-	instance->clearBufferStream();
-}
-
-/******************************************************************************
  * Method: WriteLog
  * Description: Write a log message to the log file
  ******************************************************************************/
-void Logger::WriteLog(string message) {
+void Logger::WriteLog(string message, TLogLevel level, string file, int line) {
     Logger* instance = Logger::Instance();
     
     instance->clearError();
@@ -168,19 +153,25 @@ void Logger::WriteLog(string message) {
     if(message.length()) {
         ofstream* logout = instance->getLogStream();
         if(logout){
-	        *logout << message << endl;
-	    if(logout->good())
-	        return;
+            *logout << instance->nowTime() << " " << file << " " << " [" << line << "] "
+                    << " " << instance->levelToString(level) << ": ";
     
-            // We have made it this far.  So it must be an error
-            if(instance->m_bRaiseErrors) {
-	            throw LoggerWriteError();
-
-            } else {
-                instance->clearError();
-		        instance->close();
-	            instance->m_pException = new LoggerWriteError();
-            }
+            // Indent debug messages
+	        if(level < MESG && level >= DEBUG)
+    	        *logout << string(level > DEBUG ? level - DEBUG : 0, '\t');
+				
+	        *logout << message << endl;
+	    
+            if(!logout->good()) {
+                // We have made it this far.  So it must be an error
+                if(instance->m_bRaiseErrors) {
+    	            throw LoggerWriteError();
+                } else {
+                    instance->clearError();
+		            instance->close();
+	                instance->m_pException = new LoggerWriteError();
+                }
+			}
         }
     }
 }
@@ -337,7 +328,7 @@ OOIException* Logger::GetError() {
 }
 
 /******************************************************************************
- * Method: Get
+ * Method: get
  * Description: Construct a log message timestamp using an ostringstream.
  *              DEBUG messages get indented.
  * Parameters:
@@ -348,21 +339,13 @@ OOIException* Logger::GetError() {
  * Return:
  *   ostringstream object with the message buffered.
  ******************************************************************************/
-ostringstream& Logger::Get(TLogLevel level, const string &file, int line)
+ostringstream& Logger::get(TLogLevel level, const string &file, int line)
 {
-    Logger* instance = Logger::Instance();
-	ostringstream *stream = instance->getBufferStream();
-    
-    if(level <= GetLogLevel()) {
-        *stream << instance->nowTime() << " " << file << " " << " [" << line << "] ";
-        *stream << " " << instance->levelToString(level) << ": ";
-    
-        // Indent debug messages
-	if(level < MESG && level >= DEBUG)
-	    *stream << string(level > DEBUG ? level - DEBUG : 0, '\t');
-    }
-    
-    return *stream;
+    m_sCallerFile = file;
+    m_iCallerLine = line;
+	m_tLogLevel = level;
+	
+	return m_sLogoutStream;
 }
 
 /******************************************************************************
@@ -403,34 +386,6 @@ int Logger::fileDate()
     tm r = {0};
     strftime(buffer, sizeof(buffer), "%Y%m%d", localtime_r(&t, &r));
     return atoi(buffer);
-}
-
-/******************************************************************************
- * Method: clearBufferStream
- * Description: clear out the current buffer stream
- ******************************************************************************/
-void Logger::clearBufferStream() {
-    if(m_sLogoutStream) {
-		delete m_sLogoutStream;
-	}
-		
-	m_sLogoutStream = NULL;
-}
-
-/******************************************************************************
- * Method: getBufferStream
- * Description: return a pointer to an ostringstream object for buffering a log
- * message
- * 
- * Return:
- *   ostrstream* pointer to an ostringstream object
- ******************************************************************************/
-ostringstream* Logger::getBufferStream() {
-    if(! m_sLogoutStream) {
-		m_sLogoutStream = new ostringstream;
-	}
-	
-	return m_sLogoutStream;
 }
 	
 /******************************************************************************

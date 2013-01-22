@@ -15,6 +15,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <stdio.h>
+#include <time.h>
 
 using namespace std;
 using namespace logger;
@@ -35,6 +37,8 @@ class LogFileTest : public testing::Test {
         }
     
         virtual void TearDown() {
+			remove_file(LOGFILE);
+            remove_file(Logger::Instance()->getLogFilename().c_str());
         }
     
         ~LogFileTest() {
@@ -50,6 +54,12 @@ class LogFileTest : public testing::Test {
 
             return string(buffer);
         }
+		
+		string paddedNumber(int num) {
+			char buffer[3];
+			sprintf(buffer, "%02d", num);
+			return buffer;
+		}
 };
 
 /* Test Construction and Option setting */
@@ -285,6 +295,70 @@ TEST_F(LogFileTest, EqualityOperator) {
 	EXPECT_TRUE(lhsLog == rhsLog);
 }
 
+TEST_F(LogFileTest, LogFileRotationType) {
+	LogFile log;
+	ostringstream expected;
+	char buffer[7];
+	time_t ts;
+    time (&ts);
+    struct tm * timeinfo = localtime(&ts);
+	int hour = timeinfo->tm_hour;
+	int min = timeinfo->tm_min;
+	int sec = timeinfo->tm_sec;
+	
+	log.setBase("foo", "ext");
+	log.setRotation(DAILY);
+	
+	expected << "foo." << getDate() << ".ext";
+	EXPECT_EQ(log.getFilename(), expected.str());
+	expected.str("");
+	expected.clear();
+	
+	log.setRotation(HOURLY);
+	expected << "foo." << getDate() << "_" << paddedNumber(hour) << "0000" << ".ext";
+	EXPECT_EQ(log.getFilename(), expected.str());
+	expected.str("");
+	expected.clear();
+	
+	log.setRotation(QUARTER_HOURLY);
+	expected << "foo." << getDate() << "_" << paddedNumber(hour) << paddedNumber((min/15)*15) << "00" << ".ext";
+	EXPECT_EQ(log.getFilename(), expected.str());
+	expected.str("");
+	expected.clear();
+	
+	log.setRotation(MINUTE);
+	expected << "foo." << getDate() << "_" << paddedNumber(hour) << paddedNumber(min) << "00" << ".ext";
+	EXPECT_EQ(log.getFilename(), expected.str());
+	expected.str("");
+	expected.clear();
+	
+	log.setRotation(SECOND);
+	expected << "foo." << getDate() << "_" << paddedNumber(hour) << paddedNumber(min) << paddedNumber(sec) << ".ext";
+	EXPECT_EQ(log.getFilename(), expected.str());
+}
 
+TEST_F(LogFileTest, LogFileRotation) {
+	LogFile log;
+	string result;
+	string file1;
+	string file2;
+	
+	log.setBase(LOGBASE, LOGEXT);
+	log.setRotation(SECOND);
+	file1 = log.getFilename();
+	
+	remove_file(file1.c_str());
+	log << "foo";
+	result = read_file(file1.c_str());
+	EXPECT_TRUE(result.length());
+	
+	// Let some time elapse so we have to roll a file
+	sleep(2);
+	file2 = log.getFilename();
+	EXPECT_NE(file1, file2);
+	log << "foo";
+	result = read_file(file2.c_str());
+	EXPECT_TRUE(result.length());
+}
 
 
