@@ -16,7 +16,7 @@ using namespace packet;
 using namespace network;
 using namespace publisher;
 
-#define SELECT_SLEEP_TIME 5
+#define SELECT_SLEEP_TIME 1
 
 namespace port_agent {
     
