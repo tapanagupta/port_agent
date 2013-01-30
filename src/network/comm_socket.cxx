@@ -174,16 +174,30 @@ uint32_t CommSocket::writeData(const char *buffer, const uint32_t size) {
  *   SocketNotConnected
  *   SocketReadFailure
  ******************************************************************************/
+
+/******************************************************************************
+ * Method: read
+ * Description: read a number of bytes to the socket connection.
+ *
+ * Parameters:
+ *   buffer - where to store the read data
+ *   size - max number of bytes to read
+ * Return:
+ *   returns the actual number of bytes read.
+ * Exceptions:
+ *   SocketNotConnected
+ *   SocketReadFailure
+ ******************************************************************************/
 uint32_t CommSocket::readData(char *buffer, const uint32_t size) {
     int bytesRead = 0;
 
     if(! connected())
         throw(SocketReadFailure("not connected"));
     
-    if ((bytesRead = read(m_pSocketFD, buffer, size)) <= 0) {
+    if ((bytesRead = read(m_pSocketFD, buffer, size)) < 0) {
         if(errno != EAGAIN && errno != EINPROGRESS) {
-			m_pSocketFD = 0;
-            LOG(ERROR) << "read_device: " << strerror(errno) << "(errno: " << errno << ")";
+            disconnect();
+            LOG(ERROR) << "bytes read: " << bytesRead << " read_device: " << strerror(errno) << "(errno: " << errno << ")";
             throw(SocketReadFailure(strerror(errno)));
         }
         if(errno == EAGAIN || errno == EINPROGRESS) {
