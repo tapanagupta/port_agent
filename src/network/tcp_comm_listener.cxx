@@ -257,14 +257,14 @@ uint32_t TCPCommListener::readData(char *buffer, const uint32_t size) {
     if(! connected())
         throw(SocketNotConnected());
     
-    if ((bytesRead = read(m_pClientFD, buffer, size)) <= 0) {
+    if ((bytesRead = read(m_pClientFD, buffer, size)) < 0) {
         if(errno == EAGAIN || errno == EINPROGRESS) {
             LOG(DEBUG2) << "Error Ignored: " << strerror(errno);
 	} else if( errno = ETIMEDOUT ) {
             LOG(DEBUG) << " -- socket read timeout. disconnecting client.";
             disconnectClient();
 	} else {
-            LOG(ERROR) << "read_device: " << strerror(errno) << "(errno: " << errno << ")";
+            LOG(ERROR) << "bytes read: " << bytesRead << " read_device: " << strerror(errno) << "(errno: " << errno << ")";
             throw(SocketReadFailure(strerror(errno)));
         }
 
