@@ -24,6 +24,7 @@
 #include "publisher/tcp_publisher.h"
 
 #include <iostream>
+#include <sstream>
 #include <string.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -569,6 +570,7 @@ void PortAgent::handlePortAgentCommand(const char * commands) {
  ******************************************************************************/
 void PortAgent::processPortAgentCommands() {
     PortAgentCommand cmd;
+    ostringstream msg;
 
     while(cmd = m_pConfig->getCommand()) {
         switch (cmd) {
@@ -595,8 +597,9 @@ void PortAgent::processPortAgentCommands() {
                 publishStatus(getCurrentStateAsString());
                 break;
             case CMD_PING:
-                LOG(DEBUG) << "ping command";
-                publishStatus("ping");
+                msg << "pong. version: " << PORT_AGENT_VERSION;
+                LOG(DEBUG) << "ping command. logger version: " << PORT_AGENT_VERSION;
+                publishStatus(msg.str());
                 break;
             case CMD_BREAK:
                 LOG(DEBUG) << "break command";
@@ -746,6 +749,7 @@ void PortAgent::poll() {
     
     LOG(DEBUG2) << "On select: ready to read on " << readyCount << " connections";
     
+    LOG(DEBUG) << "Port Agent Version: " << PORT_AGENT_VERSION;
     LOG(DEBUG) << "CURRENT STATE: " << getCurrentStateAsString();
     LOG(DEBUG) << "CURRENT STATE: " << getCurrentStateAsString();
     LOG(DEBUG) << "CURRENT STATE: " << getCurrentStateAsString();
