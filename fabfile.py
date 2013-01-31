@@ -149,8 +149,9 @@ def deploy():
     code_dir = '~/port_agent/port_agent'
     with cd(code_dir):
         run("echo PORT AGENT VERSIONS")
-        run('git tag | sort -r')
-        currentVersionStr = run('git tag | sort -r | head -1').strip()
+        cmd = "git tag |  tr '\.' : | sort -t : -k 1,2n -k 2,3n -k 3,4n | tr : ."
+        run(cmd)
+        currentVersionStr = run(cmd + ' | tail -n1').strip()
         versionStr = prompt('Please enter version to be deployed:',
                default=currentVersionStr)
         run("git checkout %s" % versionStr)
