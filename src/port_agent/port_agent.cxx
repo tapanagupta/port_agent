@@ -61,7 +61,6 @@ PortAgent::PortAgent() {
  *              passed in from the command line using (argv).
  ******************************************************************************/
 PortAgent::PortAgent(int argc, char *argv[]) {
-    Logger().SetLogLevel("MESG");
     // Setup the log file if we are running as a daemon
     LOG(DEBUG) << "Initialize port agent with args";
     
