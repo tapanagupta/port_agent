@@ -27,6 +27,7 @@ using namespace logger;
 #define DEFAULT_PACKET_SIZE   1024
 #define DEFAULT_BREAK_DURATION 0
 #define MAX_PACKET_SIZE       65472
+#define DEFAULT_HEARTBEAT_INTERVAL 0
 
 #define BASE_FILENAME "port_agent"
 
@@ -95,6 +96,7 @@ namespace port_agent {
             bool setInstrumentConnectionType(const string &param);
             bool setSentinleSequence(const string &param);
             bool setOutputThrottle(const string &param);
+            bool setHeartbeatInterval(const string &param);
             bool setMaxPacketSize(const string &param);
             bool setLogLevel(const string &param);
             bool setDevicePath(const string &param);
@@ -134,6 +136,7 @@ namespace port_agent {
             InstrumentConnectionType instrumentConnectionType() { return m_instrumentConnectionType; }
             const string & sentinleSequence() { return m_sentinleSequence; }
             uint32_t outputThrottle() { return m_outputThrottle; }
+            uint32_t heartbeatInterval() { return m_heartbeatInterval; }
             uint32_t maxPacketSize() { return m_maxPacketSize; }
             
             bool    devicePathChanged() { return m_bDevicePathChanged; }
@@ -194,6 +197,8 @@ namespace port_agent {
             
             InstrumentConnectionType m_instrumentConnectionType;
             RotationType m_eRotationInterval;
+			
+            uint16_t m_heartbeatInterval;
 			
 			bool    m_bDevicePathChanged;
             bool    m_bSerialSettingsChanged;

@@ -273,6 +273,31 @@ TEST_F(CommonTest, SetOutputThrottle) {
     EXPECT_EQ(config.outputThrottle(), 0);
 }
 
+/* Test setting the heartbeat interval parametere */
+TEST_F(CommonTest, SetHeartbeatInterval) {
+    char* argv[] = { "port_agent_config_test", "-p", TEST_PORT };
+    int argc = sizeof(argv) / sizeof(char*);
+    const char* buffer;
+    
+    PortAgentConfig config(argc, argv);
+    
+    EXPECT_EQ(config.heartbeatInterval(), DEFAULT_HEARTBEAT_INTERVAL);
+    
+    EXPECT_TRUE(config.parse("heartbeat_interval 1"));
+    EXPECT_EQ(config.heartbeatInterval(), 1);
+    
+    EXPECT_FALSE(config.parse("heartbeat_interval -11"));
+    EXPECT_EQ(config.heartbeatInterval(), 0);
+    
+    EXPECT_FALSE(config.parse("heartbeat_interval ab"));
+    EXPECT_EQ(config.heartbeatInterval(), 0);
+    
+    EXPECT_FALSE(config.parse("heartbeat_interval"));
+    EXPECT_EQ(config.heartbeatInterval(), 0);
+    
+    EXPECT_FALSE(config.parse("heartbeat_interval "));
+    EXPECT_EQ(config.heartbeatInterval(), 0);
+}
 
 /* Test setting the max packet size parameter */
 TEST_F(CommonTest, SetMaxPacketSize) {

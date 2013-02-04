@@ -128,6 +128,9 @@ bool Publisher::publish(Packet *packet) {
 		case INSTRUMENT_COMMAND:
             return handleInstrumentCommand(packet);
 
+		case PORT_AGENT_HEARTBEAT:
+            return handleHeartbeat(packet);
+
 		default:
 			throw UnknownPacketType();
 		};

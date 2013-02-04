@@ -775,6 +775,8 @@ void PortAgent::poll() {
         
         if(getCurrentState() == STATE_UNKNOWN)
             handleStateUnknown();
+            
+        publishHeartbeat();
     }
     catch(UnknownState &e) {
         //re-throw the exception
@@ -1025,6 +1027,25 @@ int PortAgent::getInstrumentDataClientFD() {
     }
     
     return 0;    
+}
+
+/******************************************************************************
+ * Method: publishHeartbeat
+ * Description: Generate a heartbeat packet if the heartbeat timeout has been
+ *              exceeded.
+ ******************************************************************************/
+void PortAgent::publishHeartbeat() {
+    Timestamp ts;
+    time_t now = time(NULL);
+    
+    // if we have specificed a heartbeat interval and we need to send a heartbeat
+    if(m_pConfig->heartbeatInterval() && now - m_lLastHeartbeat > m_pConfig->heartbeatInterval() ) {
+        
+        Packet packet(PORT_AGENT_HEARTBEAT, ts, "", 0);
+        LOG(ERROR) << "Port Agent Heartbeat";
+        publishPacket(&packet);
+        m_lLastHeartbeat = now;
+    }
 }
 
 /******************************************************************************

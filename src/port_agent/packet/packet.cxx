@@ -370,6 +370,7 @@ string Packet::typeToString(PacketType type) {
         case PORT_AGENT_STATUS: return string("PORT_AGENT_STATUS");
         case PORT_AGENT_FAULT: return string("PORT_AGENT_FAULT");
         case INSTRUMENT_COMMAND: return string("INSTRUMENT_COMMAND");
+        case PORT_AGENT_HEARTBEAT: return string("PORT_AGENT_HEARTBEAT");
     };
 
     return "OUT_OF_RANGE";

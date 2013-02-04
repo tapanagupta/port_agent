@@ -10,6 +10,7 @@
 #include "publisher/publisher_list.h"
 
 #include <sys/select.h>
+#include <time.h>
 
 using namespace std;
 using namespace packet;
@@ -110,6 +111,7 @@ namespace port_agent {
             void handleObservatoryDataRead(const fd_set &readFDs);
             void handleInstrumentDataRead(const fd_set &readFDs);
             
+            void publishHeartbeat();
             void publishFault(const string &msg);
             void publishStatus(const string &msg);
             void publishPacket(Packet *packet);
@@ -129,6 +131,7 @@ namespace port_agent {
             PortAgentState  m_oState;
             
             PublisherList m_oPublishers;
+            time_t m_lLastHeartbeat;
             
             // Port agent connections
             Connection *m_pObservatoryConnection;

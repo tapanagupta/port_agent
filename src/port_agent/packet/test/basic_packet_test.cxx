@@ -186,7 +186,6 @@ TEST_F(PortAgentPacketTest, PacketAssignment) {
     delete [] payload;
 }
 
-
 /* Test typeToString */
 TEST_F(PortAgentPacketTest, PacketTypeToText) {
     Packet packet;
@@ -198,6 +197,7 @@ TEST_F(PortAgentPacketTest, PacketTypeToText) {
     EXPECT_EQ(packet.typeToString(PORT_AGENT_STATUS), "PORT_AGENT_STATUS");
     EXPECT_EQ(packet.typeToString(PORT_AGENT_FAULT), "PORT_AGENT_FAULT");
     EXPECT_EQ(packet.typeToString(INSTRUMENT_COMMAND), "INSTRUMENT_COMMAND");
+    EXPECT_EQ(packet.typeToString(PORT_AGENT_HEARTBEAT), "PORT_AGENT_HEARTBEAT");
 }
 
 /* Test the ascii output */
