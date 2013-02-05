@@ -72,6 +72,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_flow = 0;
     m_instrumentDataPort = 0;
     m_instrumentCommandPort = 0;
+    m_heartbeatInterval = DEFAULT_HEARTBEAT_INTERVAL;
     
     m_piddir = DEFAULT_PID_DIR;
     m_logdir = DEFAULT_LOG_DIR;
@@ -384,6 +385,8 @@ string PortAgentConfig::getConfig() {
             out << endl;
         }
         
+        out << "heartbeat_interval " << m_heartbeatInterval << endl;
+        
         buffer = m_sentinleSequence.c_str(); 
         out << "sentinle '";
         for(int i = 0; i < m_sentinleSequence.length(); i++) {
@@ -562,6 +565,36 @@ bool PortAgentConfig::setOutputThrottle(const string &param) {
     
     LOG(INFO) << "set output throttle to " << value;
     m_outputThrottle = value;
+    return true;
+}
+
+/******************************************************************************
+ * Method: setHeartbeatInterval
+ * Description: Set the heartbeat interval
+ * Param:
+ *     param - string represention of the value of the throttle.  If it is not
+ *     a number the value will be set to 0.
+ * Return:
+ *     return true if the throttle was set correctly, otherwise false.
+ *****************************************************************************/
+bool PortAgentConfig::setHeartbeatInterval(const string &param) {
+    const char* v = param.c_str();
+    
+    int value = atoi(v);
+    
+    if(value == 0 && v[0] != '0') {
+        LOG(ERROR) << "invalid heartbeat interval parameter, " << param;
+        return false;
+    }
+    
+    if(value < 0) {
+        LOG(ERROR) << "attempt to set heartbeat interval to a negative.";
+        m_heartbeatInterval = 0;
+        return false;
+    }
+    
+    LOG(INFO) << "set heartbeat interval to " << value;
+    m_heartbeatInterval = value;
     return true;
 }
 
@@ -1042,6 +1075,10 @@ bool PortAgentConfig::processCommand(const string & command) {
     else if(cmd == "output_throttle") {
         addCommand(CMD_COMM_CONFIG_UPDATE);
         return setOutputThrottle(param);
+    }
+    
+    else if(cmd == "heartbeat_interval") {
+        return setHeartbeatInterval(param);
     }
     
     else if(cmd == "max_packet_size") {

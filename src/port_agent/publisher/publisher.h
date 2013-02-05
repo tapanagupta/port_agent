@@ -113,6 +113,7 @@ namespace publisher {
             virtual bool handleStatus(Packet *packet)              = 0;
             virtual bool handleFault(Packet *packet)               = 0;
             virtual bool handleInstrumentCommand(Packet *packet)   = 0;
+            virtual bool handleHeartbeat(Packet *packet)           = 0;
 
 
         private:

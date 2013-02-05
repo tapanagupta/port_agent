@@ -34,6 +34,7 @@ namespace publisher {
             virtual bool handleCommand(Packet *packet)            { return true; }
             virtual bool handleStatus(Packet *packet)             { return logPacket(packet); }
             virtual bool handleFault(Packet *packet)              { return logPacket(packet); }
+            virtual bool handleHearteat(Packet *packet)           { return logPacket(packet); }
             virtual bool handleInstrumentCommand(Packet *packet)  { return true; }
 
         private:

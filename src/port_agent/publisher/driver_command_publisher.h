@@ -36,6 +36,7 @@ namespace publisher {
             virtual bool handleStatus(Packet *packet)             { return logPacket(packet); }
             virtual bool handleFault(Packet *packet)              { return logPacket(packet); }
             virtual bool handleDriverCommand(Packet *packet)      { return logPacket(packet); }
+            virtual bool handleHearteat(Packet *packet)           { return logPacket(packet); }
 
         private:
         

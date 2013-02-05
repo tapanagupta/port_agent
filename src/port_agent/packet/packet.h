@@ -54,7 +54,8 @@ namespace packet {
         PORT_AGENT_COMMAND,
         PORT_AGENT_STATUS,
         PORT_AGENT_FAULT,
-        INSTRUMENT_COMMAND
+        INSTRUMENT_COMMAND,
+        PORT_AGENT_HEARTBEAT
     };
 
     const uint32_t SYNC = 0xA39D7A;
