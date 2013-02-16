@@ -405,7 +405,7 @@ void PortAgent::initializePublisherFile() {
     
     LogPublisher publisher;
     publisher.setFilebase(m_pConfig->datafile(), "data");
-    publisher.setAsciiMode(true);
+    publisher.setAsciiMode(false);
     
     m_oPublishers.add(&publisher);
 }
