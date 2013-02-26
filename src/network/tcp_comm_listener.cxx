@@ -205,12 +205,12 @@ uint32_t TCPCommListener::writeData(const char *buffer, const uint32_t size) {
     int count;
 
 	if(! listening()) {
-		LOG(ERROR) << "Socket not initialized";
+		LOG(WARNING) << "Socket not initialized";
 		return 0;
 	}
 
     if(! connected()) {
-		LOG(ERROR) << "Socket not connected";
+		LOG(WARNING) << "Socket not connected";
 		return 0;
     }
     
