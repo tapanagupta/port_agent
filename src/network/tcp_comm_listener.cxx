@@ -271,7 +271,7 @@ uint32_t TCPCommListener::readData(char *buffer, const uint32_t size) {
         LOG(DEBUG2) << "read bytes: " << bytesRead;
     }
     else if(bytesRead == 0) {
-        LOG(INFO) << " -- Device connection closed. zero bytes recv.";
+        LOG(INFO) << " -- Device connection closed; zero bytes received.";
         disconnectClient();
     }
     else
