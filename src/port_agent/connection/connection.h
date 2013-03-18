@@ -23,7 +23,8 @@ namespace port_agent {
         PACONN_UNKNOWN              = 0x00,
         PACONN_OBSERVATORY_STANDARD = 0x01,
         PACONN_INSTRUMENT_TCP       = 0x02,
-        PACONN_INSTRUMENT_SERIAL    = 0x03
+        PACONN_INSTRUMENT_TCP_MULTI = 0x03,
+        PACONN_INSTRUMENT_SERIAL    = 0x04
     } PortAgentConnectionType;
     
     class Connection {
