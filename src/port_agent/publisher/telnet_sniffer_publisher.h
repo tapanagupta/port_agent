@@ -27,7 +27,7 @@ namespace publisher {
            TelnetSnifferPublisher();
            TelnetSnifferPublisher(CommBase *socket) : TCPPublisher(socket) {}
 
-	       const PublisherType publisherType() { return PUBLISHER_DRIVER_COMMAND; }
+	       const PublisherType publisherType() { return PUBLISHER_TELNET_SNIFFER; }
 		   
 		   bool publishDataFromInstrument(Packet *packet); 
 		   bool publishDataFromObservatory(Packet *packet);

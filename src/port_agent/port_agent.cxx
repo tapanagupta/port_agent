@@ -556,6 +556,13 @@ void PortAgent::initializePublisherTelnetSniffer() {
     };
     
     TelnetSnifferPublisher publisher(m_pTelnetSnifferConnection);
+    
+    if(m_pConfig->telnetSnifferPrefix().length())
+        publisher.setPrefix(m_pConfig->telnetSnifferPrefix());
+    
+    if(m_pConfig->telnetSnifferSuffix().length())
+        publisher.setSuffix(m_pConfig->telnetSnifferSuffix());
+    
     m_oPublishers.add(&publisher);
 }
 
