@@ -70,7 +70,8 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_databits = 8;
     m_parity = 0;
     m_flow = 0;
-    m_instrumentDataPort = 0;
+    m_instrumentDataTxPort = 0;
+    m_instrumentDataRxPort = 0;
     m_instrumentCommandPort = 0;
     m_heartbeatInterval = DEFAULT_HEARTBEAT_INTERVAL;
     
@@ -306,7 +307,12 @@ bool PortAgentConfig::isConfigured() {
             ready = false;
         }
         
-        if(! instrumentDataPort()) {
+        if(! instrumentDataTxPort()) {
+            LOG(DEBUG) << "Missing instrument data port";
+            ready = false;
+        }
+
+        if(! instrumentDataRxPort()) {
             LOG(DEBUG) << "Missing instrument data port";
             ready = false;
         }
@@ -407,7 +413,8 @@ string PortAgentConfig::getConfig() {
             << "parity " << m_parity << endl
             << "flow " << m_flow << endl
             << "instrument_addr " << m_instrumentAddr << endl
-            << "instrument_data_port " << m_instrumentDataPort << endl
+            << "instrument_data_tx_port " << m_instrumentDataTxPort << endl
+            << "instrument_data_rx_port " << m_instrumentDataRxPort << endl
             << "instrument_command_port " << m_instrumentCommandPort << endl;
         
     return out.str();
@@ -661,7 +668,8 @@ bool PortAgentConfig::setInstrumentDataPort(const string &param) {
     const char* v = param.c_str();
     
     int value = atoi(v);
-    m_instrumentDataPort = 0;
+    m_instrumentDataTxPort = 0;
+    m_instrumentDataRxPort = 0;
     
     if(value <= 0 || value > 65535) {
         LOG(ERROR) << "Invalid port specification, setting to 0";
@@ -669,7 +677,8 @@ bool PortAgentConfig::setInstrumentDataPort(const string &param) {
     }
     
     LOG(INFO) << "set instrument data port to " << value;
-    m_instrumentDataPort = value;
+    m_instrumentDataTxPort = value;
+    m_instrumentDataRxPort = value;
     return true;
 }
 
