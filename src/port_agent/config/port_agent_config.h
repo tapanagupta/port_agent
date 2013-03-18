@@ -108,6 +108,9 @@ namespace port_agent {
             bool setInstrumentDataPort(const string &param);
             bool setInstrumentCommandPort(const string &param);
             bool setRotationInterval(const string &param);
+			bool setTelnetSnifferPort(const string &param);
+            bool setTelnetSnifferPrefix(const string &param) { m_telnetSnifferPrefix = param; }
+            bool setTelnetSnifferSuffix(const string &param) { m_telnetSnifferSuffix = param; }
             
             // Common Config
             string programName() { return m_programName; }
@@ -153,6 +156,11 @@ namespace port_agent {
             const string & instrumentAddr() { return m_instrumentAddr; }
             uint16_t instrumentDataPort() { return m_instrumentDataPort; }
             uint16_t instrumentCommandPort() { return m_instrumentCommandPort; }
+			
+			// Telnet sniffer config
+            uint16_t telnetSnifferPort() { return m_telnetSnifferPort; }
+            string telnetSnifferPrefix() { return m_telnetSnifferPrefix; }
+            string telnetSnifferSuffix() { return m_telnetSnifferSuffix; }
             
         private:
             void setParameter(char option, char *value);
@@ -212,6 +220,11 @@ namespace port_agent {
             string m_instrumentAddr;
             uint16_t m_instrumentDataPort;
             uint16_t m_instrumentCommandPort;
+			
+			// Telnet sniffer config
+			uint16_t m_telnetSnifferPort;
+			string m_telnetSnifferPrefix;
+			string m_telnetSnifferSuffix;
     };
 }
 

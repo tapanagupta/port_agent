@@ -17,6 +17,7 @@ libport_agent_publisher_a_SOURCES = publisher.cxx publisher.h \
                                     driver_publisher.cxx driver_publisher.h \
                                     driver_command_publisher.cxx driver_command_publisher.h \
                                     driver_data_publisher.cxx driver_data_publisher.h \
+                                    telnet_sniffer_publisher.cxx telnet_sniffer_publisher.h \
                                     tcp_publisher.cxx tcp_publisher.h \
                                     udp_publisher.cxx udp_publisher.h \
                                     log_publisher.cxx log_publisher.h
