@@ -55,14 +55,15 @@ using namespace logger;
 
 namespace publisher {
     typedef enum PublisherType {
-	UNKNOWN,
+	    UNKNOWN,
         PUBLISHER_DRIVER_COMMAND,
         PUBLISHER_DRIVER_DATA,
         PUBLISHER_INSTRUMENT_COMMAND,
         PUBLISHER_INSTRUMENT_DATA,
         PUBLISHER_FILE,
         PUBLISHER_UDP,
-        PUBLISHER_TCP
+        PUBLISHER_TCP,
+        PUBLISHER_TELNET_SNIFFER
     } PulisherType;
     
     class Publisher {

@@ -35,6 +35,7 @@
 #include "port_agent/publisher/log_publisher.h"
 #include "port_agent/publisher/tcp_publisher.h"
 #include "port_agent/publisher/udp_publisher.h"
+#include "port_agent/publisher/telnet_sniffer_publisher.h"
 
 #include <sstream>
 #include <string>
@@ -199,6 +200,9 @@ void PublisherList::addPublisher(Publisher *publisher) {
 	
     else if(publisher->publisherType() == PUBLISHER_UDP)
         newPublisher = new UDPPublisher(*(UDPPublisher*)publisher);
+	
+    else if(publisher->publisherType() == PUBLISHER_TELNET_SNIFFER)
+        newPublisher = new TelnetSnifferPublisher(*(TelnetSnifferPublisher*)publisher);
 	
     else
         throw UnknownPublisherType();

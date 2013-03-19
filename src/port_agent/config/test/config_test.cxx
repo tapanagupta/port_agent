@@ -690,6 +690,21 @@ TEST_F(CommonTest, UnknownCommand) {
     EXPECT_FALSE(config.parse("failure 0"));
 }
 
+/* Test telnet net sniffer config */
+TEST_F(CommonTest, TelnetSnifferConfig) {
+    char* argv[] = { "port_agent_config_test", "-p", TEST_PORT };
+    int argc = sizeof(argv) / sizeof(char*);
+    
+    PortAgentConfig config(argc, argv);
+    
+	EXPECT_TRUE(config.parse("telnet_sniffer_port 10"));
+    EXPECT_TRUE(config.parse("telnet_sniffer_prefix <<<"));
+    EXPECT_TRUE(config.parse("telnet_sniffer_suffix >>>"));
+	
+	EXPECT_EQ(config.telnetSnifferPort(), 10);
+	EXPECT_EQ(config.telnetSnifferPrefix(), "<<<");
+	EXPECT_EQ(config.telnetSnifferSuffix(), ">>>");
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Test reading configurations from a file

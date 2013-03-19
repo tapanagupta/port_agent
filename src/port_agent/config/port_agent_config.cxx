@@ -59,6 +59,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_outputThrottle = 0;
     m_maxPacketSize = DEFAULT_PACKET_SIZE;
     m_ppid = 0;
+    m_telnetSnifferPort = 0;
     
     m_instrumentConnectionType = TYPE_UNKNOWN;
     
@@ -416,6 +417,14 @@ string PortAgentConfig::getConfig() {
             << "instrument_data_tx_port " << m_instrumentDataTxPort << endl
             << "instrument_data_rx_port " << m_instrumentDataRxPort << endl
             << "instrument_command_port " << m_instrumentCommandPort << endl;
+            
+        if(m_telnetSnifferPort) {
+            out << "telnet_niffer_port " << m_telnetSnifferPort << endl;
+            if(m_telnetSnifferPrefix.length()) 
+                out << "telnet_sniffer_prefix " << m_telnetSnifferPrefix << endl;
+            if(m_telnetSnifferSuffix.length()) 
+                out << "telnet_sniffer_suffix " << m_telnetSnifferSuffix << endl;
+        }
         
     return out.str();
 }
@@ -920,6 +929,32 @@ bool PortAgentConfig::setRotationInterval(const string &param) {
 }
 
 /******************************************************************************
+ * Method: setTelnetSnifferPort
+ * Description: Set the telnet sniffer port
+ * Param:
+ *     param - string represention of the value of the port.  If it is not
+ *     a number the value will be set to 0.
+ * Return:
+ *     return true if the port was set correctly, otherwise false.
+ *****************************************************************************/
+bool PortAgentConfig::setTelnetSnifferPort(const string &param) {
+    const char* v = param.c_str();
+    
+    int value = atoi(v);
+    m_telnetSnifferPort = 0;
+    
+    if(value <= 0 || value > 65535) {
+        LOG(ERROR) << "Invalid port specification, setting to 0";
+        return false;
+    }
+    
+    LOG(INFO) << "set telnet sniffer port to " << value;
+    m_telnetSnifferPort = value;
+    return true;
+}
+
+
+/******************************************************************************
  *   PRIVATE METHODS
  ******************************************************************************/
 /******************************************************************************
@@ -1195,6 +1230,21 @@ bool PortAgentConfig::processCommand(const string & command) {
     else if(cmd == "rotation_interval") {
         addCommand(CMD_ROTATION_INTERVAL);
         return setRotationInterval(param);
+    }
+    
+    else if(cmd == "telnet_sniffer_port") {
+        addCommand(CMD_PUBLISHER_CONFIG_UPDATE);
+        return setTelnetSnifferPort(param);
+    }
+    
+    else if(cmd == "telnet_sniffer_prefix") {
+        addCommand(CMD_PUBLISHER_CONFIG_UPDATE);
+        return setTelnetSnifferPrefix(param);
+    }
+    
+    else if(cmd == "telnet_sniffer_suffix") {
+        addCommand(CMD_PUBLISHER_CONFIG_UPDATE);
+        return setTelnetSnifferSuffix(param);
     }
     
     // Couldn't parse this command

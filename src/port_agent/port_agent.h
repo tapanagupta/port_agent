@@ -68,12 +68,14 @@ namespace port_agent {
             void addObservatoryDataListenerFD(int &maxFD, fd_set &readFDs);
             void addObservatoryDataClientFD(int &maxFD, fd_set &readFDs);
             void addInstrumentDataClientFD(int &maxFD, fd_set &readFDs);
+            void addTelnetSnifferListenerFD(int &maxFD, fd_set &readFDs);
             
             int getObservatoryCommandListenerFD();
             int getObservatoryCommandClientFD();
             int getObservatoryDataListenerFD();
             int getObservatoryDataClientFD();
             int getInstrumentDataClientFD();
+            int getTelnetSnifferListenerFD();
             
             void initializeObservatoryConnection();
             void initializeObservatoryDataConnection();
@@ -91,6 +93,7 @@ namespace port_agent {
             void initializePublisherObservatoryCommand();    
             void initializePublisherInstrumentData();    
             void initializePublisherInstrumentCommand();    
+            void initializePublisherTelnetSniffer();    
             void initializePublisherTCP();    
             void initializePublisherUDP();    
             
@@ -100,12 +103,14 @@ namespace port_agent {
             void handleStateConfigured(const fd_set &readFDs);
             void handleStateConnected(const fd_set &readFDs);
             void handleStateDisconnected(const fd_set &readFDs);
+            void handleCommon(const fd_set &readFDs);
             void handleStateUnknown();
             
             // Other handlers
             void handlePortAgentCommand(const char *commands);
             void handleTCPConnect(TCPCommListener &listener);
             
+            void handleTelnetSnifferAccept(const fd_set &readFDs);
             void handleObservatoryCommandAccept(const fd_set &readFDs);
             void handleObservatoryCommandRead(const fd_set &readFDs);
             void handleObservatoryDataAccept(const fd_set &readFDs);
@@ -137,6 +142,9 @@ namespace port_agent {
             // Port agent connections
             Connection *m_pObservatoryConnection;
             Connection *m_pInstrumentConnection;
+            
+            // Publisher Connections
+            TCPCommListener *m_pTelnetSnifferConnection;
             
     };
 }
