@@ -453,28 +453,36 @@ TEST_F(CommonTest, SetInstrumentDataPort) {
     EXPECT_EQ(config.maxPacketSize(), DEFAULT_PACKET_SIZE);
     
     EXPECT_TRUE(config.parse("instrument_data_port 1"));
-    EXPECT_EQ(config.instrumentDataPort(), 1);
+    EXPECT_EQ(config.instrumentDataTxPort(), 1);
+    EXPECT_EQ(config.instrumentDataRxPort(), 1);
         
     EXPECT_TRUE(config.parse("instrument_data_port 65535"));
-    EXPECT_EQ(config.instrumentDataPort(), 65535);
+    EXPECT_EQ(config.instrumentDataTxPort(), 65535);
+    EXPECT_EQ(config.instrumentDataRxPort(), 65535);
     
     EXPECT_FALSE(config.parse("instrument_data_port 65536"));
-    EXPECT_EQ(config.instrumentDataPort(), 0);
+    EXPECT_EQ(config.instrumentDataTxPort(), 0);
+    EXPECT_EQ(config.instrumentDataRxPort(), 0);
     
     EXPECT_FALSE(config.parse("instrument_data_port 0"));
-    EXPECT_EQ(config.instrumentDataPort(), 0);
+    EXPECT_EQ(config.instrumentDataTxPort(), 0);
+    EXPECT_EQ(config.instrumentDataRxPort(), 0);
     
     EXPECT_FALSE(config.parse("instrument_data_port -11"));
-    EXPECT_EQ(config.instrumentDataPort(), 0);
+    EXPECT_EQ(config.instrumentDataTxPort(), 0);
+    EXPECT_EQ(config.instrumentDataRxPort(), 0);
     
     EXPECT_FALSE(config.parse("instrument_data_port ab"));
-    EXPECT_EQ(config.instrumentDataPort(), 0);
+    EXPECT_EQ(config.instrumentDataTxPort(), 0);
+    EXPECT_EQ(config.instrumentDataRxPort(), 0);
     
     EXPECT_FALSE(config.parse("instrument_data_port"));
-    EXPECT_EQ(config.instrumentDataPort(), 0);
+    EXPECT_EQ(config.instrumentDataTxPort(), 0);
+    EXPECT_EQ(config.instrumentDataRxPort(), 0);
     
     EXPECT_FALSE(config.parse("instrument_data_port "));
-    EXPECT_EQ(config.instrumentDataPort(), 0);
+    EXPECT_EQ(config.instrumentDataTxPort(), 0);
+    EXPECT_EQ(config.instrumentDataRxPort(), 0);
 }
 
 /* Test setting the log level */
