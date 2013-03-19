@@ -109,8 +109,8 @@ namespace port_agent {
             bool setInstrumentCommandPort(const string &param);
             bool setRotationInterval(const string &param);
 			bool setTelnetSnifferPort(const string &param);
-            bool setTelnetSnifferPrefix(const string &param) { m_telnetSnifferPrefix = param; }
-            bool setTelnetSnifferSuffix(const string &param) { m_telnetSnifferSuffix = param; }
+            bool setTelnetSnifferPrefix(const string &param) { m_telnetSnifferPrefix = param; return true; }
+            bool setTelnetSnifferSuffix(const string &param) { m_telnetSnifferSuffix = param; return true; }
             
             // Common Config
             string programName() { return m_programName; }
