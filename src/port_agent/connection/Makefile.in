@@ -69,6 +69,7 @@ libport_agent_connection_a_DEPENDENCIES =  \
 am_libport_agent_connection_a_OBJECTS =  \
 	libport_agent_connection_a-connection.$(OBJEXT) \
 	libport_agent_connection_a-instrument_tcp_connection.$(OBJEXT) \
+	libport_agent_connection_a-instrument_tcp_multi_connection.$(OBJEXT) \
 	libport_agent_connection_a-instrument_serial_connection.$(OBJEXT) \
 	libport_agent_connection_a-observatory_connection.$(OBJEXT)
 libport_agent_connection_a_OBJECTS =  \
@@ -244,6 +245,7 @@ top_srcdir = @top_srcdir@
 noinst_LIBRARIES = libport_agent_connection.a
 libport_agent_connection_a_SOURCES = connection.cxx connection.h \
                                      instrument_tcp_connection.cxx instrument_tcp_connection.h \
+                                     instrument_tcp_multi_connection.cxx instrument_tcp_multi_connection.h \
                                      instrument_serial_connection.cxx instrument_serial_connection.h \
                                      observatory_connection.cxx observatory_connection.h
 
@@ -302,6 +304,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libport_agent_connection_a-connection.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libport_agent_connection_a-instrument_serial_connection.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libport_agent_connection_a-instrument_tcp_connection.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libport_agent_connection_a-instrument_tcp_multi_connection.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libport_agent_connection_a-observatory_connection.Po@am__quote@
 
 .cxx.o:
@@ -347,6 +350,20 @@ libport_agent_connection_a-instrument_tcp_connection.obj: instrument_tcp_connect
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='instrument_tcp_connection.cxx' object='libport_agent_connection_a-instrument_tcp_connection.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libport_agent_connection_a_CXXFLAGS) $(CXXFLAGS) -c -o libport_agent_connection_a-instrument_tcp_connection.obj `if test -f 'instrument_tcp_connection.cxx'; then $(CYGPATH_W) 'instrument_tcp_connection.cxx'; else $(CYGPATH_W) '$(srcdir)/instrument_tcp_connection.cxx'; fi`
+
+libport_agent_connection_a-instrument_tcp_multi_connection.o: instrument_tcp_multi_connection.cxx
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libport_agent_connection_a_CXXFLAGS) $(CXXFLAGS) -MT libport_agent_connection_a-instrument_tcp_multi_connection.o -MD -MP -MF $(DEPDIR)/libport_agent_connection_a-instrument_tcp_multi_connection.Tpo -c -o libport_agent_connection_a-instrument_tcp_multi_connection.o `test -f 'instrument_tcp_multi_connection.cxx' || echo '$(srcdir)/'`instrument_tcp_multi_connection.cxx
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libport_agent_connection_a-instrument_tcp_multi_connection.Tpo $(DEPDIR)/libport_agent_connection_a-instrument_tcp_multi_connection.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='instrument_tcp_multi_connection.cxx' object='libport_agent_connection_a-instrument_tcp_multi_connection.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libport_agent_connection_a_CXXFLAGS) $(CXXFLAGS) -c -o libport_agent_connection_a-instrument_tcp_multi_connection.o `test -f 'instrument_tcp_multi_connection.cxx' || echo '$(srcdir)/'`instrument_tcp_multi_connection.cxx
+
+libport_agent_connection_a-instrument_tcp_multi_connection.obj: instrument_tcp_multi_connection.cxx
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libport_agent_connection_a_CXXFLAGS) $(CXXFLAGS) -MT libport_agent_connection_a-instrument_tcp_multi_connection.obj -MD -MP -MF $(DEPDIR)/libport_agent_connection_a-instrument_tcp_multi_connection.Tpo -c -o libport_agent_connection_a-instrument_tcp_multi_connection.obj `if test -f 'instrument_tcp_multi_connection.cxx'; then $(CYGPATH_W) 'instrument_tcp_multi_connection.cxx'; else $(CYGPATH_W) '$(srcdir)/instrument_tcp_multi_connection.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libport_agent_connection_a-instrument_tcp_multi_connection.Tpo $(DEPDIR)/libport_agent_connection_a-instrument_tcp_multi_connection.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='instrument_tcp_multi_connection.cxx' object='libport_agent_connection_a-instrument_tcp_multi_connection.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libport_agent_connection_a_CXXFLAGS) $(CXXFLAGS) -c -o libport_agent_connection_a-instrument_tcp_multi_connection.obj `if test -f 'instrument_tcp_multi_connection.cxx'; then $(CYGPATH_W) 'instrument_tcp_multi_connection.cxx'; else $(CYGPATH_W) '$(srcdir)/instrument_tcp_multi_connection.cxx'; fi`
 
 libport_agent_connection_a-instrument_serial_connection.o: instrument_serial_connection.cxx
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libport_agent_connection_a_CXXFLAGS) $(CXXFLAGS) -MT libport_agent_connection_a-instrument_serial_connection.o -MD -MP -MF $(DEPDIR)/libport_agent_connection_a-instrument_serial_connection.Tpo -c -o libport_agent_connection_a-instrument_serial_connection.o `test -f 'instrument_serial_connection.cxx' || echo '$(srcdir)/'`instrument_serial_connection.cxx
