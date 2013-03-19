@@ -11,6 +11,7 @@
 #include "config/port_agent_config.h"
 #include "connection/observatory_connection.h"
 #include "connection/instrument_tcp_connection.h"
+#include "connection/instrument_tcp_multi_connection.h"
 #include "connection/instrument_serial_connection.h"
 #include "packet/packet.h"
 #include "packet/buffered_single_char.h"
@@ -237,6 +238,9 @@ void PortAgent::initializeInstrumentConnection() {
     if (m_pConfig->instrumentConnectionType() == TYPE_TCP) {
         initializeTCPInstrumentConnection();
     }
+    if (m_pConfig->instrumentConnectionType() == TYPE_TCP_MULTI) {
+        initializeTCPMultiInstrumentConnection();
+    }
     if (m_pConfig->instrumentConnectionType() == TYPE_SERIAL) {
         initializeSerialInstrumentConnection();
     }
@@ -268,21 +272,87 @@ void PortAgent::initializeTCPInstrumentConnection() {
     // Create the connection object
     if(!connection)
         m_pInstrumentConnection = connection = new InstrumentTCPConnection();
-       
+
+    // If we have changed out configuration the set the new values and try to connect
+    // DHE TODO: the config needs to know about rx and tx ports now; for a single
+    // connection instrument we should be able to use either port from the config since
+    // they'll be the same.
+    if (connection->dataHost() != m_pConfig->instrumentAddr() ||
+       connection->dataPort() != m_pConfig->instrumentDataRxPort() ) {
+        LOG(INFO) << "Detected connection configuration change.  reconfiguring.";
+
+        connection->disconnect();
+
+        connection->setDataHost(m_pConfig->instrumentAddr());
+        connection->setDataPort(m_pConfig->instrumentDataRxPort());
+    }
+
+    if (!connection->connected()) {
+        LOG(DEBUG) << "Instrument not connected, attempting to reconnect";
+        LOG(DEBUG2) << "host: " << connection->dataHost() << " port: " << connection->dataPort();
+
+        setState(STATE_DISCONNECTED);
+
+        try {
+            connection->initialize();
+        }
+        catch(SocketConnectFailure &e) {
+            connection->disconnect();
+            string msg = e.what();
+            LOG(ERROR) << msg;
+        };
+
+        // Let everything connect
+        sleep(SELECT_SLEEP_TIME);
+    }
+
+
+    if(connection->connected())
+        setState(STATE_CONNECTED);
+}
+
+/******************************************************************************
+ * Method: initializeTCPMultiInstrumentConnection
+ * Description: Connect to a TCP type instrument with multi-connections (one
+ * for send and one for receive).  There is no command port for this bad boy.
+ *
+ * State Transitions:
+ *  Connected - if we can connect to an instrument
+ *  Disconnected - if we fail to connect to an instrument
+ ******************************************************************************/
+void PortAgent::initializeTCPMultiInstrumentConnection() {
+    InstrumentTCPMultiConnection *connection = (InstrumentTCPMultiConnection *)m_pInstrumentConnection;
+
+    // Clear if we have already initialized the wrong type
+    if(connection && connection->connectionType() != PACONN_INSTRUMENT_TCP_MULTI) {
+        LOG(INFO) << "Detected connection type change.  rebuilding connection.";
+        delete connection;
+        connection = NULL;
+    }
+
+    // Create the connection object
+    // Here we need to possibly initialize two connections, one send and one
+    // receive.
+    if (!connection)
+        m_pInstrumentConnection = connection = new InstrumentTCPMultiConnection();
+
     // If we have changed out configuration the set the new values and try to connect
     if (connection->dataHost() != m_pConfig->instrumentAddr() ||
-       connection->dataPort() != m_pConfig->instrumentDataPort() ) {
+       connection->dataTxPort() != m_pConfig->instrumentDataTxPort() ||
+       connection->dataRxPort() != m_pConfig->instrumentDataRxPort() ) {
         LOG(INFO) << "Detected connection configuration change.  reconfiguring.";
         
         connection->disconnect();
         
         connection->setDataHost(m_pConfig->instrumentAddr());
-        connection->setDataPort(m_pConfig->instrumentDataPort());
+        connection->setDataTxPort(m_pConfig->instrumentDataTxPort());
+        connection->setDataRxPort(m_pConfig->instrumentDataRxPort());
     }
     
     if (!connection->connected()) {
         LOG(DEBUG) << "Instrument not connected, attempting to reconnect";
-        LOG(DEBUG2) << "host: " << connection->dataHost() << " port: " << connection->dataPort();
+        LOG(DEBUG2) << "host: " << connection->dataHost() << " port: " << connection->dataTxPort();
+        LOG(DEBUG2) << "host: " << connection->dataHost() << " port: " << connection->dataRxPort();
         
         setState(STATE_DISCONNECTED);
         
@@ -1124,7 +1194,7 @@ void PortAgent::handleObservatoryCommandRead(const fd_set &readFDs) {
     LOG(DEBUG2) << "Observatory Command Client FD: " << clientFD;
         
     if(clientFD && FD_ISSET(clientFD, &readFDs)) {
-        LOG(DEBUG) << "Read data from observatory command socket";
+        LOG(DEBUG) << "Read data from Observatory Command Client FD: " << clientFD;
         bytesRead = ((TCPCommListener*)pConnection)->readData(buffer, 1023);
         buffer[bytesRead] = '\0';
         
@@ -1168,7 +1238,7 @@ void PortAgent::handleObservatoryDataRead(const fd_set &readFDs) {
     LOG(DEBUG2) << "Observatory Data Client FD: " << clientFD;
         
     if(clientFD && FD_ISSET(clientFD, &readFDs)) {
-        LOG(DEBUG2) << "Read data from observatory data socket";
+        LOG(DEBUG2) << "Read data from Observatory Data Client FD: " << clientFD;
         bytesRead = ((TCPCommListener*)pConnection)->readData(buffer, 1023);
         buffer[bytesRead] = '\0';
         
@@ -1185,6 +1255,8 @@ void PortAgent::handleObservatoryDataRead(const fd_set &readFDs) {
  ******************************************************************************/
 void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
     CommBase *pConnection = m_pInstrumentConnection->dataConnectionObject();
+
+    // DHE: TEMPTEMP: this could be changed to getInstrumentDataClientRxFD()
     int clientFD = getInstrumentDataClientFD();
     int bytesRead = 0;
     char buffer[1024];
@@ -1200,7 +1272,7 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
     LOG(DEBUG2) << "Instrument Data Client FD: " << clientFD;
         
     if(clientFD && FD_ISSET(clientFD, &readFDs)) {
-        LOG(DEBUG) << "Read data from instrument data socket";
+        LOG(DEBUG) << "Read data from Instrument Data Client FD: " << clientFD;
         bytesRead = pConnection->readData(buffer, 1023);
         
         if(bytesRead) {

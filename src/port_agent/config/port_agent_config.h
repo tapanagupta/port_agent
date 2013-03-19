@@ -62,7 +62,8 @@ namespace port_agent {
         TYPE_UNKNOWN           = 0x00000000,
         TYPE_SERIAL            = 0x00000001,
         TYPE_TCP               = 0x00000002,
-        TYPE_RSN               = 0x00000003
+        TYPE_TCP_MULTI         = 0x00000003,
+        TYPE_RSN               = 0x00000004
     } InstrumentConnectionType;
     
     class PortAgentConfig {
@@ -151,7 +152,8 @@ namespace port_agent {
             uint16_t parity() { return m_parity; }
             uint16_t flow() { return m_flow; }
             const string & instrumentAddr() { return m_instrumentAddr; }
-            uint16_t instrumentDataPort() { return m_instrumentDataPort; }
+            uint16_t instrumentDataTxPort() { return m_instrumentDataTxPort; }
+            uint16_t instrumentDataRxPort() { return m_instrumentDataRxPort; }
             uint16_t instrumentCommandPort() { return m_instrumentCommandPort; }
             
         private:
@@ -210,7 +212,8 @@ namespace port_agent {
             uint16_t m_parity;
             uint16_t m_flow;
             string m_instrumentAddr;
-            uint16_t m_instrumentDataPort;
+            uint16_t m_instrumentDataTxPort;
+            uint16_t m_instrumentDataRxPort;
             uint16_t m_instrumentCommandPort;
     };
 }

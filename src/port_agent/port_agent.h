@@ -80,6 +80,7 @@ namespace port_agent {
             void initializeObservatoryCommandConnection();
             void initializeInstrumentConnection();
             void initializeTCPInstrumentConnection();
+            void initializeTCPMultiInstrumentConnection();
             void initializeSerialInstrumentConnection();
             bool initializeSerialSettings();
             

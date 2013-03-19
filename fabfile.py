@@ -149,7 +149,7 @@ def deploy():
     code_dir = '~/port_agent/port_agent'
     with cd(code_dir):
         run("echo PORT AGENT VERSIONS")
-        cmd = "git tag |  tr '\.' : | sort -t : -k 1,2n -k 2,3n -k 3,4n | tr : ."
+        cmd = "git tag | sed -e 's/v//g' | sort -t. -k1,1n -k2,2n -k3,3n | sed -e 's/^/v/g'"
         run(cmd)
         currentVersionStr = run(cmd + ' | tail -n1').strip()
         versionStr = prompt('Please enter version to be deployed:',
