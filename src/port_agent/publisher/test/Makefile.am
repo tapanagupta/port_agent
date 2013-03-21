@@ -15,6 +15,7 @@ noinst_PROGRAMS = log_publisher_test \
                   driver_data_publisher_test \
                   instrument_command_publisher_test \
                   instrument_data_publisher_test \
+                  telnet_sniffer_publisher_test \
                   publisher_list_test
 
 
@@ -38,6 +39,9 @@ instrument_command_publisher_test_LDADD = $(DEPLIBS) -lgtest
 
 instrument_data_publisher_test_SOURCES = publisher_test.h instrument_data_publisher_test.cxx 
 instrument_data_publisher_test_LDADD = $(DEPLIBS) -lgtest
+
+telnet_sniffer_publisher_test_SOURCES = publisher_test.h telnet_sniffer_publisher_test.cxx 
+telnet_sniffer_publisher_test_LDADD = $(DEPLIBS) -lgtest
 
 publisher_list_test_SOURCES = publisher_test.h publisher_list_test.cxx 
 publisher_list_test_LDADD = $(DEPLIBS) -lgtest

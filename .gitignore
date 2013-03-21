@@ -5,6 +5,7 @@ config.status
 .deps/
 *.o
 *.a
+*.pyc
 src/common/test/common_test
 src/common/test/log_file_test
 src/common/test/logger_test

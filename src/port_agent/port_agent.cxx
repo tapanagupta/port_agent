@@ -20,6 +20,7 @@
 #include "publisher/driver_data_publisher.h"
 #include "publisher/instrument_command_publisher.h"
 #include "publisher/instrument_data_publisher.h"
+#include "publisher/telnet_sniffer_publisher.h"
 #include "publisher/udp_publisher.h"
 #include "publisher/tcp_publisher.h"
 
@@ -69,6 +70,7 @@ PortAgent::PortAgent(int argc, char *argv[]) {
     
     m_pInstrumentConnection = NULL;
     m_pObservatoryConnection = NULL;
+    m_pTelnetSnifferConnection = NULL;
 }
 
 /******************************************************************************
@@ -81,6 +83,9 @@ PortAgent::~PortAgent() {
         
     if(m_pInstrumentConnection)
         delete m_pInstrumentConnection;
+        
+    if(m_pTelnetSnifferConnection)
+        delete m_pTelnetSnifferConnection;
         
     if(m_pConfig)
         delete m_pConfig;
@@ -387,6 +392,7 @@ void PortAgent::initializePublishers() {
     initializePublisherInstrumentCommand();    
     initializePublisherTCP();    
     initializePublisherUDP();    
+    initializePublisherTelnetSniffer();    
 }
 
 /******************************************************************************
@@ -514,6 +520,48 @@ void PortAgent::initializePublisherInstrumentCommand() {
     
     LOG(DEBUG) << "Create new publisher";
     InstrumentCommandPublisher publisher(connection);
+    
+    m_oPublishers.add(&publisher);
+}
+
+/******************************************************************************
+ * Method: initializePublisherTelnetSniffer
+ * Description: setup the telnet sniffer publisher
+ ******************************************************************************/
+void PortAgent::initializePublisherTelnetSniffer() {
+    LOG(INFO) << "Initialize Telnet Sniffer Publisher";
+    
+    int port = m_pConfig->telnetSnifferPort();
+    if(port <= 0) {
+        LOG(INFO) << "telnet sniffer not configured.  Not starting.";
+        return;
+    }
+    
+    LOG(DEBUG) << "Establish TCP Listener for Telnet Sniffer";
+    if(m_pTelnetSnifferConnection)
+        delete m_pTelnetSnifferConnection;
+    
+    m_pTelnetSnifferConnection = new TCPCommListener();
+    m_pTelnetSnifferConnection->setPort(port);
+    
+    try {
+        m_pTelnetSnifferConnection->initialize();
+    }
+    catch(SocketConnectFailure &e) {
+        if(m_pTelnetSnifferConnection)
+            delete m_pTelnetSnifferConnection;
+        m_pTelnetSnifferConnection = NULL;
+        LOG(ERROR) << "Failed to estabilsh telnet sniffer: ";
+        return;
+    };
+    
+    TelnetSnifferPublisher publisher(m_pTelnetSnifferConnection);
+    
+    if(m_pConfig->telnetSnifferPrefix().length())
+        publisher.setPrefix(m_pConfig->telnetSnifferPrefix());
+    
+    if(m_pConfig->telnetSnifferSuffix().length())
+        publisher.setSuffix(m_pConfig->telnetSnifferSuffix());
     
     m_oPublishers.add(&publisher);
 }
@@ -722,6 +770,14 @@ void PortAgent::handleStateStartup() {
 }
 
 /******************************************************************************
+ * Method: handleCommon
+ * Description: common tasks to be handled regardless of state.
+ ******************************************************************************/
+void PortAgent::handleCommon(const fd_set &readFDs) {
+    handleTelnetSnifferAccept(readFDs);
+}
+
+/******************************************************************************
  * Method: poll
  * Description: main program loop.  Looping structure is in base class
  ******************************************************************************/
@@ -776,6 +832,8 @@ void PortAgent::poll() {
         if(getCurrentState() == STATE_UNKNOWN)
             handleStateUnknown();
             
+        handleCommon(readFDs);
+            
         publishHeartbeat();
     }
     catch(UnknownState &e) {
@@ -800,6 +858,7 @@ void PortAgent::poll() {
  *  * Observatory Data Connection (Listener)
  *  * Observatory Data Connection (Client)
  *  * Instrument Data Connection (Client)
+ *  * Telnet Sniffer Connection (Listener)
  * 
  * Return:
  *  the maximum file descriptor value.
@@ -815,8 +874,35 @@ int PortAgent::buildFDSet(fd_set &readFDs) {
     addObservatoryDataListenerFD(maxFD, readFDs);
     addObservatoryDataClientFD(maxFD, readFDs);
     addInstrumentDataClientFD(maxFD, readFDs);
+    addTelnetSnifferListenerFD(maxFD, readFDs);
     
     return maxFD;
+}
+
+/******************************************************************************
+ * Method: addTelnetSnifferListenerFD
+ * Description: Add the telnet sniffer fd to the fd_set.  Also update
+ * the max file descriptor.
+ *
+ * If the connection isn't initialized then do nothing.
+ ******************************************************************************/
+void PortAgent::addTelnetSnifferListenerFD(int &maxFD, fd_set &readFDs) {
+    
+    if(m_pTelnetSnifferConnection) {
+        int fd = 0;
+    
+        if(m_pTelnetSnifferConnection->listening())
+            fd = getTelnetSnifferListenerFD();
+    
+        if(m_pTelnetSnifferConnection->listening() && fd) {
+            LOG(DEBUG2) << "add telnet sniffer listener FD";
+            maxFD = fd > maxFD ? fd : maxFD;
+            FD_SET(fd, &readFDs);
+        }
+        else {
+            LOG(ERROR) << "telnet sniffer not initialized";
+        }
+    }
 }
 
 /******************************************************************************
@@ -958,6 +1044,18 @@ void PortAgent::addInstrumentDataClientFD(int &maxFD, fd_set &readFDs) {
 }
 
 /******************************************************************************
+ * Method: getTelnetSnifferListenerFD
+ * Description: Get the file descriptor
+ ******************************************************************************/
+int PortAgent::getTelnetSnifferListenerFD() {
+    if(m_pTelnetSnifferConnection) {
+        return m_pTelnetSnifferConnection->serverFD();
+    }
+    
+    return 0;
+}
+
+/******************************************************************************
  * Method: getObservatoryCommandListenerFD
  * Description: Get the file descriptor
  ******************************************************************************/
@@ -1090,6 +1188,23 @@ void PortAgent::publishPacket(char *payload, uint16_t size, PacketType type) {
     Timestamp ts;
     Packet packet(type, ts, payload, size);
     publishPacket(&packet); 
+}
+
+/******************************************************************************
+ * Method: handleTelnetSnifferAccept
+ * Description: Accept connection to the telnet sniffer connection.
+ ******************************************************************************/
+void PortAgent::handleTelnetSnifferAccept(const fd_set &readFDs) {
+    int serverFD = getTelnetSnifferListenerFD();
+    
+    LOG(DEBUG) << "handleTelnetSnifferAccept - do we need to accept a new connection?";
+    LOG(DEBUG2) << "Telnet Sniffer Listener FD: " << serverFD;
+        
+    // Accept a new client
+    if(serverFD && FD_ISSET(serverFD, &readFDs)) {
+        LOG(DEBUG) << "Telnet sniffer listener has data";
+        handleTCPConnect(*m_pTelnetSnifferConnection);
+    }
 }
 
 /******************************************************************************
