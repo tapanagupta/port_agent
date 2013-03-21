@@ -214,7 +214,6 @@ uint32_t TCPCommListener::writeData(const char *buffer, const uint32_t size) {
 		return 0;
     }
     
-    LOG(DEBUG) << "HERE";
     while( bytesRemaining > 0 ) {
         LOG(DEBUG) << "WRITE DEVICE: " << buffer << "FD: " << m_pClientFD;
         count = write(m_pClientFD, buffer + bytesWritten, bytesRemaining );

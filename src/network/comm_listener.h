@@ -36,25 +36,25 @@ namespace network {
 
             /* Accessors */
             bool listening() { return m_pServerFD > 0; }
-            bool connected() { LOG(DEBUG2) << "client fd: " << m_pClientFD << " addr: " << this; return m_pClientFD > 0; }
+            bool connected() { LOG(DEBUG2) << "client fd: " << m_pClientFD << " addr: " << this; return m_pClientFD; }
 			
 			bool connectClient() { return false; }
 	    
-	    int serverFD() { return m_pServerFD; }
-	    int clientFD() { return m_pClientFD; }
+	        int serverFD() { return m_pServerFD; }
+	        int clientFD() { return m_pClientFD; }
             
             void setPort(const uint16_t port) { m_iPort = port; }
             virtual bool compare(CommBase *rhs);
 	    
-	    uint16_t port() { return m_iPort; }
+	        uint16_t port() { return m_iPort; }
 	    
-	    uint16_t getListenPort();
+	        uint16_t getListenPort();
 	    
-	    /* Commands */
-	    bool disconnect();
-	    bool disconnectClient();
-	    
-	    bool acceptClient();
+	        /* Commands */
+	        bool disconnect();
+	        bool disconnectClient();
+    	    
+	        bool acceptClient();
 	    
         protected:
 
@@ -67,8 +67,8 @@ namespace network {
         protected:
             uint16_t m_iPort;
 	    
-	    int m_pServerFD;
-	    int m_pClientFD;
+	        int m_pServerFD;
+	        int m_pClientFD;
             
     };
 }

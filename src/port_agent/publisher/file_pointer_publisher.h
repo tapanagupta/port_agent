@@ -59,7 +59,7 @@ namespace publisher {
             virtual bool handleHeartbeat(Packet *packet)         { return logPacket(packet); }
 
             bool logPacket(Packet *packet);
-            bool write(const char *buffer, uint32_t size);
+            virtual bool write(const char *buffer, uint32_t size);
 
         private:
 			bool compareCommSocket(CommBase *rhs);
