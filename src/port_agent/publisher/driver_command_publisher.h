@@ -27,6 +27,8 @@ namespace publisher {
            DriverCommandPublisher();
            DriverCommandPublisher(CommBase *socket) : DriverPublisher(socket) {}
 
+           bool write(const char *buffer, uint32_t size);
+
 	   const PublisherType publisherType() { return PUBLISHER_DRIVER_COMMAND; }
 	   
         protected:

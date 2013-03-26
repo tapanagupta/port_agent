@@ -32,8 +32,12 @@ class UDPPublisherTest : public FilePointerPublisherTest {
         }
 };
 
+//**
+//** Disabled because we aren't using UDP publishers yet.
+//**
+
 /* Test Basic Creation and ASCII out */
-TEST_F(UDPPublisherTest, SingleAsciiOut) {
+TEST_F(UDPPublisherTest, DISABLED_SingleAsciiOut) {
 	UDPPublisher publisher;
 	EXPECT_TRUE(testPublish(publisher, DATA_FROM_DRIVER, true));
 	EXPECT_TRUE(testPublish(publisher, DATA_FROM_INSTRUMENT, true));
@@ -44,7 +48,7 @@ TEST_F(UDPPublisherTest, SingleAsciiOut) {
 }
 
 /* Test Single binary packet out out */
-TEST_F(UDPPublisherTest, SingleBinaryOut) {
+TEST_F(UDPPublisherTest, DISABLED_SingleBinaryOut) {
 	UDPPublisher publisher;
 	EXPECT_TRUE(testPublish(publisher, DATA_FROM_DRIVER, false));
 	EXPECT_TRUE(testPublish(publisher, DATA_FROM_INSTRUMENT, false));

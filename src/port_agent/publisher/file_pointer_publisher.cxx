@@ -247,7 +247,7 @@ bool FilePointerPublisher::write(const char *buffer, uint32_t size) {
 	}
 
 	if(total != size) {
-		LOG(INFO) << "Publish failed.  Intended bytes: " << size << " actual write: " << total;
+		LOG(ERROR) << "Publish failed.  Intended bytes: " << size << " actual write: " << total;
  		throw PacketPublishFailure(strerror(errno));
 	}
 
