@@ -73,7 +73,7 @@ namespace port_agent {
             CommBase *dataConnectionObject() { return &m_oDataRxSocket; }
             CommBase *commandConnectionObject() { return NULL; }
             
-            PortAgentConnectionType connectionType() { return PACONN_INSTRUMENT_TCP_MULTI; }
+            PortAgentConnectionType connectionType() { return PACONN_INSTRUMENT_BOTPT_TCP; }
             
             // Custom configurations for the observatory connection
             void setDataTxPort(uint16_t port);

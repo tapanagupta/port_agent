@@ -37,7 +37,7 @@
  *    
  ******************************************************************************/
 
-#include "instrument_tcp_multi_connection.h"
+#include "instrument_botpt_tcp_connection.h"
 #include "common/util.h"
 #include "common/logger.h"
 #include "common/exception.h"

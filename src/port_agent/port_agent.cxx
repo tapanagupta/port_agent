@@ -11,7 +11,7 @@
 #include "config/port_agent_config.h"
 #include "connection/observatory_connection.h"
 #include "connection/instrument_tcp_connection.h"
-#include "connection/instrument_tcp_multi_connection.h"
+#include "connection/instrument_botpt_tcp_connection.h"
 #include "connection/instrument_serial_connection.h"
 #include "packet/packet.h"
 #include "packet/buffered_single_char.h"
