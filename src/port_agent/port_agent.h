@@ -82,7 +82,7 @@ namespace port_agent {
             void initializeObservatoryCommandConnection();
             void initializeInstrumentConnection();
             void initializeTCPInstrumentConnection();
-            void initializeTCPMultiInstrumentConnection();
+            void initialize_BOTPT_TCPInstrumentConnection();
             void initializeSerialInstrumentConnection();
             bool initializeSerialSettings();
             

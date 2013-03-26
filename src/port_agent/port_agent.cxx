@@ -243,8 +243,8 @@ void PortAgent::initializeInstrumentConnection() {
     if (m_pConfig->instrumentConnectionType() == TYPE_TCP) {
         initializeTCPInstrumentConnection();
     }
-    if (m_pConfig->instrumentConnectionType() == TYPE_TCP_MULTI) {
-        initializeTCPMultiInstrumentConnection();
+    if (m_pConfig->instrumentConnectionType() == TYPE_BOTPT_TCP) {
+        initialize_BOTPT_TCPInstrumentConnection();
     }
     if (m_pConfig->instrumentConnectionType() == TYPE_SERIAL) {
         initializeSerialInstrumentConnection();
@@ -317,7 +317,7 @@ void PortAgent::initializeTCPInstrumentConnection() {
 }
 
 /******************************************************************************
- * Method: initializeTCPMultiInstrumentConnection
+ * Method: initialize_BOTPT_TCPInstrumentConnection
  * Description: Connect to a TCP type instrument with multi-connections (one
  * for send and one for receive).  There is no command port for this bad boy.
  *
@@ -325,11 +325,11 @@ void PortAgent::initializeTCPInstrumentConnection() {
  *  Connected - if we can connect to an instrument
  *  Disconnected - if we fail to connect to an instrument
  ******************************************************************************/
-void PortAgent::initializeTCPMultiInstrumentConnection() {
+void PortAgent::initialize_BOTPT_TCPInstrumentConnection() {
     InstrumentTCPMultiConnection *connection = (InstrumentTCPMultiConnection *)m_pInstrumentConnection;
 
     // Clear if we have already initialized the wrong type
-    if(connection && connection->connectionType() != PACONN_INSTRUMENT_TCP_MULTI) {
+    if(connection && connection->connectionType() != PACONN_INSTRUMENT_BOTPT_TCP) {
         LOG(INFO) << "Detected connection type change.  rebuilding connection.";
         delete connection;
         connection = NULL;

@@ -6,7 +6,7 @@ noinst_LIBRARIES= libport_agent_connection.a
 
 libport_agent_connection_a_SOURCES = connection.cxx connection.h \
                                      instrument_tcp_connection.cxx instrument_tcp_connection.h \
-                                     instrument_tcp_multi_connection.cxx instrument_tcp_multi_connection.h \
+                                     instrument_botpt_tcp_connection.cxx instrument_botpt_tcp_connection.h \
                                      instrument_serial_connection.cxx instrument_serial_connection.h \
                                      observatory_connection.cxx observatory_connection.h
 

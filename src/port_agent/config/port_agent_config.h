@@ -62,7 +62,7 @@ namespace port_agent {
         TYPE_UNKNOWN           = 0x00000000,
         TYPE_SERIAL            = 0x00000001,
         TYPE_TCP               = 0x00000002,
-        TYPE_TCP_MULTI         = 0x00000003,
+        TYPE_BOTPT_TCP         = 0x00000003,
         TYPE_RSN               = 0x00000004
     } InstrumentConnectionType;
     
