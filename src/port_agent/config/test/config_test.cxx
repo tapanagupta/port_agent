@@ -453,35 +453,97 @@ TEST_F(CommonTest, SetInstrumentDataPort) {
     EXPECT_EQ(config.maxPacketSize(), DEFAULT_PACKET_SIZE);
     
     EXPECT_TRUE(config.parse("instrument_data_port 1"));
-    EXPECT_EQ(config.instrumentDataTxPort(), 1);
-    EXPECT_EQ(config.instrumentDataRxPort(), 1);
+    EXPECT_EQ(config.instrumentDataPort(), 1);
         
     EXPECT_TRUE(config.parse("instrument_data_port 65535"));
-    EXPECT_EQ(config.instrumentDataTxPort(), 65535);
-    EXPECT_EQ(config.instrumentDataRxPort(), 65535);
+    EXPECT_EQ(config.instrumentDataPort(), 65535);
     
     EXPECT_FALSE(config.parse("instrument_data_port 65536"));
-    EXPECT_EQ(config.instrumentDataTxPort(), 0);
-    EXPECT_EQ(config.instrumentDataRxPort(), 0);
+    EXPECT_EQ(config.instrumentDataPort(), 0);
     
     EXPECT_FALSE(config.parse("instrument_data_port 0"));
-    EXPECT_EQ(config.instrumentDataTxPort(), 0);
-    EXPECT_EQ(config.instrumentDataRxPort(), 0);
+    EXPECT_EQ(config.instrumentDataPort(), 0);
     
     EXPECT_FALSE(config.parse("instrument_data_port -11"));
-    EXPECT_EQ(config.instrumentDataTxPort(), 0);
-    EXPECT_EQ(config.instrumentDataRxPort(), 0);
+    EXPECT_EQ(config.instrumentDataPort(), 0);
     
     EXPECT_FALSE(config.parse("instrument_data_port ab"));
-    EXPECT_EQ(config.instrumentDataTxPort(), 0);
-    EXPECT_EQ(config.instrumentDataRxPort(), 0);
+    EXPECT_EQ(config.instrumentDataPort(), 0);
     
     EXPECT_FALSE(config.parse("instrument_data_port"));
-    EXPECT_EQ(config.instrumentDataTxPort(), 0);
-    EXPECT_EQ(config.instrumentDataRxPort(), 0);
+    EXPECT_EQ(config.instrumentDataPort(), 0);
     
     EXPECT_FALSE(config.parse("instrument_data_port "));
+    EXPECT_EQ(config.instrumentDataPort(), 0);
+}
+
+/* Test setting the instrument data TX port parameter */
+TEST_F(CommonTest, SetInstrumentDataTxPort) {
+    char* argv[] = { "port_agent_config_test", "-p", TEST_PORT };
+    int argc = sizeof(argv) / sizeof(char*);
+    const char* buffer;
+    
+    PortAgentConfig config(argc, argv);
+    
+    EXPECT_EQ(config.maxPacketSize(), DEFAULT_PACKET_SIZE);
+    
+    EXPECT_TRUE(config.parse("instrument_data_tx_port 1"));
+    EXPECT_EQ(config.instrumentDataTxPort(), 1);
+        
+    EXPECT_TRUE(config.parse("instrument_data_tx_port 65535"));
+    EXPECT_EQ(config.instrumentDataTxPort(), 65535);
+    
+    EXPECT_FALSE(config.parse("instrument_data_tx_port 65536"));
     EXPECT_EQ(config.instrumentDataTxPort(), 0);
+    
+    EXPECT_FALSE(config.parse("instrument_data_tx_port 0"));
+    EXPECT_EQ(config.instrumentDataTxPort(), 0);
+    
+    EXPECT_FALSE(config.parse("instrument_data_tx_port -11"));
+    EXPECT_EQ(config.instrumentDataTxPort(), 0);
+    
+    EXPECT_FALSE(config.parse("instrument_data_tx_port ab"));
+    EXPECT_EQ(config.instrumentDataTxPort(), 0);
+    
+    EXPECT_FALSE(config.parse("instrument_data_tx_port"));
+    EXPECT_EQ(config.instrumentDataTxPort(), 0);
+    
+    EXPECT_FALSE(config.parse("instrument_data_tx_port "));
+    EXPECT_EQ(config.instrumentDataTxPort(), 0);
+}
+
+/* Test setting the instrument data RX port parameter */
+TEST_F(CommonTest, SetInstrumentDataRxPort) {
+    char* argv[] = { "port_agent_config_test", "-p", TEST_PORT };
+    int argc = sizeof(argv) / sizeof(char*);
+    const char* buffer;
+    
+    PortAgentConfig config(argc, argv);
+    
+    EXPECT_EQ(config.maxPacketSize(), DEFAULT_PACKET_SIZE);
+    
+    EXPECT_TRUE(config.parse("instrument_data_rx_port 1"));
+    EXPECT_EQ(config.instrumentDataRxPort(), 1);
+        
+    EXPECT_TRUE(config.parse("instrument_data_rx_port 65535"));
+    EXPECT_EQ(config.instrumentDataRxPort(), 65535);
+    
+    EXPECT_FALSE(config.parse("instrument_data_rx_port 65536"));
+    EXPECT_EQ(config.instrumentDataRxPort(), 0);
+    
+    EXPECT_FALSE(config.parse("instrument_data_rx_port 0"));
+    EXPECT_EQ(config.instrumentDataRxPort(), 0);
+    
+    EXPECT_FALSE(config.parse("instrument_data_rx_port -11"));
+    EXPECT_EQ(config.instrumentDataRxPort(), 0);
+    
+    EXPECT_FALSE(config.parse("instrument_data_rx_port ab"));
+    EXPECT_EQ(config.instrumentDataRxPort(), 0);
+    
+    EXPECT_FALSE(config.parse("instrument_data_rx_port"));
+    EXPECT_EQ(config.instrumentDataRxPort(), 0);
+    
+    EXPECT_FALSE(config.parse("instrument_data_rx_port "));
     EXPECT_EQ(config.instrumentDataRxPort(), 0);
 }
 
