@@ -71,6 +71,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_databits = 8;
     m_parity = 0;
     m_flow = 0;
+    m_instrumentDataPort = 0;
     m_instrumentDataTxPort = 0;
     m_instrumentDataRxPort = 0;
     m_instrumentCommandPort = 0;
@@ -308,13 +309,25 @@ bool PortAgentConfig::isConfigured() {
             ready = false;
         }
         
-        if(! instrumentDataTxPort()) {
+        if(! instrumentDataPort()) {
             LOG(DEBUG) << "Missing instrument data port";
+            ready = false;
+        }
+    }
+
+    if(instrumentConnectionType() == TYPE_BOTPT) {
+        if(! instrumentAddr().length()) {
+            LOG(DEBUG) << "Missing instrument address";
+            ready = false;
+        }
+
+        if(! instrumentDataTxPort()) {
+            LOG(DEBUG) << "Missing instrument data TX port";
             ready = false;
         }
 
         if(! instrumentDataRxPort()) {
-            LOG(DEBUG) << "Missing instrument data port";
+            LOG(DEBUG) << "Missing instrument data RX port";
             ready = false;
         }
     }
@@ -386,6 +399,8 @@ string PortAgentConfig::getConfig() {
                 out << "serial";
             else if(m_instrumentConnectionType == TYPE_TCP)
                 out << "tcp";
+            else if(m_instrumentConnectionType == TYPE_BOTPT)
+                out << "BOTPT";
             else if(m_instrumentConnectionType == TYPE_RSN)
                 out << "rsn";
             
@@ -414,6 +429,7 @@ string PortAgentConfig::getConfig() {
             << "parity " << m_parity << endl
             << "flow " << m_flow << endl
             << "instrument_addr " << m_instrumentAddr << endl
+            << "instrument_data_port " << m_instrumentDataPort << endl
             << "instrument_data_tx_port " << m_instrumentDataTxPort << endl
             << "instrument_data_rx_port " << m_instrumentDataRxPort << endl
             << "instrument_command_port " << m_instrumentCommandPort << endl;
@@ -481,6 +497,11 @@ bool PortAgentConfig::setInstrumentConnectionType(const string &param) {
         m_instrumentConnectionType = TYPE_TCP;
     }
     
+    else if(param == "botpt") {
+        LOG(INFO) << "connection type set to botpt";
+        m_instrumentConnectionType = TYPE_BOTPT;
+    }
+
     else if(param == "rsn") {
         LOG(INFO) << "connection type set to rsn";
         m_instrumentConnectionType = TYPE_RSN;
@@ -677,8 +698,7 @@ bool PortAgentConfig::setInstrumentDataPort(const string &param) {
     const char* v = param.c_str();
     
     int value = atoi(v);
-    m_instrumentDataTxPort = 0;
-    m_instrumentDataRxPort = 0;
+    m_instrumentDataPort = 0;
     
     if(value <= 0 || value > 65535) {
         LOG(ERROR) << "Invalid port specification, setting to 0";
@@ -686,7 +706,56 @@ bool PortAgentConfig::setInstrumentDataPort(const string &param) {
     }
     
     LOG(INFO) << "set instrument data port to " << value;
+    m_instrumentDataPort = value;
+    return true;
+}
+
+/******************************************************************************
+ * Method: setInstrumentDataTxPort
+ * Description: Set the instrument TX data port (BOTPT)
+ * Param:
+ *     param - string represention of the value of the port.  If it is not
+ *     a number the value will be set to 0.
+ * Return:
+ *     return true if the port was set correctly, otherwise false.
+ *****************************************************************************/
+bool PortAgentConfig::setInstrumentDataTxPort(const string &param) {
+    const char* v = param.c_str();
+
+    int value = atoi(v);
+    m_instrumentDataTxPort = 0;
+
+    if(value <= 0 || value > 65535) {
+        LOG(ERROR) << "Invalid port specification, setting to 0";
+        return false;
+    }
+
+    LOG(INFO) << "set instrument data port to " << value;
     m_instrumentDataTxPort = value;
+    return true;
+}
+
+/******************************************************************************
+ * Method: setInstrumentDataRxPort
+ * Description: Set the instrument RX data port (BOTPT)
+ * Param:
+ *     param - string represention of the value of the port.  If it is not
+ *     a number the value will be set to 0.
+ * Return:
+ *     return true if the port was set correctly, otherwise false.
+ *****************************************************************************/
+bool PortAgentConfig::setInstrumentDataRxPort(const string &param) {
+    const char* v = param.c_str();
+
+    int value = atoi(v);
+    m_instrumentDataRxPort = 0;
+
+    if(value <= 0 || value > 65535) {
+        LOG(ERROR) << "Invalid port specification, setting to 0";
+        return false;
+    }
+
+    LOG(INFO) << "set instrument data port to " << value;
     m_instrumentDataRxPort = value;
     return true;
 }
@@ -1145,6 +1214,16 @@ bool PortAgentConfig::processCommand(const string & command) {
         return setInstrumentDataPort(param);
     }
     
+    else if(cmd == "instrument_data_tx_port") {
+        addCommand(CMD_COMM_CONFIG_UPDATE);
+        return setInstrumentDataTxPort(param);
+    }
+
+    else if(cmd == "instrument_data_rx_port") {
+        addCommand(CMD_COMM_CONFIG_UPDATE);
+        return setInstrumentDataRxPort(param);
+    }
+
     else if(cmd == "instrument_command_port") {
         addCommand(CMD_COMM_CONFIG_UPDATE);
         return setInstrumentCommandPort(param);

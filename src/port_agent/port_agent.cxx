@@ -11,7 +11,7 @@
 #include "config/port_agent_config.h"
 #include "connection/observatory_connection.h"
 #include "connection/instrument_tcp_connection.h"
-#include "connection/instrument_botpt_tcp_connection.h"
+#include "connection/instrument_botpt_connection.h"
 #include "connection/instrument_serial_connection.h"
 #include "packet/packet.h"
 #include "packet/buffered_single_char.h"
@@ -243,8 +243,8 @@ void PortAgent::initializeInstrumentConnection() {
     if (m_pConfig->instrumentConnectionType() == TYPE_TCP) {
         initializeTCPInstrumentConnection();
     }
-    if (m_pConfig->instrumentConnectionType() == TYPE_BOTPT_TCP) {
-        initialize_BOTPT_TCPInstrumentConnection();
+    if (m_pConfig->instrumentConnectionType() == TYPE_BOTPT) {
+        initialize_BOTPT_InstrumentConnection();
     }
     if (m_pConfig->instrumentConnectionType() == TYPE_SERIAL) {
         initializeSerialInstrumentConnection();
@@ -279,17 +279,14 @@ void PortAgent::initializeTCPInstrumentConnection() {
         m_pInstrumentConnection = connection = new InstrumentTCPConnection();
 
     // If we have changed out configuration the set the new values and try to connect
-    // DHE TODO: the config needs to know about rx and tx ports now; for a single
-    // connection instrument we should be able to use either port from the config since
-    // they'll be the same.
     if (connection->dataHost() != m_pConfig->instrumentAddr() ||
-       connection->dataPort() != m_pConfig->instrumentDataRxPort() ) {
+       connection->dataPort() != m_pConfig->instrumentDataPort() ) {
         LOG(INFO) << "Detected connection configuration change.  reconfiguring.";
 
         connection->disconnect();
 
         connection->setDataHost(m_pConfig->instrumentAddr());
-        connection->setDataPort(m_pConfig->instrumentDataRxPort());
+        connection->setDataPort(m_pConfig->instrumentDataPort());
     }
 
     if (!connection->connected()) {
@@ -317,16 +314,16 @@ void PortAgent::initializeTCPInstrumentConnection() {
 }
 
 /******************************************************************************
- * Method: initialize_BOTPT_TCPInstrumentConnection
- * Description: Connect to a TCP type instrument with multi-connections (one
+ * Method: initialize_BOTPT_InstrumentConnection
+ * Description: Connect to a BOTPT TCP type instrument with  two connections (one
  * for send and one for receive).  There is no command port for this bad boy.
  *
  * State Transitions:
  *  Connected - if we can connect to an instrument
  *  Disconnected - if we fail to connect to an instrument
  ******************************************************************************/
-void PortAgent::initialize_BOTPT_TCPInstrumentConnection() {
-    InstrumentTCPMultiConnection *connection = (InstrumentTCPMultiConnection *)m_pInstrumentConnection;
+void PortAgent::initialize_BOTPT_InstrumentConnection() {
+    InstrumentBOTPTConnection *connection = (InstrumentBOTPTConnection *)m_pInstrumentConnection;
 
     // Clear if we have already initialized the wrong type
     if(connection && connection->connectionType() != PACONN_INSTRUMENT_BOTPT_TCP) {
@@ -339,7 +336,7 @@ void PortAgent::initialize_BOTPT_TCPInstrumentConnection() {
     // Here we need to possibly initialize two connections, one send and one
     // receive.
     if (!connection)
-        m_pInstrumentConnection = connection = new InstrumentTCPMultiConnection();
+        m_pInstrumentConnection = connection = new InstrumentBOTPTConnection();
 
     // If we have changed out configuration the set the new values and try to connect
     if (connection->dataHost() != m_pConfig->instrumentAddr() ||

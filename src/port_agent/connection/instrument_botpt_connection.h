@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Class: InstrumentTCPMultiConnection
+ * Class: InstrumentBOTPTConnection
  * Filename: observatory_connection.h
  * Author: Bill French (wfrench@ucsd.edu)
  * License: Apache 2.0
@@ -10,7 +10,7 @@
  *
  * Usage:
  *
- * InstrumentTCPMultiConnection connection;
+ * InstrumentBOTPTConnection connection;
  *
  * connection.setDataPortTx(4001);
  * connection.setDataPortRx(4002);
@@ -38,8 +38,8 @@
  *    
  ******************************************************************************/
 
-#ifndef __INSTRUMENT_TCP_MULTI_CONNECTION_H_
-#define __INSTRUMENT_TCP_MULTI_CONNECTION_H_
+#ifndef __INSTRUMENT_BOTPT_CONNECTION_H_
+#define __INSTRUMENT_BOTPT_CONNECTION_H_
 
 #include "port_agent/connection/connection.h"
 #include "network/tcp_comm_socket.h"
@@ -48,7 +48,7 @@ using namespace std;
 using namespace network;
 
 namespace port_agent {
-    class InstrumentTCPMultiConnection : public Connection {
+    class InstrumentBOTPTConnection : public Connection {
         /********************
          *      METHODS     *
          ********************/
@@ -56,21 +56,21 @@ namespace port_agent {
         public:
             ///////////////////////
             // Public Methods
-            InstrumentTCPMultiConnection();
-            InstrumentTCPMultiConnection(const InstrumentTCPMultiConnection &rhs);
-            virtual ~InstrumentTCPMultiConnection();
+            InstrumentBOTPTConnection();
+            InstrumentBOTPTConnection(const InstrumentBOTPTConnection &rhs);
+            virtual ~InstrumentBOTPTConnection();
             
             void initialize();
-            void copy(const InstrumentTCPMultiConnection &copy);
+            void copy(const InstrumentBOTPTConnection &copy);
             
             /* Operators */
-            InstrumentTCPMultiConnection & operator=(const InstrumentTCPMultiConnection &rhs);
+            InstrumentBOTPTConnection & operator=(const InstrumentBOTPTConnection &rhs);
 
             /* Accessors */
             
             // DHE: TEMPTEMP: for now just have this return the Rx socket until I figure out
             // it something else is needed.
-            CommBase *dataConnectionObject() { return &m_oDataRxSocket; }
+            CommBase *dataConnectionObject() { return &m_oDataTxSocket; }
             CommBase *commandConnectionObject() { return NULL; }
             
             PortAgentConnectionType connectionType() { return PACONN_INSTRUMENT_BOTPT_TCP; }
@@ -124,4 +124,4 @@ namespace port_agent {
     };
 }
 
-#endif //__INSTRUMENT_TCP_CONNECTION_H_
+#endif //__INSTRUMENT_BOTPT_CONNECTION_H_

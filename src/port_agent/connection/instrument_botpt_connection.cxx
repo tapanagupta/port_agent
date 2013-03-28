@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Class: InstrumentTCPMultiConnection
+ * Class: InstrumentBOTPTConnection
  * Filename: instrument_tcp_connection.cxx
  * Author: Bill French (wfrench@ucsd.edu)
  * License: Apache 2.0
@@ -10,7 +10,7 @@
  *
  * Usage:
  *
- * InstrumentTCPMultiConnection connection;
+ * InstrumentBOTPTConnection connection;
  *
  * connection.setDataPort(4001);
  *
@@ -37,7 +37,7 @@
  *    
  ******************************************************************************/
 
-#include "instrument_botpt_tcp_connection.h"
+#include "instrument_botpt_connection.h"
 #include "common/util.h"
 #include "common/logger.h"
 #include "common/exception.h"
@@ -56,7 +56,7 @@ using namespace port_agent;
  * Description: Default constructor.  Is likely never called, but wanted to
  *              define it explicitly.
  ******************************************************************************/
-InstrumentTCPMultiConnection::InstrumentTCPMultiConnection() : Connection() {
+InstrumentBOTPTConnection::InstrumentBOTPTConnection() : Connection() {
 }
 
 /******************************************************************************
@@ -66,7 +66,7 @@ InstrumentTCPMultiConnection::InstrumentTCPMultiConnection() : Connection() {
  * Parameters:
  *   copy - rhs object to copy
  ******************************************************************************/
-InstrumentTCPMultiConnection::InstrumentTCPMultiConnection(const InstrumentTCPMultiConnection& rhs) {
+InstrumentBOTPTConnection::InstrumentBOTPTConnection(const InstrumentBOTPTConnection& rhs) {
     copy(rhs);
 }
 
@@ -74,7 +74,7 @@ InstrumentTCPMultiConnection::InstrumentTCPMultiConnection(const InstrumentTCPMu
  * Method: Destructor
  * Description: free up our dynamically created packet data.
  ******************************************************************************/
-InstrumentTCPMultiConnection::~InstrumentTCPMultiConnection() {
+InstrumentBOTPTConnection::~InstrumentBOTPTConnection() {
 }
 
 /******************************************************************************
@@ -84,7 +84,7 @@ InstrumentTCPMultiConnection::~InstrumentTCPMultiConnection() {
  * Parameters:
  *   copy - rhs object to copy
  ******************************************************************************/
-InstrumentTCPMultiConnection & InstrumentTCPMultiConnection::operator=(const InstrumentTCPMultiConnection &rhs) {
+InstrumentBOTPTConnection & InstrumentBOTPTConnection::operator=(const InstrumentBOTPTConnection &rhs) {
     copy(rhs);
     return *this;
 }
@@ -98,7 +98,7 @@ InstrumentTCPMultiConnection & InstrumentTCPMultiConnection::operator=(const Ins
  * Parameters:
  *   copy - rhs object to copy
  ******************************************************************************/
-void InstrumentTCPMultiConnection::copy(const InstrumentTCPMultiConnection &copy) {
+void InstrumentBOTPTConnection::copy(const InstrumentBOTPTConnection &copy) {
     m_oDataTxSocket = copy.m_oDataTxSocket;
     m_oDataRxSocket = copy.m_oDataRxSocket;
 }
@@ -108,7 +108,7 @@ void InstrumentTCPMultiConnection::copy(const InstrumentTCPMultiConnection &copy
  * Description: Set the port.  If we are already connected then we need to
  * disconnect and reconnect to the new port.
  ******************************************************************************/
-void InstrumentTCPMultiConnection::setDataTxPort(uint16_t port) {
+void InstrumentBOTPTConnection::setDataTxPort(uint16_t port) {
     uint16_t oldPort = m_oDataTxSocket.port();
     m_oDataTxSocket.setPort(port);
     
@@ -122,7 +122,7 @@ void InstrumentTCPMultiConnection::setDataTxPort(uint16_t port) {
  * Description: Set the port.  If we are already connected then we need to
  * disconnect and reconnect to the new port.
  ******************************************************************************/
-void InstrumentTCPMultiConnection::setDataRxPort(uint16_t port) {
+void InstrumentBOTPTConnection::setDataRxPort(uint16_t port) {
     uint16_t oldPort = m_oDataRxSocket.port();
     m_oDataRxSocket.setPort(port);
 
@@ -136,7 +136,7 @@ void InstrumentTCPMultiConnection::setDataRxPort(uint16_t port) {
  * Description: Set the host.  If we are already connected then we need to
  * disconnect and reconnect to the new port.
  ******************************************************************************/
-void InstrumentTCPMultiConnection::setDataHost(const string & host) {
+void InstrumentBOTPTConnection::setDataHost(const string & host) {
     string oldhost = m_oDataTxSocket.hostname();
     m_oDataTxSocket.setHostname(host);
 
@@ -160,7 +160,7 @@ void InstrumentTCPMultiConnection::setDataHost(const string & host) {
  * Return: 
  *   True if we have enough configuration information
  ******************************************************************************/
-bool InstrumentTCPMultiConnection::dataConfigured() {
+bool InstrumentBOTPTConnection::dataConfigured() {
     return m_oDataTxSocket.isConfigured() && m_oDataRxSocket.isConfigured();
 }
 
@@ -172,7 +172,7 @@ bool InstrumentTCPMultiConnection::dataConfigured() {
  * Return: 
  *   True if we have enough configuration information
  ******************************************************************************/
-bool InstrumentTCPMultiConnection::commandConfigured() {
+bool InstrumentBOTPTConnection::commandConfigured() {
     return false;
 }
 
@@ -184,7 +184,7 @@ bool InstrumentTCPMultiConnection::commandConfigured() {
  * Return:
  *   True if configured.
  ******************************************************************************/
-bool InstrumentTCPMultiConnection::dataInitialized() {
+bool InstrumentBOTPTConnection::dataInitialized() {
     return dataConfigured();
 }
 
@@ -196,7 +196,7 @@ bool InstrumentTCPMultiConnection::dataInitialized() {
  * Return:
  *   False
  ******************************************************************************/
-bool InstrumentTCPMultiConnection::commandInitialized() {
+bool InstrumentBOTPTConnection::commandInitialized() {
     return false;
 }
 
@@ -207,7 +207,7 @@ bool InstrumentTCPMultiConnection::commandInitialized() {
  * Return:
  *   True if the data socket is connected
  ******************************************************************************/
-bool InstrumentTCPMultiConnection::dataConnected() {
+bool InstrumentBOTPTConnection::dataConnected() {
     return m_oDataTxSocket.connected() && m_oDataRxSocket.connected();
 }
 
@@ -219,7 +219,7 @@ bool InstrumentTCPMultiConnection::dataConnected() {
  * Return:
  *   False
  ******************************************************************************/
-bool InstrumentTCPMultiConnection::commandConnected() {
+bool InstrumentBOTPTConnection::commandConnected() {
     return false;
 }
 
@@ -227,7 +227,7 @@ bool InstrumentTCPMultiConnection::commandConnected() {
  * Method: initializeDataSocket
  * Description: Initialize the data socket
  ******************************************************************************/
-void InstrumentTCPMultiConnection::initializeDataSocket() {
+void InstrumentBOTPTConnection::initializeDataSocket() {
     m_oDataTxSocket.initialize();
     m_oDataRxSocket.initialize();
 }
@@ -236,14 +236,14 @@ void InstrumentTCPMultiConnection::initializeDataSocket() {
  * Method: initializeCommandSocket
  * Description: NOOP
  ******************************************************************************/
-void InstrumentTCPMultiConnection::initializeCommandSocket() {
+void InstrumentBOTPTConnection::initializeCommandSocket() {
 }
 
 /******************************************************************************
  * Method: initialize
  * Description: Initialize any uninitialized sockets if they are configured.
  ******************************************************************************/
-void InstrumentTCPMultiConnection::initialize() {
+void InstrumentBOTPTConnection::initialize() {
     if(!dataConfigured())
         LOG(DEBUG) << "Data port not configured. Not initializing";
 	
