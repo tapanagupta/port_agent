@@ -187,6 +187,10 @@ TEST_F(CommonTest, SetInstrumentConnectionType) {
     EXPECT_TRUE(config.parse("instrument_type tcp"));
     EXPECT_EQ(config.instrumentConnectionType(), TYPE_TCP);
     
+    // BOTPT Connection
+    EXPECT_TRUE(config.parse("instrument_type botpt"));
+    EXPECT_EQ(config.instrumentConnectionType(), TYPE_BOTPT);
+    
     // Serial Connection
     EXPECT_TRUE(config.parse("instrument_type serial"));
     EXPECT_EQ(config.instrumentConnectionType(), TYPE_SERIAL);

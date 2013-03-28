@@ -326,7 +326,7 @@ void PortAgent::initialize_BOTPT_InstrumentConnection() {
     InstrumentBOTPTConnection *connection = (InstrumentBOTPTConnection *)m_pInstrumentConnection;
 
     // Clear if we have already initialized the wrong type
-    if(connection && connection->connectionType() != PACONN_INSTRUMENT_BOTPT_TCP) {
+    if(connection && connection->connectionType() != PACONN_INSTRUMENT_BOTPT) {
         LOG(INFO) << "Detected connection type change.  rebuilding connection.";
         delete connection;
         connection = NULL;
