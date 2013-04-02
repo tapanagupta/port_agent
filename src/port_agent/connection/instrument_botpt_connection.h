@@ -67,10 +67,14 @@ namespace port_agent {
             InstrumentBOTPTConnection & operator=(const InstrumentBOTPTConnection &rhs);
 
             /* Accessors */
-            
-            // DHE: TEMPTEMP: for now just have this return the Rx socket until I figure out
-            // it something else is needed.
-            CommBase *dataConnectionObject() { return &m_oDataTxSocket; }
+
+            // DHE: this isn't right; the dataConnectionObject is a pure virtual so it's
+            // needed here, but it doesn't make sense for the connection because there are
+            // two connections, one for receive and one for send.  Neet to think more but
+            // moving on for now.
+            CommBase *dataConnectionObject() { return NULL; }
+            CommBase *dataTxConnectionObject() { return &m_oDataTxSocket; }
+            CommBase *dataRxConnectionObject() { return &m_oDataRxSocket; }
             CommBase *commandConnectionObject() { return NULL; }
             
             PortAgentConnectionType connectionType() { return PACONN_INSTRUMENT_BOTPT; }

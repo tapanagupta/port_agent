@@ -74,7 +74,8 @@ namespace port_agent {
             int getObservatoryCommandClientFD();
             int getObservatoryDataListenerFD();
             int getObservatoryDataClientFD();
-            int getInstrumentDataClientFD();
+            int getInstrumentDataRxClientFD();
+            int getInstrumentDataTxClientFD();
             int getTelnetSnifferListenerFD();
             
             void initializeObservatoryConnection();

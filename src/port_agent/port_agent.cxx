@@ -551,7 +551,13 @@ void PortAgent::initializePublisherInstrumentData() {
         return;
     }
     
-    connection = m_pInstrumentConnection->dataConnectionObject();
+    if (m_pInstrumentConnection->connectionType() == PACONN_INSTRUMENT_BOTPT) {
+        connection = ((InstrumentBOTPTConnection*) m_pInstrumentConnection)->dataTxConnectionObject();
+    }
+    else {
+        connection = m_pInstrumentConnection->dataConnectionObject();
+    }
+
     if( ! connection ) {
         LOG(INFO) << "Instrument data connection not set. " 
                    << "Not setting up data publisher!";
@@ -868,7 +874,7 @@ void PortAgent::poll() {
         
         return;
     }
-    
+
     LOG(DEBUG2) << "On select: ready to read on " << readyCount << " connections";
     
     LOG(DEBUG) << "Port Agent Version: " << PORT_AGENT_VERSION;
@@ -1093,13 +1099,19 @@ void PortAgent::addObservatoryDataClientFD(int &maxFD, fd_set &readFDs) {
 void PortAgent::addInstrumentDataClientFD(int &maxFD, fd_set &readFDs) {
     CommBase *pConnection;
     
+
     if(m_pInstrumentConnection) {
-        pConnection = m_pInstrumentConnection->dataConnectionObject();
+        if (m_pInstrumentConnection->connectionType() == PACONN_INSTRUMENT_BOTPT) {
+            pConnection = ((InstrumentBOTPTConnection*) m_pInstrumentConnection)->dataTxConnectionObject();
+        }
+        else {
+            pConnection = m_pInstrumentConnection->dataConnectionObject();
+        }
         int fd = 0;
         
-        fd = getInstrumentDataClientFD();
+        fd = getInstrumentDataRxClientFD();
         
-        if(fd) {
+        if (fd) {
             LOG(DEBUG2) << "add instrument data client FD";
             maxFD = fd > maxFD ? fd : maxFD;
             FD_SET(fd, &readFDs);
@@ -1177,17 +1189,53 @@ int PortAgent::getObservatoryDataClientFD() {
 }
 
 /******************************************************************************
- * Method: getInstrumentDataClientFD
- * Description: Get the file descriptor
+ * Method: getInstrumentDataTxClientFD
+ * Description: Get the Tx file descriptor
  ******************************************************************************/
-int PortAgent::getInstrumentDataClientFD() {
-    CommBase *pConnection = m_pInstrumentConnection->dataConnectionObject();
+int PortAgent::getInstrumentDataTxClientFD() {
+    CommBase *pConnection;;
     TCPCommSocket *socket;
-    if(m_pInstrumentConnection->dataConnected()) {
+
+    if (m_pInstrumentConnection->connectionType() == PACONN_INSTRUMENT_BOTPT) {
+        pConnection = ((InstrumentBOTPTConnection*) m_pInstrumentConnection)->dataTxConnectionObject();
+    }
+    else {
+        pConnection = m_pInstrumentConnection->dataConnectionObject();
+    }
+
+    if (m_pInstrumentConnection->dataConnected()) {
         socket = (TCPCommSocket*)pConnection;
         if(socket && socket->connected())
             return socket->getSocketFD();
-        
+    }
+    else {
+        LOG(ERROR) << "Instrument data client not connected";
+    }
+
+    return 0;
+}
+
+/******************************************************************************
+ * Method: getInstrumentDataRxClientFD
+ * Description: Get the Rx file descriptor
+ ******************************************************************************/
+int PortAgent::getInstrumentDataRxClientFD() {
+    CommBase *pConnection;;
+    TCPCommSocket *socket;
+
+    if (m_pInstrumentConnection->connectionType() == PACONN_INSTRUMENT_BOTPT) {
+        pConnection = ((InstrumentBOTPTConnection*) m_pInstrumentConnection)->dataRxConnectionObject();
+    }
+    else {
+        pConnection = m_pInstrumentConnection->dataConnectionObject();
+    }
+
+    if (m_pInstrumentConnection->dataConnected()) {
+        socket = (TCPCommSocket*)pConnection;
+        if(socket && socket->connected())
+            return socket->getSocketFD();
+    }
+    else {
         LOG(ERROR) << "Instrument data client not connected";
     }
     
@@ -1366,10 +1414,16 @@ void PortAgent::handleObservatoryDataRead(const fd_set &readFDs) {
  * Description: Read from the instrument data port
  ******************************************************************************/
 void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
-    CommBase *pConnection = m_pInstrumentConnection->dataConnectionObject();
+    CommBase *pConnection;
 
-    // DHE: TEMPTEMP: this could be changed to getInstrumentDataClientRxFD()
-    int clientFD = getInstrumentDataClientFD();
+    if (m_pInstrumentConnection->connectionType() == PACONN_INSTRUMENT_BOTPT) {
+        pConnection = ((InstrumentBOTPTConnection*) m_pInstrumentConnection)->dataRxConnectionObject();
+    }
+    else {
+        pConnection = m_pInstrumentConnection->dataConnectionObject();
+    }
+
+    int clientFD = getInstrumentDataRxClientFD();
     int bytesRead = 0;
     char buffer[1024];
     
@@ -1378,7 +1432,7 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
     if(! pConnection->connected()) {
         LOG(DEBUG2) << "instrument not connected, attempting to re-init the socket";
         initializeInstrumentConnection();
-        clientFD = getInstrumentDataClientFD();
+        clientFD = getInstrumentDataRxClientFD();
     }
     
     LOG(DEBUG2) << "Instrument Data Client FD: " << clientFD;
