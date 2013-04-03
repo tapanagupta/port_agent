@@ -65,7 +65,30 @@ namespace port_agent {
         TYPE_BOTPT             = 0x00000003,
         TYPE_RSN               = 0x00000004
     } InstrumentConnectionType;
+
+    // DHE NEW: a list of data port entries; in the future the ObservatoryDataPortEntry_T
+    // can be extended to be a structure including a routing key.  Also, the fact that
+    // it's a list should be abstracted, so that we can change it to a map for faster
+    // lookup in the future.
+    typedef int ObservatoryDataPortEntry_T;
+    typedef list<ObservatoryDataPortEntry_T> ObservatoryDataPorts_T;
     
+    // A singleton class that contains observatory data ports, and provides operations
+    // such as add, delete, etc.
+    class ObservatoryDataPorts {
+        public:
+            static  ObservatoryDataPorts* instance();
+            void    logPorts();
+            bool    addPort(const int port);
+
+        private:
+            // CTOR
+            ObservatoryDataPorts();
+
+            static ObservatoryDataPorts* m_pInstance;
+            ObservatoryDataPorts_T        m_observatoryDataPorts;
+    };
+
     class PortAgentConfig {
         public:
             ///////////////////////
@@ -92,6 +115,9 @@ namespace port_agent {
             
             // Set methods
             bool setObservatoryDataPort(const string &param);
+            // DHE: new name for now; might be called setObservatoryDataPort
+            // when replaces, but that name isn't as descriptive
+            bool addObservatoryDataPort(const string &param);
             bool setObservatoryCommandPort(const string &param);
             bool setInstrumentBreakDuration(const string &param);
             bool setInstrumentConnectionType(const string &param);

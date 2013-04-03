@@ -661,6 +661,45 @@ bool PortAgentConfig::setObservatoryDataPort(const string &param) {
 }
 
 /******************************************************************************
+ * Method: addObervatoryDataPort
+ * Description: Add the given observatory data port
+ * Param:
+ *     param - string represention of the value of the port.  If it is not
+ *     a number the value will be set to 0.
+ * Return:
+ *     return true if the throttle was set correctly, otherwise false.
+ *****************************************************************************/
+// DHE: there should be an object that encapsulates a list or map (or whatever)
+// of data port entries (which could include routing keys).  The object is
+// a singleton; the observatory data port container.
+bool PortAgentConfig::addObservatoryDataPort(const string &param) {
+    const char* v = param.c_str();
+
+    int value = atoi(v);
+    m_observatoryDataPort = 0;
+
+    if(value <= 0 || value > 65535) {
+        LOG(ERROR) << "Invalid port specification, setting to 0";
+        return false;
+    }
+
+    LOG(INFO) << "adding observatory data port: " << value;
+    //m_pObservatoryDataPorts->add(value);
+
+    // DHE NEW: for now keep this
+    m_observatoryDataPort = value;
+
+    if (false == ObservatoryDataPorts::instance()->addPort(value)) {
+        return false;
+    }
+
+    // DHE TEMPTEMP
+    ObservatoryDataPorts::instance()->logPorts();
+
+    return true;
+}
+
+/******************************************************************************
  * Method: setObervatoryCommandPort
  * Description: Set the observatory command port
  * Param:
@@ -1203,6 +1242,12 @@ bool PortAgentConfig::processCommand(const string & command) {
         addCommand(CMD_COMM_CONFIG_UPDATE);
         return setObservatoryDataPort(param);
     }
+
+    // DHE NEW:
+    else if(cmd == "add_data_port") {
+        addCommand(CMD_COMM_CONFIG_UPDATE);
+        return addObservatoryDataPort(param);
+    }
     
     else if(cmd == "command_port") {
         addCommand(CMD_COMM_CONFIG_UPDATE);
@@ -1365,3 +1410,58 @@ bool PortAgentConfig::splitCommand(const string &raw, string & cmdResult, string
     paramResult = param;
     return true;
 }
+
+ObservatoryDataPorts* ObservatoryDataPorts::m_pInstance = 0;
+
+ObservatoryDataPorts::ObservatoryDataPorts() {
+
+}
+
+/******************************************************************************
+ * Method: instance()
+ * Description: Return a pointer to the singleton instance of the
+ * ObservatoryDataPorts container.  If the singleton does not yet exist, create
+ * it.
+ * Return: return a pointer to the instance.
+ ******************************************************************************/
+ObservatoryDataPorts* ObservatoryDataPorts::instance() {
+
+    if (0 == m_pInstance) {
+       m_pInstance = new ObservatoryDataPorts();
+    }
+
+    return m_pInstance;
+}
+
+/******************************************************************************
+ * Method: logPorts()
+ * Description: Log the ports
+ * Return: void
+ ******************************************************************************/
+void ObservatoryDataPorts::logPorts() {
+
+    list<ObservatoryDataPortEntry_T>::iterator i = m_observatoryDataPorts.begin();
+    int j = 0;
+    for(i = m_observatoryDataPorts.begin(); i != m_observatoryDataPorts.end(); i++) {
+        LOG(DEBUG) << "Data port: " << j << ", " << *i;
+        j++;
+    }
+}
+
+/******************************************************************************
+ * Method: addPort(const int port)
+ * Description: Add the given port to the container of ports.
+ * Return: return true if success, false if not.
+ ******************************************************************************/
+bool ObservatoryDataPorts::addPort(const int port) {
+    bool bRetVal = true;
+
+    LOG(DEBUG) << "ObservatoryDataPorts::addPort: Adding port: " << port;
+    list<ObservatoryDataPortEntry_T>::iterator i = m_observatoryDataPorts.begin();
+    m_observatoryDataPorts.push_back(port);
+
+
+    return bRetVal;
+}
+
+
