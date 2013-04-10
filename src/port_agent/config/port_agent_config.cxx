@@ -450,8 +450,8 @@ string PortAgentConfig::getConfig() {
 // Set Methods
 //////
 /******************************************************************************
- * Method: setInstrumentConnectionType
- * Description: Set the configuration instrument connection type
+ * Method: setInstrumentBreakDuration
+ * Description: Set the break duration
  * Return:
  *     return true if the type was set correctly, otherwise false for unknown
  *     types.
@@ -513,6 +513,32 @@ bool PortAgentConfig::setInstrumentConnectionType(const string &param) {
         return false;
     }
     
+    return true;
+}
+
+/******************************************************************************
+ * Method: setObservatoryConnectionType
+ * Description: Set the configuration observatory connection type
+ * Return:
+ *     return true if the type was set correctly. Currently if type unknown,
+ *     printing error, returning false.
+ *****************************************************************************/
+bool PortAgentConfig::setObservatoryConnectionType(const string &param) {
+
+    if (param == "multi") {
+        LOG(INFO) << "observatory connection type set to multi";
+        m_observatoryConnectionType = OBS_TYPE_MULTI;
+    }
+    else if (param == "standard") {
+        LOG(INFO) << "observatory connection type set to standard";
+        m_observatoryConnectionType = OBS_TYPE_STANDARD;
+    }
+    else {
+        LOG(ERROR) << "unknown observatory connection type: " << param;
+        m_observatoryConnectionType = OBS_TYPE_UNKNOWN;
+        return false;
+    }
+
     return true;
 }
 
@@ -1217,6 +1243,11 @@ bool PortAgentConfig::processCommand(const string & command) {
         return setInstrumentConnectionType(param);
     }
     
+    else if(cmd == "observatory_type") {
+        addCommand(CMD_COMM_CONFIG_UPDATE);
+        return setObservatoryConnectionType(param);
+    }
+
     else if(cmd == "sentinle") {
         // We pass the entire command string to this incase there are \n or \r
         // embedded in the sentinle string.
@@ -1457,11 +1488,51 @@ bool ObservatoryDataPorts::addPort(const int port) {
     bool bRetVal = true;
 
     LOG(DEBUG) << "ObservatoryDataPorts::addPort: Adding port: " << port;
-    list<ObservatoryDataPortEntry_T>::iterator i = m_observatoryDataPorts.begin();
+
+    // First remove any existing element with the same port value
+    m_observatoryDataPorts.remove(port);
     m_observatoryDataPorts.push_back(port);
 
-
     return bRetVal;
+}
+
+/******************************************************************************
+ * Method: getFirstPort
+ * Description: Get the first port from the container of ports.
+ * Return: value of first port if there is one, otherwize 0
+ ******************************************************************************/
+const int ObservatoryDataPorts::getFirstPort()
+{
+
+   // get the first cam agent
+   m_portIt = m_observatoryDataPorts.begin();
+
+   // if the first is the end, there are no ports in the list
+   if (m_portIt == m_observatoryDataPorts.end()) {
+      return 0;
+   }
+   else {
+      return *m_portIt;
+   }
+}
+
+/******************************************************************************
+ * Method: getNextPort
+ * Description: Get the next port from the container of ports.
+ * Return: value of next port if there is one, otherwize 0
+ ******************************************************************************/
+const int ObservatoryDataPorts::getNextPort()
+{
+
+   m_portIt++;
+
+   // if the next is the end, there are no more ports in the list
+   if (m_portIt == m_observatoryDataPorts.end()) {
+      return 0;
+   }
+   else {
+      return *m_portIt;
+   }
 }
 
 

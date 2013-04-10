@@ -57,6 +57,13 @@ namespace port_agent {
     } PortAgentCommand;
     typedef list<PortAgentCommand>  CommandQueue;
     
+    typedef enum ObservatoryConnectionType
+    {
+        OBS_TYPE_UNKNOWN       = 0x00000000,
+        OBS_TYPE_STANDARD      = 0x00000001,
+        OBS_TYPE_MULTI         = 0x00000002,
+    } ObservatoryConnectionType;
+
     typedef enum InstrumentConnectionType
     {
         TYPE_UNKNOWN           = 0x00000000,
@@ -80,6 +87,8 @@ namespace port_agent {
             static  ObservatoryDataPorts* instance();
             void    logPorts();
             bool    addPort(const int port);
+            const int getFirstPort();
+            const int getNextPort();
 
         private:
             // CTOR
@@ -87,6 +96,7 @@ namespace port_agent {
 
             static ObservatoryDataPorts* m_pInstance;
             ObservatoryDataPorts_T        m_observatoryDataPorts;
+            ObservatoryDataPorts_T::iterator m_portIt;
     };
 
     class PortAgentConfig {
@@ -114,6 +124,7 @@ namespace port_agent {
             bool parse(const string &commands);
             
             // Set methods
+            bool setObservatoryConnectionType(const string &param);
             bool setObservatoryDataPort(const string &param);
             // DHE: new name for now; might be called setObservatoryDataPort
             // when replaces, but that name isn't as descriptive
@@ -165,6 +176,7 @@ namespace port_agent {
             unsigned int observatoryCommandPort() { return m_observatoryCommandPort; }
             unsigned int observatoryDataPort() { return m_observatoryDataPort; }
             
+            ObservatoryConnectionType observatoryConnectionType() { return m_observatoryConnectionType; }
             InstrumentConnectionType instrumentConnectionType() { return m_instrumentConnectionType; }
             const string & sentinleSequence() { return m_sentinleSequence; }
             uint32_t outputThrottle() { return m_outputThrottle; }
@@ -234,6 +246,7 @@ namespace port_agent {
             uint32_t m_outputThrottle;
             uint32_t m_maxPacketSize;
             
+            ObservatoryConnectionType m_observatoryConnectionType;
             InstrumentConnectionType m_instrumentConnectionType;
             RotationType m_eRotationInterval;
 			

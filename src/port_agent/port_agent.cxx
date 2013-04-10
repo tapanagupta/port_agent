@@ -10,6 +10,7 @@
 #include "port_agent.h"
 #include "config/port_agent_config.h"
 #include "connection/observatory_connection.h"
+#include "connection/observatory_multi_connection.h"
 #include "connection/instrument_tcp_connection.h"
 #include "connection/instrument_botpt_connection.h"
 #include "connection/instrument_serial_connection.h"
@@ -161,10 +162,27 @@ void PortAgent::displayVersion() {
 }
 
 /******************************************************************************
+ * Method: initializeObservatoryDataConnection
+ * Description: Initialize the observatory data connection depending upon the
+ * configured type.
+ ******************************************************************************/
+void PortAgent::initializeObservatoryDataConnection() {
+    if (m_pConfig->observatoryConnectionType() == OBS_TYPE_STANDARD) {
+        initializeObservatoryStandardDataConnection();
+    }
+    else if (m_pConfig->observatoryConnectionType() == OBS_TYPE_MULTI) {
+        initializeObservatoryMultiDataConnection();
+    }
+     else {
+         LOG(ERROR) << "Observatory Connection Type Unknown!";
+     }
+}
+
+/******************************************************************************
  * Method: initialize
  * Description: Bring the process up from an unknown state to unconfigured.
  ******************************************************************************/
-void PortAgent::initializeObservatoryDataConnection() {
+void PortAgent::initializeObservatoryStandardDataConnection() {
     int port;
     ObservatoryConnection *connection = (ObservatoryConnection*)m_pObservatoryConnection;
     TCPCommListener *listener = NULL;
@@ -190,9 +208,58 @@ void PortAgent::initializeObservatoryDataConnection() {
     // Initialize!
     connection->setDataPort(m_pConfig->observatoryDataPort());
     
-    if(! connection->dataInitialized())
+    if (!connection->dataInitialized())
         connection->initializeDataSocket();
     else 
+        LOG(DEBUG) << " - already initialized, all done";
+}
+
+/******************************************************************************
+ * Method: initializeObservatoryMultiDataConnection
+ * Description: Initialize an observatory connection that has multiple data
+ * sockets.
+ ******************************************************************************/
+void PortAgent::initializeObservatoryMultiDataConnection() {
+    int port;
+    ObservatoryMultiConnection *pConnection = 0;
+
+    pConnection = static_cast<ObservatoryMultiConnection*>(m_pObservatoryConnection);
+
+    LOG(INFO) << "Initialize observatory data connection";
+
+    // DHE TODO: This needs to use the iterator to disconnect all of the listeners
+    // DHE: not sure this paradigm works for multi connection.
+    /***
+    if (connection) {
+        //listener = (TCPCommListener *)(connection->dataConnectionObject());
+        listener = (TCPCommListener *) ObservatoryDataSockets::instance()->getFirstSocket();
+
+        // If we are initialized already ensure the ports match.  If not, reinit
+        if(listener) {
+            if( listener->getListenPort() != m_pConfig->observatoryDataPort())
+                listener->disconnect();
+        }
+    }
+    ***/
+
+    if (!m_pObservatoryConnection) {
+        m_pObservatoryConnection = new ObservatoryMultiConnection();
+        pConnection = (ObservatoryMultiConnection*) m_pObservatoryConnection;
+    }
+
+    // Iterate through the configured data ports and
+    // add TCPCommListener objects for each port
+    port = ObservatoryDataPorts::instance()->getFirstPort();
+    while (port) {
+        pConnection->addListener(port);
+
+        port = ObservatoryDataPorts::instance()->getNextPort();
+    }
+
+    if (!pConnection->isDataInitialized()) {
+        pConnection->initializeDataSocket();
+    }
+    else
         LOG(DEBUG) << " - already initialized, all done";
 }
 
@@ -1036,15 +1103,40 @@ void PortAgent::addObservatoryCommandClientFD(int &maxFD, fd_set &readFDs) {
 
 /******************************************************************************
  * Method: addObservatoryDataListenerFD
+ * Description: Depending upon the type of observatory connection, invoke the
+ * appropriate method to add the FD(s) to the select fd set.
+ *
+ ******************************************************************************/
+void PortAgent::addObservatoryDataListenerFD(int &maxFD, fd_set &readFDs) {
+    CommBase *pConnection;
+    PortAgentConnectionType connectionType;
+
+    if (m_pObservatoryConnection) {
+        connectionType = m_pObservatoryConnection->connectionType();
+
+        if (PACONN_OBSERVATORY_STANDARD == connectionType) {
+            addObservatoryStandardDataListenerFD(maxFD, readFDs);
+        }
+        else if (PACONN_OBSERVATORY_MULTI == connectionType) {
+            addObservatoryMultiDataListenerFDs(maxFD, readFDs);
+        }
+        else {
+            LOG(ERROR) << "PortAgent::addObservatoryDataListenerFD: unknown observatory type: " << connectionType;
+        }
+    }
+}
+
+/******************************************************************************
+ * Method: addObservatoryStandardDataListenerFD
  * Description: Add the observatory data fd to the fd_set.  Also update
  * the max file descriptor.
  *
  * If the connection isn't initialized then do nothing.
  ******************************************************************************/
-void PortAgent::addObservatoryDataListenerFD(int &maxFD, fd_set &readFDs) {
+void PortAgent::addObservatoryStandardDataListenerFD(int &maxFD, fd_set &readFDs) {
     CommBase *pConnection;
     
-    if(m_pObservatoryConnection) {
+    if (m_pObservatoryConnection) {
         pConnection = m_pObservatoryConnection->dataConnectionObject();
         int fd = 0;
     
@@ -1058,6 +1150,33 @@ void PortAgent::addObservatoryDataListenerFD(int &maxFD, fd_set &readFDs) {
         }
         else {
             LOG(DEBUG2) << "Observatory data listener not initialized";
+        }
+    }
+}
+
+/******************************************************************************
+ * Method: addObservatoryMultiDataListenerFDs
+ * Description: Iterate through the listeners, adding their fds to the fd_set.
+ * Also update the max file descriptor.
+ *
+ * If the connection isn't initialized then do nothing.
+ ******************************************************************************/
+void PortAgent::addObservatoryMultiDataListenerFDs(int &maxFD, fd_set &readFDs) {
+    CommBase *pConnection;
+    TCPCommListener* pListener = 0;
+
+    if (m_pObservatoryConnection) {
+        pListener = ObservatoryDataSockets::instance()->getFirstSocket();
+        while (pListener) {
+            if (pListener->listening()) {
+                int fd = pListener->serverFD();
+                if (fd) {
+                    LOG(DEBUG2) << "adding observatory multi data listener FD: " << fd;
+                    maxFD = fd > maxFD ? fd : maxFD;
+                    FD_SET(fd, &readFDs);
+                }
+            }
+            pListener = ObservatoryDataSockets::instance()->getNextSocket();
         }
     }
 }
