@@ -108,7 +108,7 @@ namespace port_agent {
             CommBase *dataConnectionObject() { return (CommBase*) NULL; }
             CommBase *commandConnectionObject() { return &m_oCommandSocket; }
             
-            PortAgentConnectionType connectionType() { return PACONN_OBSERVATORY_STANDARD; }
+            PortAgentConnectionType connectionType() { return PACONN_OBSERVATORY_MULTI; }
             
             // Custom configurations for the observatory connection
             void setDataPort(uint16_t port);

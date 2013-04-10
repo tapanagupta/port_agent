@@ -61,6 +61,9 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_ppid = 0;
     m_telnetSnifferPort = 0;
     
+    // For backward compatibility, observatory connection defaults to standard
+    m_observatoryConnectionType = OBS_TYPE_STANDARD;
+
     m_instrumentConnectionType = TYPE_UNKNOWN;
     
     // Connection settings
