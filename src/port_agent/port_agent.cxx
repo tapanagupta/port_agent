@@ -227,21 +227,6 @@ void PortAgent::initializeObservatoryMultiDataConnection() {
 
     LOG(INFO) << "Initialize observatory data connection";
 
-    // DHE TODO: This needs to use the iterator to disconnect all of the listeners
-    // DHE: not sure this paradigm works for multi connection.
-    /***
-    if (connection) {
-        //listener = (TCPCommListener *)(connection->dataConnectionObject());
-        listener = (TCPCommListener *) ObservatoryDataSockets::instance()->getFirstSocket();
-
-        // If we are initialized already ensure the ports match.  If not, reinit
-        if(listener) {
-            if( listener->getListenPort() != m_pConfig->observatoryDataPort())
-                listener->disconnect();
-        }
-    }
-    ***/
-
     if (!m_pObservatoryConnection) {
         m_pObservatoryConnection = new ObservatoryMultiConnection();
         pConnection = (ObservatoryMultiConnection*) m_pObservatoryConnection;

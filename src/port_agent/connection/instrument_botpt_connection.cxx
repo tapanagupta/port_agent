@@ -12,7 +12,8 @@
  *
  * InstrumentBOTPTConnection connection;
  *
- * connection.setDataPort(4001);
+ * connection.setDataTxPort(4001);
+ * connection.setDataRxPort(4002);
  *
  * // Is the data port configured
  * connection.dataConfigured();

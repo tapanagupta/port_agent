@@ -180,9 +180,32 @@ TEST_F(CommonTest, SetInstrumentConnectionType) {
     
     PortAgentConfig config(argc, argv);
     
+    // Check the default observatory_type value (UNKNOWN)
+    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_STANDARD);
+
+    // STANDARD Observatory Connection
+    EXPECT_TRUE(config.parse("observatory_type standard"));
+    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_STANDARD);
+
+    // MULTI Observatory Connection
+    EXPECT_TRUE(config.parse("observatory_type multi"));
+    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_MULTI);
+
+    // Observatory type no parameter
+    EXPECT_FALSE(config.parse("observatory_type"));
+    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_STANDARD);
+
+    // Observatory type trailing whitespace
+    EXPECT_FALSE(config.parse("observatory_type "));
+    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_STANDARD);
+
+    // Observatory type trailing whitespace
+    EXPECT_FALSE(config.parse("observatory_type blah"));
+    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_STANDARD);
+
     // Check the default value (UNKNOWN)
     EXPECT_FALSE(config.instrumentConnectionType());
-    
+
     // TCP Connection
     EXPECT_TRUE(config.parse("instrument_type tcp"));
     EXPECT_EQ(config.instrumentConnectionType(), TYPE_TCP);
