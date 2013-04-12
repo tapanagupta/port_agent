@@ -272,8 +272,6 @@ void PortAgent::initializeObservatoryCommandConnection() {
 
         // If the configured connection type is not the same as the existing, delete
         // the object because we need to instantiate a new one.
-        // DHE: This is ugly; should be a separate routine to abstract
-        //PortAgentConnectionType connectionType = pConnection->connectionType();
         PortAgentConnectionType connectionType = m_pObservatoryConnection->connectionType();
         if ((OBS_TYPE_STANDARD == m_pConfig->observatoryConnectionType() &&
                 PACONN_OBSERVATORY_STANDARD != connectionType) ||
@@ -912,7 +910,6 @@ void PortAgent::handleStateUnconfigured(const fd_set &readFDs) {
 void PortAgent::handleStateConfigured(const fd_set &readFDs) {
     LOG(DEBUG) << "start state configured handler";
     
-    // DHE NEW
     initializeObservatoryCommandConnection();
     initializeObservatoryDataConnection();
     initializeInstrumentConnection();
