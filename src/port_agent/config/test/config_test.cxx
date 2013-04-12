@@ -172,14 +172,14 @@ TEST_F(CommonTest, Commands) {
     EXPECT_EQ(config.getCommand(), CMD_BREAK);
     EXPECT_EQ(config.getCommand(), CMD_SHUTDOWN);
 }
-        
+
 /* Test setting instrument connection type */
-TEST_F(CommonTest, SetInstrumentConnectionType) {
+TEST_F(CommonTest, SetObservatoryConnectionType) {
     char* argv[] = { "port_agent_config_test", "-p", TEST_PORT };
     int argc = sizeof(argv) / sizeof(char*);
-    
+
     PortAgentConfig config(argc, argv);
-    
+
     // Check the default observatory_type value (UNKNOWN)
     EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_STANDARD);
 
@@ -193,16 +193,28 @@ TEST_F(CommonTest, SetInstrumentConnectionType) {
 
     // Observatory type no parameter
     EXPECT_FALSE(config.parse("observatory_type"));
-    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_STANDARD);
+    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_UNKNOWN);
 
     // Observatory type trailing whitespace
     EXPECT_FALSE(config.parse("observatory_type "));
-    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_STANDARD);
+    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_UNKNOWN);
 
     // Observatory type trailing whitespace
     EXPECT_FALSE(config.parse("observatory_type blah"));
-    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_STANDARD);
+    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_UNKNOWN);
 
+    // extra param
+    EXPECT_FALSE(config.parse("observatory_type multi blah"));
+    EXPECT_EQ(config.observatoryConnectionType(), OBS_TYPE_UNKNOWN);
+}
+
+/* Test setting instrument connection type */
+TEST_F(CommonTest, SetInstrumentConnectionType) {
+    char* argv[] = { "port_agent_config_test", "-p", TEST_PORT };
+    int argc = sizeof(argv) / sizeof(char*);
+    
+    PortAgentConfig config(argc, argv);
+    
     // Check the default value (UNKNOWN)
     EXPECT_FALSE(config.instrumentConnectionType());
 
