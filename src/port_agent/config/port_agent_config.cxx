@@ -86,7 +86,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_datadir = DEFAULT_DATA_DIR;
             
     // the getopt string representing command line options.
-    string optstr = "y:u:c:vhsp:k";
+    string optstr = "y:u:c:vhsp:ki:";
         
     // Long option equiviant of getopt string.
     static struct option long_options[] = {
@@ -97,6 +97,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
         {"single",    no_argument, 0,  's' },
         {"version",   no_argument, 0, 'n' },
         {"ppid",      required_argument, 0,  'y' },
+        {"identity",  required_argument, 0,  'i' },
         
         {"command_port",  required_argument, 0,  'p' },
         {NULL,         0,                 NULL,  0 }
@@ -223,6 +224,9 @@ string PortAgentConfig::Usage() {
        
        << "\t" << " --ppid (-y) parent_process_id" 
                << "\t- Poison pill, if parent process is gone then shutdown " << endl
+       
+       << "\t" << " --identity (-i) identity "
+               << "\t- identifiction for the port agent process. Ignored in the port agent process." << endl
        
        << "\t" << " --single (-s)" 
                << "\t- Run in single thread mode. Do not detatch " << endl;
