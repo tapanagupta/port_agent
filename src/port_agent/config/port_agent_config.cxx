@@ -97,6 +97,9 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
         {"single",    no_argument, 0,  's' },
         {"version",   no_argument, 0, 'n' },
         {"ppid",      required_argument, 0,  'y' },
+        
+        // Added this option for CG. It is a NoOp command line parameter
+        // that they want to use for process identification.
         {"identity",  required_argument, 0,  'i' },
         
         {"command_port",  required_argument, 0,  'p' },
