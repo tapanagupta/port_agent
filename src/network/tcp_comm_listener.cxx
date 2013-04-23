@@ -210,7 +210,7 @@ uint32_t TCPCommListener::writeData(const char *buffer, const uint32_t size) {
 	}
 
     if(! connected()) {
-		LOG(WARNING) << "Socket (FD: " << m_pClientFD << ") not connected";
+		LOG(DEBUG) << "Socket (FD: " << m_pClientFD << ") not connected";
 		return 0;
     }
     
