@@ -86,7 +86,7 @@ PortAgentConfig::PortAgentConfig(int argc, char* argv[]) {
     m_datadir = DEFAULT_DATA_DIR;
             
     // the getopt string representing command line options.
-    string optstr = "y:u:c:vhsp:ki:";
+    string optstr = "y:u:c:vhsp:ki:I:";
         
     // Long option equiviant of getopt string.
     static struct option long_options[] = {
