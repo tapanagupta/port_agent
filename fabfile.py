@@ -54,11 +54,16 @@ class _cloneDir(object):
             local('mkdir ../tmpfab')
             local('git clone %s ../tmpfab/%s' % (self.gitUrl, self.project))
 
+            remote = 'fab'
             with lcd(os.path.join('..', 'tmpfab', self.project)):
                 branch = prompt('Please enter release branch:',
                     default=self.default_branch)
-                local('git checkout %s' % branch)
+                local('git remote add %s %s' % (remote, self.gitUrl))
+                local('git fetch %s' % remote)
+
+                local('git checkout -b fab_%s %s/%s' % (branch, remote, branch))
                 kwargs['branch'] = branch
+                kwargs['remote'] = remote
                 f(*args, **kwargs)
             local('rm -rf ../tmpfab')
         return wrapped_f
@@ -96,7 +101,7 @@ def _replaceVersionInFile(filename, matchRe, template, versionCb):
     with open(filename, 'w') as wfile:
         wfile.writelines(lines)
 
-def _gitTag(version, branch='develop'):
+def _gitTag(version):
     versionTag = versionTemplates['git-tag'] % version
     versionMsg = versionTemplates['git-message'] % version
 
@@ -112,7 +117,7 @@ def _gitTag(version, branch='develop'):
 @_cloneDir(gitUrl='git@github.com:ooici/port_agent.git',
     project='port_agent',
     default_branch='master')
-def release(branch):
+def release(branch, remote='fab'):
 
     # Deduce release version
     nextVersionD = _getReleaseVersion()
@@ -122,7 +127,7 @@ def release(branch):
     _replaceVersionInFile('src/version.h', version_re,
             versionTemplates['release'], lambda old: nextVersionD)
     # Tag at release version
-    _gitTag(nextVersionD, branch=branch)
+    _gitTag(nextVersionD)
 
     # Immediately go to next dev version to ensure release version is tied
     # to one commit only
@@ -137,15 +142,33 @@ def release(branch):
 
     # Push commits and tags
     local('git push %s --tags' % (remote))
-    local('git push %s %s' % (remote, branch))
+    local('git push %s HEAD:%s' % (remote, branch))
 
-env.hosts = ['rsn-port-agent-test.oceanobservatories.org']
+host = None
 env.user = 'buildbot-runner'
 
+def ion_alpha():
+    global host
+    host = 'rsn-port-agent-test.oceanobservatories.org'
+    env.host_string = host
+
+def ion_beta():
+    global host
+    host = 'pl-port-agent01.oceanobservatories.org'
+    env.host_string = host
+
 def deploy():
+    global host
+    host = host or prompt('Please enter port agent host name: ', default='rsn-port-agent-test.oceanobservatories.org')
+    env.host_string = host
+    print env
+
     with cd('~/port_agent'):
+        run("rm -rf clone")
+        # If port_agent dir exist, take a short cut on cloning to save network bandwidth.
+        run("(if [ -r port_agent ]; then cd port_agent; git clone . ../clone; cd ../clone; git remote add fab git://github.com/ooici/port_agent.git; git fetch fab; else git clone git://github.com/ooici/port_agent.git clone;fi)")
         run("rm -rf port_agent")
-        run("git clone git://github.com/ooici/port_agent.git port_agent")
+        run("(cd clone; git clone . ../port_agent)")
     code_dir = '~/port_agent/port_agent'
     with cd(code_dir):
         run("echo PORT AGENT VERSIONS")

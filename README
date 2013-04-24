@@ -35,6 +35,11 @@ Procedure:
 - workon fab (work in your fab virtualenv)
 - fab release (following the prompts)
 
+Deployment Instructions:
+
+- fab ion_alpha deploy
+- fab ion_beta deploy
+
 Updating Makefile.am or configure.ac
 ====================================
 Whenever Makefile.am or configure.ac are update files must be rebuild.  To do
