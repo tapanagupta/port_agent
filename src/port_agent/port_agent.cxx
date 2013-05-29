@@ -1495,7 +1495,7 @@ void PortAgent::publishHeartbeat() {
     if(m_pConfig->heartbeatInterval() && now - m_lLastHeartbeat > m_pConfig->heartbeatInterval() ) {
         
         Packet packet(PORT_AGENT_HEARTBEAT, ts, "", 0);
-        LOG(ERROR) << "Port Agent Heartbeat";
+        LOG(DEBUG) << "Port Agent Heartbeat";
         publishPacket(&packet);
         m_lLastHeartbeat = now;
     }

@@ -27,7 +27,7 @@ using namespace logger;
 #define DEFAULT_PACKET_SIZE   1024
 #define DEFAULT_BREAK_DURATION 0
 #define MAX_PACKET_SIZE       65472
-#define DEFAULT_HEARTBEAT_INTERVAL 0
+#define DEFAULT_HEARTBEAT_INTERVAL 120
 
 #define BASE_FILENAME "port_agent"
 
