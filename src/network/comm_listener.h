@@ -45,14 +45,17 @@ namespace network {
             
             void setPort(const uint16_t port) { m_iPort = port; }
             virtual bool compare(CommBase *rhs);
+			virtual bool initialize() = 0;
 	    
 	        uint16_t port() { return m_iPort; }
 	    
 	        uint16_t getListenPort();
+            
 	    
 	        /* Commands */
 	        bool disconnect();
 	        bool disconnectClient();
+	        bool disconnectServer();
     	    
 	        bool acceptClient();
 	    

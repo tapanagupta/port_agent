@@ -120,6 +120,21 @@ bool CommListener::disconnect() {
 }
 
 /******************************************************************************
+ * Method: disconnectServer
+ * Description: Stop listening
+ ******************************************************************************/
+bool CommListener::disconnectServer() {
+    if(listening()) {
+        LOG(DEBUG2) << "Closing server connection";
+	    shutdown(m_pServerFD,2);
+	    close(m_pServerFD);
+	    m_pServerFD = 0;
+    }
+    
+    return true;
+}
+
+/******************************************************************************
  * Method: disconnectClient
  * Description: Disconnect a client
  ******************************************************************************/
@@ -130,6 +145,8 @@ bool CommListener::disconnectClient() {
 	close(m_pClientFD);
 	m_pClientFD = 0;
     }
+	
+	initialize();
     
     return true;
 }
@@ -185,6 +202,9 @@ bool CommListener::acceptClient() {
     }
     
     m_pClientFD = newsockfd;
+	
+	disconnectServer();
+	
     return true;
 }
 
