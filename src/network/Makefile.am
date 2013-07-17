@@ -5,7 +5,6 @@ endif
 noinst_LIBRARIES= libnetwork_comm.a
 
 libnetwork_comm_a_SOURCES = comm_base.cxx comm_base.h \
-                            comm_listener.cxx comm_listener.h \
                             tcp_comm_listener.cxx tcp_comm_listener.h \
                             comm_socket.cxx comm_socket.h \
                             tcp_comm_socket.cxx tcp_comm_socket.h \

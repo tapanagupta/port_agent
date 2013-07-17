@@ -65,7 +65,6 @@ libnetwork_comm_a_AR = $(AR) $(ARFLAGS)
 libnetwork_comm_a_DEPENDENCIES =  \
 	$(top_builddir)/src/common/libcommon.a
 am_libnetwork_comm_a_OBJECTS = libnetwork_comm_a-comm_base.$(OBJEXT) \
-	libnetwork_comm_a-comm_listener.$(OBJEXT) \
 	libnetwork_comm_a-tcp_comm_listener.$(OBJEXT) \
 	libnetwork_comm_a-comm_socket.$(OBJEXT) \
 	libnetwork_comm_a-tcp_comm_socket.$(OBJEXT) \
@@ -242,7 +241,6 @@ top_srcdir = @top_srcdir@
 @HAVE_GMOCK_TRUE@SUBDIRS = test
 noinst_LIBRARIES = libnetwork_comm.a
 libnetwork_comm_a_SOURCES = comm_base.cxx comm_base.h \
-                            comm_listener.cxx comm_listener.h \
                             tcp_comm_listener.cxx tcp_comm_listener.h \
                             comm_socket.cxx comm_socket.h \
                             tcp_comm_socket.cxx tcp_comm_socket.h \
@@ -300,7 +298,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnetwork_comm_a-comm_base.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnetwork_comm_a-comm_listener.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnetwork_comm_a-comm_socket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnetwork_comm_a-serial_comm_socket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnetwork_comm_a-tcp_comm_listener.Po@am__quote@
@@ -336,20 +333,6 @@ libnetwork_comm_a-comm_base.obj: comm_base.cxx
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='comm_base.cxx' object='libnetwork_comm_a-comm_base.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnetwork_comm_a_CXXFLAGS) $(CXXFLAGS) -c -o libnetwork_comm_a-comm_base.obj `if test -f 'comm_base.cxx'; then $(CYGPATH_W) 'comm_base.cxx'; else $(CYGPATH_W) '$(srcdir)/comm_base.cxx'; fi`
-
-libnetwork_comm_a-comm_listener.o: comm_listener.cxx
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnetwork_comm_a_CXXFLAGS) $(CXXFLAGS) -MT libnetwork_comm_a-comm_listener.o -MD -MP -MF $(DEPDIR)/libnetwork_comm_a-comm_listener.Tpo -c -o libnetwork_comm_a-comm_listener.o `test -f 'comm_listener.cxx' || echo '$(srcdir)/'`comm_listener.cxx
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libnetwork_comm_a-comm_listener.Tpo $(DEPDIR)/libnetwork_comm_a-comm_listener.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='comm_listener.cxx' object='libnetwork_comm_a-comm_listener.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnetwork_comm_a_CXXFLAGS) $(CXXFLAGS) -c -o libnetwork_comm_a-comm_listener.o `test -f 'comm_listener.cxx' || echo '$(srcdir)/'`comm_listener.cxx
-
-libnetwork_comm_a-comm_listener.obj: comm_listener.cxx
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnetwork_comm_a_CXXFLAGS) $(CXXFLAGS) -MT libnetwork_comm_a-comm_listener.obj -MD -MP -MF $(DEPDIR)/libnetwork_comm_a-comm_listener.Tpo -c -o libnetwork_comm_a-comm_listener.obj `if test -f 'comm_listener.cxx'; then $(CYGPATH_W) 'comm_listener.cxx'; else $(CYGPATH_W) '$(srcdir)/comm_listener.cxx'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libnetwork_comm_a-comm_listener.Tpo $(DEPDIR)/libnetwork_comm_a-comm_listener.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='comm_listener.cxx' object='libnetwork_comm_a-comm_listener.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnetwork_comm_a_CXXFLAGS) $(CXXFLAGS) -c -o libnetwork_comm_a-comm_listener.obj `if test -f 'comm_listener.cxx'; then $(CYGPATH_W) 'comm_listener.cxx'; else $(CYGPATH_W) '$(srcdir)/comm_listener.cxx'; fi`
 
 libnetwork_comm_a-tcp_comm_listener.o: tcp_comm_listener.cxx
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnetwork_comm_a_CXXFLAGS) $(CXXFLAGS) -MT libnetwork_comm_a-tcp_comm_listener.o -MD -MP -MF $(DEPDIR)/libnetwork_comm_a-tcp_comm_listener.Tpo -c -o libnetwork_comm_a-tcp_comm_listener.o `test -f 'tcp_comm_listener.cxx' || echo '$(srcdir)/'`tcp_comm_listener.cxx

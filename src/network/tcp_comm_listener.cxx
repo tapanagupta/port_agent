@@ -67,8 +67,11 @@ using namespace network;
  * Method: Constructor
  * Description: Default constructor.
  ******************************************************************************/
-TCPCommListener::TCPCommListener() : CommListener() {
-
+TCPCommListener::TCPCommListener() : CommBase() {
+    m_iPort = 0;
+	    
+    m_pServerFD = 0;
+    m_pClientFD = 0;
 }
 
 
@@ -76,7 +79,12 @@ TCPCommListener::TCPCommListener() : CommListener() {
  * Method: Copy Constructor
  * Description: Copy constructor.
  ******************************************************************************/
-TCPCommListener::TCPCommListener(const TCPCommListener &rhs) : CommListener(rhs) {
+TCPCommListener::TCPCommListener(const TCPCommListener &rhs) : CommBase(rhs) {
+	LOG(DEBUG) << "TCPCommListener Copy CTOR!!";
+    m_iPort = rhs.m_iPort;
+	    
+    m_pServerFD = rhs.m_pServerFD;
+    m_pClientFD = rhs.m_pClientFD;
 }
 
 
@@ -85,6 +93,7 @@ TCPCommListener::TCPCommListener(const TCPCommListener &rhs) : CommListener(rhs)
  * Description: destructor.
  ******************************************************************************/
 TCPCommListener::~TCPCommListener() {
+    disconnect();
 }
 
 /******************************************************************************
@@ -95,13 +104,30 @@ CommBase * TCPCommListener::copy() {
 	return new TCPCommListener(*this);
 }
 
-
 /******************************************************************************
  * Method: assignment operator
  * Description: overloaded assignment operator.
  ******************************************************************************/
 TCPCommListener & TCPCommListener::operator=(const TCPCommListener &rhs) {
 	return *this;
+}
+
+/******************************************************************************
+ * Method: equality operator
+ * Description: overloaded equality operator.
+ ******************************************************************************/
+bool TCPCommListener::operator==(TCPCommListener &rhs) {
+        return compare(&rhs);
+}
+
+/******************************************************************************
+ * Method: compare
+ * Description: compare objects
+ ******************************************************************************/
+bool TCPCommListener::compare(CommBase *rhs) {
+		if(rhs->type() != COMM_TCP_LISTENER)
+		    return false;
+        return m_iPort == ((TCPCommListener *)rhs)->m_iPort;
 }
 
 
@@ -111,6 +137,119 @@ TCPCommListener & TCPCommListener::operator=(const TCPCommListener &rhs) {
  ******************************************************************************/
 bool TCPCommListener::isConfigured() {
     return true;
+}
+
+/******************************************************************************
+ * Method: disconnect
+ * Description: Disconnect a client and server
+ * Exceptions:
+ *   SocketMissingConfig
+ ******************************************************************************/
+bool TCPCommListener::disconnect() {
+    LOG(DEBUG) << "Shutdown server";
+    
+    disconnectClient();
+    
+    if(listening()) {
+        LOG(DEBUG2) << "Closing server connection";
+	shutdown(m_pServerFD,2);
+	close(m_pServerFD);
+	m_pServerFD = 0;
+    }
+    
+    return true;
+}
+
+/******************************************************************************
+ * Method: disconnectClient
+ * Description: Disconnect a client
+ ******************************************************************************/
+bool TCPCommListener::disconnectClient() {
+    if(connected()) {
+        LOG(DEBUG2) << "Disconnecting client";
+	shutdown(m_pClientFD,2);
+	close(m_pClientFD);
+	m_pClientFD = 0;
+    }
+    
+    return true;
+}
+
+/******************************************************************************
+ * Method: acceptClient
+ * Description: Accept a client connection and create a new FD
+ * Exceptions:
+ *   SocketNotInitialized
+ *   SocketAlreadyConnected
+ ******************************************************************************/
+bool TCPCommListener::acceptClient() {
+    socklen_t clilen;
+    struct sockaddr_in cli_addr;
+    
+    int newsockfd;
+    
+    if(!listening())
+        throw SocketNotInitialized();
+
+    if(connected()) {
+        clilen = sizeof(cli_addr);
+        newsockfd = accept(m_pServerFD, 
+                    (struct sockaddr *) &cli_addr, 
+                    &clilen);
+		if(newsockfd) close(newsockfd);
+        throw SocketAlreadyConnected();
+	}
+
+    LOG(DEBUG) << "accepting client connection";
+     
+    clilen = sizeof(cli_addr);
+    newsockfd = accept(m_pServerFD, 
+                (struct sockaddr *) &cli_addr, 
+                &clilen);
+     
+    LOG(DEBUG2) << "client FD: " << newsockfd;
+    
+    if (newsockfd < 0) {
+	if(errno == EAGAIN  || errno == EWOULDBLOCK) {
+	    LOG(DEBUG2) << "Non-blocking error ignored: " << strerror(errno) << "(" << errno << ")";
+	    return false;
+	}
+	else {
+            throw SocketConnectFailure(strerror(errno));
+	}
+    }
+    
+    // Set the client to non blocking if needed
+    if(! blocking()) {
+	LOG(DEBUG3) << "set client non-blocking";
+	fcntl(newsockfd, F_SETFL, O_NONBLOCK);
+    }
+    
+    m_pClientFD = newsockfd;
+    return true;
+}
+
+/******************************************************************************
+ * Method: getListenPort
+ * Description: Return the port the server is actually listening on.
+ * Exceptions:
+ *   SocketNotInitialized
+ ******************************************************************************/
+uint16_t TCPCommListener::getListenPort() {
+    struct sockaddr_in sin;
+    socklen_t len = sizeof(sin);
+    
+    LOG(DEBUG) << "Fetch listen port";
+    
+    if(!listening())
+	    return 0;
+
+    LOG(DEBUG2) << "get port from FD " << m_pServerFD;
+
+    if (getsockname(m_pServerFD, (struct sockaddr *)&sin, &len) == -1)
+        throw SocketConnectFailure(strerror(errno));
+        
+    return ntohs(sin.sin_port);
 }
 
 /******************************************************************************
