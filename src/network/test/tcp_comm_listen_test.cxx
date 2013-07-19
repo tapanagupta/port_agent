@@ -16,6 +16,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//
+// List all tests
+//
+// tcp_comm_listen_test --gtest_list_tests
+
+
+//
+// Running individual tests
+//
+// tcp_comm_listen_test --gtest_filter=TCPListenerTest.BlockingConnection
+
 using namespace logger;
 using namespace network;
 
@@ -125,43 +136,45 @@ TEST_F(TCPListenerTest, TestCopy) {
 TEST_F(TCPListenerTest, BlockingConnection) {
     try {
         Timestamp ts;
-	char buffer[128];
-	string expectedData = TEST_DATA;
-	int bytesRead, bytesWritten;
-	
-	TCPCommListener server;
-	server.setBlocking(true);
-        
-	server.initialize();
-	
-	EXPECT_LT(ts.elapseTime(), 0.01);
-	
-	// Ensure we have a good port
-	ASSERT_GT(server.getListenPort(), 0);
-	
-	// Start the tcp echo client with a delay.
-	startTCPEchoClient(server.getListenPort(), 1, 0, 0, TEST_DATA);
-	
-	// Accept a connection.  Should be a delay because the echo
-	// client is configured to delay the connection and this is
-	// a blocking request.
-	server.acceptClient();
-	EXPECT_GT(ts.elapseTime(), 1);
-	
-	zeroBuffer(buffer, 128);
-	bytesRead = server.readData(buffer, 128);
-	EXPECT_EQ(bytesRead, expectedData.length());
-	EXPECT_EQ(expectedData, buffer);
-	
-	bytesWritten = server.writeData(buffer, bytesRead);
-	EXPECT_EQ(bytesRead, bytesWritten);
+    	char buffer[128];
+    	string expectedData = TEST_DATA;
+    	int bytesRead, bytesWritten;
+    	
+	    TCPCommListener server;
+	    server.setBlocking(true);
+            
+			
+    	server.initialize();
+    	
+    	EXPECT_LT(ts.elapseTime(), 0.01);
+    	
+    	// Ensure we have a good port
+    	ASSERT_GT(server.getListenPort(), 0);
+		
+    	// Start the tcp echo client with a delay.
+    	startTCPEchoClient(server.getListenPort(), 1, 0, 0, TEST_DATA);
+    	
+    	// Accept a connection.  Should be a delay because the echo
+    	// client is configured to delay the connection and this is
+    	// a blocking request.
+    	server.acceptClient();
+    	EXPECT_GT(ts.elapseTime(), 1);
+		EXPECT_TRUE(server.connected());
+    	
+    	zeroBuffer(buffer, 128);
+    	bytesRead = server.readData(buffer, 128);
+    	EXPECT_EQ(bytesRead, expectedData.length());
+    	EXPECT_EQ(expectedData, buffer);
+    	
+	    bytesWritten = server.writeData(buffer, bytesRead);
+	    EXPECT_EQ(bytesRead, bytesWritten);
     }
     catch(OOIException &e) {
-	string errmsg = e.what();
-	LOG(ERROR) << "EXCEPTION: " << errmsg;
+	    string errmsg = e.what();
+	    LOG(ERROR) << "EXCEPTION: " << errmsg;
 	
-	// We don't want to see exeptions here.
-	ASSERT_FALSE(true);
+	    // We don't want to see exeptions here so if we got to this line fail the test.
+	    ASSERT_FALSE(true);
     }
 }
 
@@ -172,47 +185,50 @@ TEST_F(TCPListenerTest, BlockingConnection) {
 TEST_F(TCPListenerTest, BlockingStaticConnection) {
     try {
         Timestamp ts;
-	char buffer[128];
-	string expectedData = TEST_DATA;
-	int bytesRead, bytesWritten;
+	    char buffer[128];
+	    string expectedData = TEST_DATA;
+	    int bytesRead, bytesWritten;
 	
-	TCPCommListener server;
-	server.setBlocking(true);
+	    TCPCommListener server;
+	    server.setBlocking(true);
 	
-	// Set the port
-	server.setPort(TEST_PORT);
-        
-	server.initialize();
-	
-	EXPECT_LT(ts.elapseTime(), 0.01);
-	
-	// Ensure we have a good port
-	ASSERT_GT(server.getListenPort(), 0);
-	EXPECT_EQ(TEST_PORT, server.getListenPort());
-	
-	// Start the tcp echo client with a delay.
-	startTCPEchoClient(server.getListenPort(), 1, 0, 0, TEST_DATA);
-	
-	// Accept a connection.  Should be a delay because the echo
-	// client is configured to delay the connection and this is
-	// a blocking request.
-	server.acceptClient();
-	EXPECT_GT(ts.elapseTime(), 1);
-	
-	zeroBuffer(buffer, 128);
-	bytesRead = server.readData(buffer, 128);
-	EXPECT_EQ(bytesRead, expectedData.length());
-	EXPECT_EQ(expectedData, buffer);
-	
-	bytesWritten = server.writeData(buffer, bytesRead);
-	EXPECT_EQ(bytesRead, bytesWritten);
+	    // Set the port
+	    server.setPort(TEST_PORT);
+            
+    	server.initialize();
+    	
+    	EXPECT_LT(ts.elapseTime(), 0.01);
+    	
+    	// Ensure we have a good port
+    	ASSERT_GT(server.getListenPort(), 0);
+    	EXPECT_EQ(TEST_PORT, server.getListenPort());
+    	
+    	// Start the tcp echo client with a delay.
+    	startTCPEchoClient(server.getListenPort(), 1, 0, 0, TEST_DATA);
+    	
+    	// Accept a connection.  Should be a delay because the echo
+    	// client is configured to delay the connection and this is
+    	// a blocking request.
+    	server.acceptClient();
+    	EXPECT_GT(ts.elapseTime(), 1);
+    	
+    	zeroBuffer(buffer, 128);
+		LOG(DEBUG) << "HEREHERE";
+    	bytesRead = server.readData(buffer, 128);
+    	EXPECT_EQ(bytesRead, expectedData.length());
+    	EXPECT_EQ(expectedData, buffer);
+		LOG(DEBUG) << "1HEREHERE";
+    	
+    	bytesWritten = server.writeData(buffer, bytesRead);
+    	EXPECT_EQ(bytesRead, bytesWritten);
+		LOG(DEBUG) << "2HEREHERE";
     }
     catch(OOIException &e) {
-	string errmsg = e.what();
-	LOG(ERROR) << "EXCEPTION: " << errmsg;
-	
-	// We don't want to see exeptions here.
-	ASSERT_FALSE(true);
+    	string errmsg = e.what();
+    	LOG(ERROR) << "EXCEPTION: " << errmsg;
+    	
+    	// We don't want to see exeptions here.
+    	ASSERT_FALSE(true);
     }
 }
 
@@ -318,100 +334,157 @@ TEST_F(TCPListenerTest, BlockingNonBlockingSelect) {
         string expectedData = TEST_DATA;
         int bytesRead = 0;
         int maxFD;
-	int readyCount;
-	fd_set readFDs;
-	int opts;
+     	int readyCount;
+	    fd_set readFDs;
+	    int opts;
 	
-	// Select timeout 0.5 second
+	    // Select timeout 0.5 second
         struct timeval tv;
-        tv.tv_sec = 1;
-        tv.tv_usec = 0;
+               tv.tv_sec = 1;
+               tv.tv_usec = 0;
 
 	
-	TCPCommListener server;
-	server.initialize();
+	    TCPCommListener server;
+	    server.initialize();
 	
-	ASSERT_TRUE(server.listening());
+	    ASSERT_TRUE(server.listening());
 	
-	// Start the echo client to send some data
-	startTCPEchoClient(server.getListenPort(), 1, 2, 1, TEST_DATA);
+	    // Start the echo client to send some data
+	    startTCPEchoClient(server.getListenPort(), 1, 2, 1, TEST_DATA);
 	
-	LOG(INFO) << "Starting select loop";
-        // Sit in a select loop until a client has connected and bytes have
+	    LOG(INFO) << "Starting select loop";
+    
+	    // Sit in a select loop until a client has connected and bytes have
         // been read.
         while(true) {
-	    maxFD = server.serverFD() > server.clientFD() ? server.serverFD() : server.clientFD();
-	    LOG(DEBUG) << "Initalize FD array";
-	    FD_ZERO(&readFDs);
+    	    maxFD = server.serverFD() > server.clientFD() ? server.serverFD() : server.clientFD();
+	        LOG(DEBUG) << "Initalize FD array";
+	        FD_ZERO(&readFDs);
+        	    
+	        if(server.serverFD()) {
+    		    LOG(DEBUG) << "listener FD detected.  Adding to readDFs";
+    		    // Ensure our socket is non-blocking
+    		    opts = fcntl(server.serverFD(),F_GETFL);
+    	        ASSERT_GT(opts, 0);
+    		    LOG(DEBUG) << "fd: " << hex << server.serverFD() << " "
+		                   << "sock opts: " << hex << opts << " "
+		                   << "non block flag: " << hex << O_NONBLOCK;
+                ASSERT_TRUE(opts & O_NONBLOCK);
+    	
+		        // add the FD to the set
+    		    FD_SET(server.serverFD(), &readFDs);
+	        }
 	    
-	    if(server.serverFD()) {
-		LOG(DEBUG) << "listener FD detected.  Adding to readDFs";
-		// Ensure our socket is non-blocking
-		opts = fcntl(server.serverFD(),F_GETFL);
-	        ASSERT_GT(opts, 0);
-		LOG(DEBUG) << "fd: " << hex << server.serverFD() << " "
-		           << "sock opts: " << hex << opts << " "
-		           << "non block flag: " << hex << O_NONBLOCK;
+	        if(server.clientFD()) {
+		        LOG(DEBUG) << "client FD detected.  Adding to readDFs";
+    		
+		        // Ensure our socket is non-blocking
+		        opts = fcntl(server.clientFD(),F_GETFL);
+	            ASSERT_GT(opts, 0);
+		        LOG(DEBUG) << "sock opts: " << hex << opts << " "
+		                   << "non block flag: " << hex << O_NONBLOCK;
                 ASSERT_TRUE(opts & O_NONBLOCK);
 		
-		// add the FD to the set
-		FD_SET(server.serverFD(), &readFDs);
-	    }
-	    
-	    if(server.clientFD()) {
-		LOG(DEBUG) << "client FD detected.  Adding to readDFs";
-		
-		// Ensure our socket is non-blocking
-		opts = fcntl(server.serverFD(),F_GETFL);
-	        ASSERT_GT(opts, 0);
-		LOG(DEBUG) << "sock opts: " << hex << opts << " "
-		           << "non block flag: " << hex << O_NONBLOCK;
-                ASSERT_TRUE(opts & O_NONBLOCK);
-		
-		// add the FD to the set
-		FD_SET(server.clientFD(), &readFDs);
-	    }
-	    
-	    LOG(DEBUG) << "Start select process";
-	    readyCount = select(maxFD+1, &readFDs, NULL, NULL, &tv);
-	    LOG(DEBUG2) << "On select: ready to read on " << readyCount << " connections";
-	    
-	    if(FD_ISSET(server.serverFD(), &readFDs)) {
-		LOG(DEBUG2) << "New client connection detected.";
-		server.acceptClient();
-		ASSERT_TRUE(server.connected());
-	    }
-	    
-	    if(FD_ISSET(server.clientFD(), &readFDs)) {
-		LOG(DEBUG2) << "Client data read to be read";
-	        zeroBuffer(buffer, 128);
-	        bytesRead = server.readData(buffer, 128);
-	    }
+		        // add the FD to the set
+    		    FD_SET(server.clientFD(), &readFDs);
+	        }
     	    
-	    // Temination case
-            if(bytesRead) {
-		LOG(DEBUG) << "We read some bytes: " << bytesRead;
-		break;
-	    }
+	        LOG(DEBUG) << "Start select process";
+	        readyCount = select(maxFD+1, &readFDs, NULL, NULL, &tv);
+	        LOG(DEBUG2) << "On select: ready to read on " << readyCount << " connections";
+    	    
+	        if(FD_ISSET(server.serverFD(), &readFDs)) {
+		        LOG(DEBUG2) << "New client connection detected.";
+		        server.acceptClient();
+    		    ASSERT_TRUE(server.connected());
+	        }
 	    
-	    if(ts.elapseTime() > 5) {
-		LOG(ERROR) << "read timeout";
-	        break;
-	    }
+	        if(FD_ISSET(server.clientFD(), &readFDs)) {
+		        LOG(DEBUG2) << "Client data read to be read";
+	            zeroBuffer(buffer, 128);
+    	        bytesRead = server.readData(buffer, 128);
+	        }
+    	    
+	        // Temination case
+            if(bytesRead) {
+		        LOG(DEBUG) << "We read some bytes: " << bytesRead;
+    		    break;
+	        }
+	    
+	        if(ts.elapseTime() > 5) {
+    		    LOG(ERROR) << "read timeout";
+	            break;
+	        }
         }
     
         // Check to see that we have actually read data.
-	EXPECT_EQ(bytesRead, expectedData.length());
+	    EXPECT_EQ(bytesRead, expectedData.length());
         EXPECT_EQ(expectedData, buffer);
     }
     catch(OOIException &e) {
-	string errmsg = e.what();
-	LOG(ERROR) << "EXCEPTION: " << errmsg;
+	    string errmsg = e.what();
+	    LOG(ERROR) << "EXCEPTION: " << errmsg;
 	
-	// We don't want to see exeptions here.
-	ASSERT_FALSE(true);
+	    // We don't want to see exeptions here.
+	    ASSERT_FALSE(true);
     }
 }
+
+/* Test reconnect logic.  Should be able to connect to the port,
+ * disconnect and then reconnect.
+*/
+TEST_F(TCPListenerTest, Reconnection) {
+    try {
+		Timestamp ts;
+	    char buffer[128];
+	    string expectedData = TEST_DATA;
+	    int bytesRead, bytesWritten;
+		
+	    TCPCommListener server;
+	    server.setBlocking(true);
+	
+	    // Set the port
+	    server.setPort(TEST_PORT);
+    
+        server.initialize();
+    
+	    // Ensure we have a good port
+        ASSERT_GT(server.getListenPort(), 0);
+        EXPECT_EQ(TEST_PORT, server.getListenPort());
+		
+        // Start the tcp echo client with a delay.
+        startTCPEchoClient(server.getListenPort(), 1, 0, 0, TEST_DATA);
+		
+		// Accept the client connection.  At this point we shouldn't be listening
+		// anymore.
+		server.acceptClient();
+		ASSERT_TRUE(server.connected());
+		ASSERT_FALSE(server.listening());
+		
+        // Now send and receive data
+		zeroBuffer(buffer, 128);
+        bytesRead = server.readData(buffer, 128);
+        EXPECT_EQ(bytesRead, expectedData.length());
+        EXPECT_EQ(expectedData, buffer);
+        
+        bytesWritten = server.writeData(buffer, bytesRead);
+        EXPECT_EQ(bytesRead, bytesWritten);
+		
+		// Give the client time to disconnect.
+		sleep(1);
+		
+		LOG(DEBUG) << "Now disconnect the client";
+		server.disconnectClient();
+	}
+    catch(OOIException &e) {
+    	string errmsg = e.what();
+    	LOG(ERROR) << "EXCEPTION: " << errmsg;
+    	
+    	// We don't want to see exeptions here.
+    	ASSERT_FALSE(true);
+    }
+}
+
 
 /////////////////////
 /* Test Exceptions */
@@ -433,7 +506,7 @@ TEST_F(TCPListenerTest, DoublePortAssignment) {
     }
     catch(OOIException &e) {
         exceptionRaised = true;
-	string errmsg = e.what();
+	    string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
         EXPECT_EQ(e.errcode(), 304);
     }
@@ -529,9 +602,9 @@ TEST_F(TCPListenerTest, NotInitializedRead) {
     }
     catch(OOIException &e) {
         exceptionRaised = true;
-	string errmsg = e.what();
+	    string errmsg = e.what();
         LOG(INFO) << "Expected exception caught: " << errmsg;
-        EXPECT_EQ(e.errcode(), 310);
+        EXPECT_EQ(e.errcode(), 308);
     }
     
     EXPECT_TRUE(exceptionRaised);

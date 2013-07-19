@@ -43,6 +43,7 @@
 #include "common/util.h"
 #include "common/logger.h"
 #include "common/exception.h"
+#include "common/timestamp.h"
 
 #include <netinet/in.h>
 #include <netdb.h>
@@ -93,7 +94,8 @@ TCPCommListener::TCPCommListener(const TCPCommListener &rhs) : CommBase(rhs) {
  * Description: destructor.
  ******************************************************************************/
 TCPCommListener::~TCPCommListener() {
-    disconnect();
+    LOG(DEBUG) << "TCPCommListener DTOR";
+	disconnect();
 }
 
 /******************************************************************************
@@ -148,14 +150,8 @@ bool TCPCommListener::isConfigured() {
 bool TCPCommListener::disconnect() {
     LOG(DEBUG) << "Shutdown server";
     
-    disconnectClient();
-    
-    if(listening()) {
-        LOG(DEBUG2) << "Closing server connection";
-	shutdown(m_pServerFD,2);
-	close(m_pServerFD);
-	m_pServerFD = 0;
-    }
+    disconnectClient(true);
+    disconnectServer();
     
     return true;
 }
@@ -164,12 +160,31 @@ bool TCPCommListener::disconnect() {
  * Method: disconnectClient
  * Description: Disconnect a client
  ******************************************************************************/
-bool TCPCommListener::disconnectClient() {
+bool TCPCommListener::disconnectClient(bool server_shutdown) {
     if(connected()) {
         LOG(DEBUG2) << "Disconnecting client";
-	shutdown(m_pClientFD,2);
-	close(m_pClientFD);
-	m_pClientFD = 0;
+	    //shutdown(m_pClientFD,2);
+	    close(m_pClientFD);
+	    m_pClientFD = 0;
+    }
+	
+	if(!server_shutdown) {
+		LOG(DEBUG) << "Re-initalize tcp listener";
+	    initialize();
+	}
+    
+    return true;
+}
+/******************************************************************************
+ * Method: disconnectServer
+ * Description: Disconnect a server
+ ******************************************************************************/
+bool TCPCommListener::disconnectServer() {
+    if(listening()) {
+        LOG(DEBUG2) << "Closing server connection";
+	    //shutdown(m_pServerFD,2);
+	    close(m_pServerFD);
+	    m_pServerFD = 0;
     }
     
     return true;
@@ -226,6 +241,9 @@ bool TCPCommListener::acceptClient() {
     }
     
     m_pClientFD = newsockfd;
+	
+	disconnectServer();
+	
     return true;
 }
 
@@ -266,6 +284,8 @@ bool TCPCommListener::initialize() {
 	struct hostent *server;
     int retval;
 	int newsock;
+	Timestamp ts;
+	int bind_result = -1;
 	
 	LOG(DEBUG) << "TCP Listener initialize()";
 
@@ -279,7 +299,7 @@ bool TCPCommListener::initialize() {
 		throw SocketCreateFailure("socket create failure");
 
 	optval = 1;
-	if (0 > setsockopt(newsock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval)) {
+	if (setsockopt(newsock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval) == -1) {
 	    throw SocketCreateFailure("setsockopt SO_REUSADDR failure");
 	}
 
@@ -289,8 +309,24 @@ bool TCPCommListener::initialize() {
 	serv_addr.sin_port = htons(m_iPort);
 
 	LOG(DEBUG2) << "bind to port " << m_iPort;
-	if (bind(newsock, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) 
-            SocketConnectFailure(strerror(errno));
+	while (bind_result < 0) {
+	    bind_result = bind(newsock, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+		
+		if(bind_result < 0) {
+            LOG(ERROR) << "Failed to bind: " << strerror(errno) << "(" << errno << ")";
+			
+			// Retry on address in use errors if we haven't exceeded timeout.  Otherwise
+			// raise an exception.
+			if(errno == EADDRINUSE && ts.elapseTime() < TCP_BIND_TIMEOUT) {
+				LOG(INFO) << "Waiting for port to freeup.  retrying bind.";
+			}
+			else {
+		        throw SocketConnectFailure(strerror(errno));
+			}
+			
+		    sleep(1);
+	    }
+	}
 	    
 	LOG(DEBUG2) << "Starting server";
 	retval = listen(newsock, 0);
@@ -343,11 +379,6 @@ uint32_t TCPCommListener::writeData(const char *buffer, const uint32_t size) {
     int bytesRemaining = size;
     int count;
 
-	if(! listening()) {
-		LOG(WARNING) << "Socket not initialized";
-		return 0;
-	}
-
     if(! connected()) {
 		LOG(DEBUG) << "Socket (FD: " << m_pClientFD << ") not connected";
 		return 0;
@@ -389,11 +420,10 @@ uint32_t TCPCommListener::writeData(const char *buffer, const uint32_t size) {
 uint32_t TCPCommListener::readData(char *buffer, const uint32_t size) {
     int bytesRead = 0;
 
-    if(! listening())
-        throw(SocketNotInitialized());
-
-    if(! connected())
-        throw(SocketNotConnected());
+    if(! connected()) {
+	    LOG(ERROR) << "Socket Not Connected in readData";
+        throw(SocketNotConnected("in TCPCommListener readData"));
+	}
     
     if ((bytesRead = read(m_pClientFD, buffer, size)) < 0) {
         if (errno == EAGAIN || errno == EINPROGRESS) {

@@ -156,7 +156,7 @@ class SocketMissingConfig : public OOIException {
 
 class SocketNotConnected : public OOIException {
     public: SocketNotConnected(const string & msg = "") :
-        OOIException("Failed Socket Write:", 308, msg) {}
+        OOIException("Socket Not Connected:", 308, msg) {}
 };
 
 class SocketAlreadyConnected : public OOIException {

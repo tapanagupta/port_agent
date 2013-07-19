@@ -45,10 +45,13 @@
 #include "common/logger.h"
 #include "network/comm_base.h"
 
+#define TCP_BIND_TIMEOUT 10
+
 using namespace std;
 using namespace logger;
 
 namespace network {
+	
     class TCPCommListener : public CommBase {
         /********************
          *      METHODS     *
@@ -87,7 +90,8 @@ namespace network {
 	    
 	        /* Commands */
 	        bool disconnect();
-	        bool disconnectClient();
+	        bool disconnectClient(bool server_shutdown = false);
+	        bool disconnectServer();
     	    
 	        bool acceptClient();
 			
