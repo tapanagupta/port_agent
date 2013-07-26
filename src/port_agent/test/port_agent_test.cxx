@@ -26,7 +26,7 @@ const char* TEST_IN_DATA_PORT = "9003";
 const char* RESPONSE_FILE="/tmp/gtest.rsp";
 const char* DUMP_FILE="/tmp/gtest.dmp";
 const char* CONFIG_FILE="/tmp/gtest.cfg";
-const char* CMD_FILE="/tmp/gtest.c,d";
+const char* CMD_FILE="/tmp/gtest.cmd";
 const char* TEST_LOG="/tmp/gtest.log";
 const char* FILE_LOG="/tmp/gtest.out";
 const char* SERVER_LOG="/tmp/gtest.srv";
@@ -104,9 +104,10 @@ class PortAgentUnitTest : public testing::Test {
                     << "instrument_data_port " << TEST_IN_DATA_PORT << endl
                     << "instrument_addr localhost" << endl
                     << "data_port " << TEST_OB_DATA_PORT << endl
-                    << "command_port " << TEST_OB_CMD_PORT << endl;
+                    << "command_port " << TEST_OB_CMD_PORT << endl
+                    << "log_level debug " << endl;
                     
-            LOG(DEBUG) << "Port agent config: " << cmd.str();
+            LOG(INFO) << "Port agent config: " << cmd.str();
             
             create_file(filename.c_str(), cmd.str().c_str());
         }
@@ -129,6 +130,8 @@ class PortAgentUnitTest : public testing::Test {
                 LOG(DEBUG) << "Waiting for client process die.";
                 sleep(1);
             }
+            
+			LOG(DEBUG) << "Configure command output: " << read_file(FILE_LOG);
         }
         
         string commandPortAgent(const string &cmd = "") {
@@ -160,7 +163,7 @@ class PortAgentUnitTest : public testing::Test {
             return response;
         }
         
-        void sendDriverData(const string &cmd) {
+        bool sendDriverData(const string &cmd) {
             stringstream shell;
             string response;
             
@@ -177,12 +180,14 @@ class PortAgentUnitTest : public testing::Test {
                                  "-f", CMD_FILE);
             
             process.set_output_file(FILE_LOG);
-            process.run();
+            bool result = process.run();
             
             while(process.is_running()) {
                 LOG(DEBUG) << "Waiting for client process die.";
                 sleep(1);
             }
+			
+			return result;
         }
         
         virtual void TearDown() {
@@ -305,24 +310,28 @@ TEST_F(PortAgentUnitTest, DISABLED_StartUpWithConfigFile) {
 }
 
 /* Test Startup */
-TEST_F(PortAgentUnitTest, DISABLED_StartUp) {
-//TEST_F(PortAgentUnitTest, StartUp) {
+TEST_F(PortAgentUnitTest, StartUp) {
     try {
         string response;
         string datafile = getDataFile();
         
         remove_file(RESPONSE_FILE);
         
-        startTCPEchoServer();
+        //startTCPEchoServer();
+		
+		LOG(ERROR) << "Start port agent";
         startPortAgent();
         configurePortAgent();
-        response = commandPortAgent("get status");
+        //response = commandPortAgent("get status");
         
-        startTCPClientDump(atoi(TEST_OB_CMD_PORT), "localhost", RESPONSE_FILE);
-        
-        sendDriverData("foo");
-        
-        stopTCPClientDump();
+        //startTCPClientDump(atoi(TEST_OB_CMD_PORT), "localhost", RESPONSE_FILE);
+        //EXPECT_TRUE(sendDriverData("foo"));
+        //stopTCPClientDump();
+		
+		// Reconnect and send more data
+        //startTCPClientDump(atoi(TEST_OB_CMD_PORT), "localhost", RESPONSE_FILE);
+        //EXPECT_TRUE(sendDriverData("foo"));
+        //stopTCPClientDump();
     }
     catch(exception &e) {
         string err = e.what();

@@ -800,10 +800,15 @@ void PortAgent::initializePublisherUDP() {
  *   commands - newline delimeted string of port agent commands.
  ******************************************************************************/
 void PortAgent::handlePortAgentCommand(const char * commands) {
+    PortAgentCommand cmd;
     LOG(DEBUG2) << "COMMAND DATA: " << commands;
     
     if(!m_pConfig)
         return;
+    
+    // Clear the command buffer
+    while(cmd = m_pConfig->getCommand()) {
+    }
     
     m_pConfig->parse(commands);
     
@@ -880,6 +885,7 @@ void PortAgent::processPortAgentCommands() {
  ******************************************************************************/
 void PortAgent::handleTCPConnect(TCPCommListener &listener) {
     listener.acceptClient();
+    LOG(DEBUG) << "new client FD: " << listener.clientFD();
     
     if(! listener.connected()) {
         throw SocketConnectFailure("tcp client connect");
@@ -982,6 +988,7 @@ void PortAgent::handleStateStartup() {
  ******************************************************************************/
 void PortAgent::handleCommon(const fd_set &readFDs) {
     handleTelnetSnifferAccept(readFDs);
+    handleTelnetSnifferRead(readFDs);
 }
 
 /******************************************************************************
@@ -1009,12 +1016,9 @@ void PortAgent::poll() {
         return;
     }
 
-    LOG(DEBUG2) << "On select: ready to read on " << readyCount << " connections";
+    LOG(DEBUG) << "On select: ready to read on " << readyCount << " connections";
     
     LOG(DEBUG) << "Port Agent Version: " << PORT_AGENT_VERSION;
-    LOG(DEBUG) << "CURRENT STATE: " << getCurrentStateAsString();
-    LOG(DEBUG) << "CURRENT STATE: " << getCurrentStateAsString();
-    LOG(DEBUG) << "CURRENT STATE: " << getCurrentStateAsString();
     LOG(DEBUG) << "CURRENT STATE: " << getCurrentStateAsString();
     
     try {
@@ -1082,6 +1086,7 @@ int PortAgent::buildFDSet(fd_set &readFDs) {
     addObservatoryDataClientFD(maxFD, readFDs);
     addInstrumentDataClientFD(maxFD, readFDs);
     addTelnetSnifferListenerFD(maxFD, readFDs);
+    addTelnetSnifferClientFD(maxFD, readFDs);
     
     return maxFD;
 }
@@ -1107,8 +1112,30 @@ void PortAgent::addTelnetSnifferListenerFD(int &maxFD, fd_set &readFDs) {
             FD_SET(fd, &readFDs);
         }
         else {
-            LOG(ERROR) << "telnet sniffer not initialized";
+            LOG(DEBUG) << "telnet sniffer not initialized";
         }
+    }
+}
+
+/******************************************************************************
+ * Method: addTelnetSnifferClientFD
+ * Description: Add the sniffer client fd to the fd_set.  Also update
+ * the max file descriptor.
+ *
+ * If the connection isn't initialized then do nothing.
+ ******************************************************************************/
+void PortAgent::addTelnetSnifferClientFD(int &maxFD, fd_set &readFDs) {
+    if(m_pTelnetSnifferConnection) {
+        int fd = m_pTelnetSnifferConnection->clientFD();
+        
+        if(fd) {
+            LOG(DEBUG) << "add telnet sniffer client FD";
+            maxFD = fd > maxFD ? fd : maxFD;
+            FD_SET(fd, &readFDs);
+        }
+        else {
+            LOG(DEBUG) << "telnet sniffer client not initialized";
+        }    
     }
 }
 
@@ -1154,10 +1181,10 @@ void PortAgent::addObservatoryCommandClientFD(int &maxFD, fd_set &readFDs) {
         pConnection = m_pObservatoryConnection->commandConnectionObject();
         int fd = 0;
         
-        if(m_pObservatoryConnection->commandInitialized())
+        if(m_pObservatoryConnection->commandConnected())
             fd = getObservatoryCommandClientFD();
         
-        if(m_pObservatoryConnection->commandInitialized() && fd) {
+        if(m_pObservatoryConnection->commandConnected() && fd) {
             LOG(DEBUG2) << "add observatory command client FD";
             maxFD = fd > maxFD ? fd : maxFD;
             FD_SET(fd, &readFDs);
@@ -1559,6 +1586,35 @@ void PortAgent::handleTelnetSnifferAccept(const fd_set &readFDs) {
     if(serverFD && FD_ISSET(serverFD, &readFDs)) {
         LOG(DEBUG) << "Telnet sniffer listener has data";
         handleTCPConnect(*m_pTelnetSnifferConnection);
+        LOG(DEBUG) << "telnet sniffer client fd: " << m_pTelnetSnifferConnection->clientFD();
+    }
+}
+
+/******************************************************************************
+ * Method: handleTelnetSnifferRead
+ * Description: Read from the telnet sniffer.  All data is ignored, but we need
+ * the read to detect disconnects.
+ ******************************************************************************/
+void PortAgent::handleTelnetSnifferRead(const fd_set &readFDs) {
+    int clientFD = 0;
+    int bytesRead = 0;
+    char buffer[1024];
+    
+    if(m_pTelnetSnifferConnection)
+        clientFD = m_pTelnetSnifferConnection->clientFD();
+    
+    LOG(DEBUG) << "handleTelnetSnifferAccept - do we need to read from the telnet sniffer";
+    LOG(DEBUG) << "Telnet Sniffer Client FD: " << clientFD;
+        
+    if(clientFD && FD_ISSET(clientFD, &readFDs)) {
+        LOG(DEBUG) << "Read data from Telnet Sniffer Client FD: " << clientFD;
+        bytesRead = m_pTelnetSnifferConnection->readData(buffer, 1023);
+        buffer[bytesRead] = '\0';
+        
+        if(bytesRead) {
+            LOG(DEBUG2) << "Bytes read: " << bytesRead;
+            LOG(DEBUG) << "Bytes read from sniffer port are ignored: " << buffer;
+        }
     }
 }
 
@@ -1571,7 +1627,7 @@ void PortAgent::handleObservatoryCommandAccept(const fd_set &readFDs) {
     int serverFD = getObservatoryCommandListenerFD();
     
     LOG(DEBUG) << "handleObservatoryCommandAccept - do we need to accept a new connection?";
-    LOG(DEBUG2) << "Observatory Command Listener FD: " << serverFD;
+    LOG(DEBUG) << "Observatory Command Listener FD: " << serverFD;
         
     // Accept a new observatory command client
     if(serverFD && FD_ISSET(serverFD, &readFDs)) {
@@ -1591,7 +1647,7 @@ void PortAgent::handleObservatoryCommandRead(const fd_set &readFDs) {
     char buffer[1024];
     
     LOG(DEBUG) << "handleObservatoryCommandRead - do we need to read from the observatory command";
-    LOG(DEBUG2) << "Observatory Command Client FD: " << clientFD;
+    LOG(DEBUG) << "Observatory Command Client FD: " << clientFD;
         
     if(clientFD && FD_ISSET(clientFD, &readFDs)) {
         LOG(DEBUG) << "Read data from Observatory Command Client FD: " << clientFD;

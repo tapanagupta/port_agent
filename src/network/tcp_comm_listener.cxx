@@ -215,33 +215,36 @@ bool TCPCommListener::acceptClient() {
         throw SocketAlreadyConnected();
 	}
 
-    LOG(DEBUG) << "accepting client connection";
+    LOG(DEBUG) << "accepting client connection.";
      
     clilen = sizeof(cli_addr);
     newsockfd = accept(m_pServerFD, 
                 (struct sockaddr *) &cli_addr, 
                 &clilen);
      
-    LOG(DEBUG2) << "client FD: " << newsockfd;
+    LOG(DEBUG) << "client FD: " << newsockfd;
     
     if (newsockfd < 0) {
-	if(errno == EAGAIN  || errno == EWOULDBLOCK) {
-	    LOG(DEBUG2) << "Non-blocking error ignored: " << strerror(errno) << "(" << errno << ")";
-	    return false;
-	}
-	else {
-            throw SocketConnectFailure(strerror(errno));
-	}
+	    if(errno == EAGAIN  || errno == EWOULDBLOCK) {
+	        LOG(DEBUG) << "Non-blocking error ignored: " << strerror(errno) << "(" << errno << ")";
+    	    return false;
+	    }
+	    else {
+                throw SocketConnectFailure(strerror(errno));
+	    }
     }
     
     // Set the client to non blocking if needed
     if(! blocking()) {
-	LOG(DEBUG3) << "set client non-blocking";
-	fcntl(newsockfd, F_SETFL, O_NONBLOCK);
+	    LOG(DEBUG) << "set client non-blocking";
+	    fcntl(newsockfd, F_SETFL, O_NONBLOCK);
+	    LOG(DEBUG) << "Set to non-blocking";
     }
     
-    m_pClientFD = newsockfd;
+    LOG(DEBUG) << "Storing new FD: " << newsockfd;
+	m_pClientFD = newsockfd;
 	
+    LOG(DEBUG) << "Disconnect server";
 	disconnectServer();
 	
     return true;

@@ -337,6 +337,7 @@ TEST_F(TCPListenerTest, BlockingNonBlockingSelect) {
      	int readyCount;
 	    fd_set readFDs;
 	    int opts;
+	    int success_count = 0;
 	
 	    // Select timeout 0.5 second
         struct timeval tv;
@@ -355,8 +356,8 @@ TEST_F(TCPListenerTest, BlockingNonBlockingSelect) {
 	    LOG(INFO) << "Starting select loop";
     
 	    // Sit in a select loop until a client has connected and bytes have
-        // been read.
-        while(true) {
+        // been read a couple times.
+        while(success_count < 2) {
     	    maxFD = server.serverFD() > server.clientFD() ? server.serverFD() : server.clientFD();
 	        LOG(DEBUG) << "Initalize FD array";
 	        FD_ZERO(&readFDs);
@@ -397,21 +398,31 @@ TEST_F(TCPListenerTest, BlockingNonBlockingSelect) {
 		        LOG(DEBUG2) << "New client connection detected.";
 		        server.acceptClient();
     		    ASSERT_TRUE(server.connected());
+    		    ASSERT_FALSE(server.listening());
 	        }
 	    
 	        if(FD_ISSET(server.clientFD(), &readFDs)) {
 		        LOG(DEBUG2) << "Client data read to be read";
 	            zeroBuffer(buffer, 128);
     	        bytesRead = server.readData(buffer, 128);
-	        }
     	    
-	        // Temination case
-            if(bytesRead) {
-		        LOG(DEBUG) << "We read some bytes: " << bytesRead;
-    		    break;
+	            // Temination case
+                if(bytesRead) {
+		            LOG(DEBUG) << "We read some bytes: " << bytesRead;
+        		    success_count++;
+	            }
+	    
+                if(bytesRead == 0) {
+		            LOG(DEBUG) << "We detected disconnect";
+    		        ASSERT_FALSE(server.connected());
+    		        ASSERT_TRUE(server.listening());
+	    
+                    // Send some more data
+					startTCPEchoClient(server.getListenPort(), 1, 2, 1, TEST_DATA);
+	            }
 	        }
 	    
-	        if(ts.elapseTime() > 5) {
+	        if(ts.elapseTime() > 45) {
     		    LOG(ERROR) << "read timeout";
 	            break;
 	        }
@@ -420,6 +431,7 @@ TEST_F(TCPListenerTest, BlockingNonBlockingSelect) {
         // Check to see that we have actually read data.
 	    EXPECT_EQ(bytesRead, expectedData.length());
         EXPECT_EQ(expectedData, buffer);
+		EXPECT_EQ(success_count, 2);
     }
     catch(OOIException &e) {
 	    string errmsg = e.what();
@@ -469,12 +481,39 @@ TEST_F(TCPListenerTest, Reconnection) {
         
         bytesWritten = server.writeData(buffer, bytesRead);
         EXPECT_EQ(bytesRead, bytesWritten);
+        bytesRead = server.readData(buffer, 128);
+		ASSERT_EQ(bytesRead, 4);
 		
 		// Give the client time to disconnect.
 		sleep(1);
 		
-		LOG(DEBUG) << "Now disconnect the client";
-		server.disconnectClient();
+		LOG(DEBUG) << "STOPSTOP";
+		
+		// Now we should detect a disconnect
+        bytesRead = server.readData(buffer, 128);
+		ASSERT_EQ(bytesRead, 0);
+		ASSERT_TRUE(server.listening());
+		ASSERT_FALSE(server.connected());
+		
+		// Start the tcp echo client with a delay.
+        startTCPEchoClient(server.getListenPort(), 1, 0, 0, TEST_DATA);
+		
+		// Accept the client connection.  At this point we shouldn't be listening
+		// anymore.
+		server.acceptClient();
+		ASSERT_TRUE(server.connected());
+		ASSERT_FALSE(server.listening());
+		
+        // Now send and receive data
+		zeroBuffer(buffer, 128);
+        bytesRead = server.readData(buffer, 128);
+        EXPECT_EQ(bytesRead, expectedData.length());
+        EXPECT_EQ(expectedData, buffer);
+        
+        bytesWritten = server.writeData(buffer, bytesRead);
+        EXPECT_EQ(bytesRead, bytesWritten);
+        bytesRead = server.readData(buffer, 128);
+		ASSERT_EQ(bytesRead, 4);
 	}
     catch(OOIException &e) {
     	string errmsg = e.what();

@@ -73,6 +73,7 @@ namespace port_agent {
             void addObservatoryMultiDataClientFDs(int &maxFD, fd_set &readFDs);
             void addInstrumentDataClientFD(int &maxFD, fd_set &readFDs);
             void addTelnetSnifferListenerFD(int &maxFD, fd_set &readFDs);
+            void addTelnetSnifferClientFD(int &maxFD, fd_set &readFDs);
             
             int getObservatoryCommandListenerFD();
             int getObservatoryCommandClientFD();
@@ -119,6 +120,7 @@ namespace port_agent {
             void handleTCPConnect(TCPCommListener &listener);
             
             void handleTelnetSnifferAccept(const fd_set &readFDs);
+            void handleTelnetSnifferRead(const fd_set &readFDs);
             void handleObservatoryCommandAccept(const fd_set &readFDs);
             void handleObservatoryCommandRead(const fd_set &readFDs);
             void handleObservatoryDataAccept(const fd_set &readFDs);
