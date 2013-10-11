@@ -354,10 +354,10 @@ TEST_F(CommonTest, SetMaxPacketSize) {
     EXPECT_FALSE(config.parse("max_packet_size 0"));
     EXPECT_EQ(config.maxPacketSize(), DEFAULT_PACKET_SIZE);
     
-    EXPECT_TRUE(config.parse("max_packet_size 65472"));
-    EXPECT_EQ(config.maxPacketSize(), 65472);
+    EXPECT_TRUE(config.parse("max_packet_size 4096"));
+    EXPECT_EQ(config.maxPacketSize(), 4096);
     
-    EXPECT_FALSE(config.parse("max_packet_size 65473"));
+    EXPECT_FALSE(config.parse("max_packet_size 4097"));
     EXPECT_EQ(config.maxPacketSize(), DEFAULT_PACKET_SIZE);
     
     EXPECT_FALSE(config.parse("max_packet_size -11"));

@@ -880,8 +880,8 @@ bool PortAgentConfig::setMaxPacketSize(const string &param) {
         return false;
     }
     
-    if(value > MAX_PACKET_SIZE) {
-        LOG(ERROR) << "packet size exceeds maximum value, " << MAX_PACKET_SIZE
+    if(value > MAX_PACKET_SIZE - 1) {
+        LOG(ERROR) << "packet size exceeds maximum value, " << MAX_PACKET_SIZE - 1
                    << " using default " << DEFAULT_PACKET_SIZE;
         m_maxPacketSize = DEFAULT_PACKET_SIZE;
         return false;

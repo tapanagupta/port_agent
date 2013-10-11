@@ -1814,8 +1814,8 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
 
     int clientFD = getInstrumentDataRxClientFD();
     int bytesRead = 0;
-    char buffer[1024];
-    
+    char buffer[MAX_PACKET_SIZE];
+    unsigned int read_size;
     LOG(DEBUG) << "handleInstrumentDataRead - do we need to read from the instrument data";
     
     if(! pConnection->connected()) {
@@ -1827,8 +1827,9 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
     LOG(DEBUG2) << "Instrument Data Client FD: " << clientFD;
         
     if(clientFD && FD_ISSET(clientFD, &readFDs)) {
-        LOG(DEBUG) << "Read data from Instrument Data Client FD: " << clientFD;
-        bytesRead = pConnection->readData(buffer, 1023);
+        read_size = m_pConfig->maxPacketSize();
+        LOG(DEBUG) << "Read data from Instrument Data Client FD: " << clientFD << " max packet size: " << read_size;
+        bytesRead = pConnection->readData(buffer, read_size);
         
         if(bytesRead) {
             LOG(DEBUG2) << "Bytes read: " << bytesRead;
