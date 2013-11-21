@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <string.h>
+#include <unistd.h>
 
 using namespace std;
 using namespace packet;

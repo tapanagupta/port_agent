@@ -2,6 +2,7 @@
 #include "logger.h"
 #include "spawn_process.h"
 #include "gtest/gtest.h"
+#include <unistd.h>
 
 #define LS "/bin/ls"
 #define ECHO "/bin/echo"

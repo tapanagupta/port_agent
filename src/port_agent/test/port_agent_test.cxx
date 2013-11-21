@@ -14,6 +14,7 @@
 #include "port_agent/port_agent.h"
 #include "gtest/gtest.h"
 #include "common/util.h"
+#include <unistd.h>
 
 using namespace logger;
 using namespace std;

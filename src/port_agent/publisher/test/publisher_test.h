@@ -14,6 +14,7 @@
 #include <sstream>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace std;
 using namespace logger;
