@@ -325,10 +325,10 @@ void PortAgent::initializeInstrumentConnection() {
     if (m_pConfig->instrumentConnectionType() == TYPE_TCP) {
         initializeTCPInstrumentConnection();
     }
-    if (m_pConfig->instrumentConnectionType() == TYPE_BOTPT) {
+    else if (m_pConfig->instrumentConnectionType() == TYPE_BOTPT) {
         initialize_BOTPT_InstrumentConnection();
     }
-    if (m_pConfig->instrumentConnectionType() == TYPE_SERIAL) {
+    else if (m_pConfig->instrumentConnectionType() == TYPE_SERIAL) {
         initializeSerialInstrumentConnection();
     }
     else {
