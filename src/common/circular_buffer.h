@@ -1,6 +1,7 @@
 
 class CircularBuffer {
 public:
+
 	CircularBuffer(size_t capacity);
 	~CircularBuffer();
 
