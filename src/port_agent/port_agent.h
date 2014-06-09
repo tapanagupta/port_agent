@@ -7,6 +7,7 @@
 #include "connection/connection.h"
 #include "config/port_agent_config.h"
 #include "packet/packet.h"
+#include "packet/rsn_packet_data_buffer.h"
 #include "publisher/publisher_list.h"
 
 #include <sys/select.h>
@@ -153,6 +154,8 @@ namespace port_agent {
             PublisherList m_oPublishers;
             time_t m_lLastHeartbeat;
             
+            RsnPacketDataBuffer *m_packetDataBuffer;
+
             // Port agent connections
             Connection *m_pObservatoryConnection;
             Connection *m_pInstrumentConnection;

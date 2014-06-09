@@ -57,6 +57,8 @@ PortAgent::PortAgent() {
     
     m_pConfig = NULL;
     m_oState = STATE_UNKNOWN;
+
+    m_packetDataBuffer = NULL;
 }
 
 /******************************************************************************
@@ -69,11 +71,13 @@ PortAgent::PortAgent(int argc, char *argv[]) {
     LOG(DEBUG) << "Initialize port agent with args";
     
     m_pConfig = new PortAgentConfig(argc, argv);
+    m_packetDataBuffer = new RsnPacketDataBuffer(65536, MAX_PACKET_SIZE, MAX_PACKET_SIZE);   // TODO: Set as a config value?  Maybe initialize or clear upon instrument connection?
     setState(STATE_STARTUP);
     
     m_pInstrumentConnection = NULL;
     m_pObservatoryConnection = NULL;
     m_pTelnetSnifferConnection = NULL;
+
 }
 
 /******************************************************************************
@@ -94,6 +98,11 @@ PortAgent::~PortAgent() {
         delete m_pConfig;
         
     m_pConfig = NULL;
+
+    if (m_packetDataBuffer)
+        delete m_packetDataBuffer;
+
+    m_packetDataBuffer = NULL;
 }
 
 /******************************************************************************
@@ -1834,8 +1843,23 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
         
         if(bytesRead) {
             LOG(DEBUG2) << "Bytes read: " << bytesRead;
-            publishPacket(buffer, bytesRead, DATA_FROM_INSTRUMENT);
-            //buffer[bytesRead] = '\0';
+
+            if (1) {  // TODO: if configured as RSN DIGI
+                size_t bytesWritten = m_packetDataBuffer->write(buffer, bytesRead);
+                if (bytesWritten != bytesRead) {
+                    // TODO: log error or throw an exception.  Buffer is probably full.
+                    Packet *packet = NULL;
+                    while ((packet = m_packetDataBuffer->getNextPacket()) != NULL) {  // TODO: Use NULL instead of 0
+                        publishPacket(packet);
+                        delete packet;
+                        packet = NULL;
+                    }
+                }
+            }
+            else {
+                publishPacket(buffer, bytesRead, DATA_FROM_INSTRUMENT);
+                //buffer[bytesRead] = '\0';
+            }
         }
     }
 }

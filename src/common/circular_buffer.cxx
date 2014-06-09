@@ -66,6 +66,31 @@ size_t CircularBuffer::read(char *data, size_t bytes) {
 	return bytes_to_read;
 }
 
+size_t CircularBuffer::discard(size_t bytes) {
+	if (bytes == 0)
+		return 0;
+
+	size_t capacity = capacity_;
+	size_t bytes_to_discard = std::min(bytes, size_);
+
+	// Discard in a single step
+	if (bytes_to_discard <= capacity - beg_index_) {
+		beg_index_ += bytes_to_discard;
+		if (beg_index_ == capacity)
+			beg_index_ = 0;
+	}
+	// Discard in two steps
+	else {
+		size_t size_1 = capacity - beg_index_;
+		size_t size_2 = bytes_to_discard - size_1;
+		beg_index_ = size_2;
+	}
+
+	size_ -= bytes_to_discard;
+	return bytes_to_discard;
+
+}
+
 size_t CircularBuffer::peek(char *data, size_t bytes) {
 	if (bytes == 0)
 		return 0;
@@ -92,6 +117,20 @@ size_t CircularBuffer::peek(char *data, size_t bytes) {
 	return bytes_to_read;
 }
 
+size_t CircularBuffer::peek_next_byte(char &byte) {
+	if (peek_index_ == end_index_) return 0;
+	if (peek_index_ == capacity_)  peek_index_ = 0;
+	    byte = *(data_ + peek_index_);
+	    peek_index_++;
+	    return 1;
+}
+
+
 void CircularBuffer::reset_peek() {
 	peek_index_ = beg_index_;
 }
+
+size_t CircularBuffer::clear() {
+    return discard(size());
+}
+
