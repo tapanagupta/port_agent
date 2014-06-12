@@ -77,7 +77,8 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 noinst_PROGRAMS = basic_packet_test$(EXEEXT) \
-	buffered_single_char_test$(EXEEXT)
+	buffered_single_char_test$(EXEEXT) raw_packet_test$(EXEEXT) \
+	raw_packet_data_buffer_test$(EXEEXT)
 subdir = src/port_agent/packet/test
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(top_srcdir)/test-driver
@@ -101,6 +102,14 @@ am_buffered_single_char_test_OBJECTS =  \
 buffered_single_char_test_OBJECTS =  \
 	$(am_buffered_single_char_test_OBJECTS)
 buffered_single_char_test_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am_raw_packet_data_buffer_test_OBJECTS =  \
+	raw_packet_data_buffer_test.$(OBJEXT)
+raw_packet_data_buffer_test_OBJECTS =  \
+	$(am_raw_packet_data_buffer_test_OBJECTS)
+raw_packet_data_buffer_test_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am_raw_packet_test_OBJECTS = raw_packet_test.$(OBJEXT)
+raw_packet_test_OBJECTS = $(am_raw_packet_test_OBJECTS)
+raw_packet_test_DEPENDENCIES = $(am__DEPENDENCIES_2)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -131,9 +140,13 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(basic_packet_test_SOURCES) \
-	$(buffered_single_char_test_SOURCES)
+	$(buffered_single_char_test_SOURCES) \
+	$(raw_packet_data_buffer_test_SOURCES) \
+	$(raw_packet_test_SOURCES)
 DIST_SOURCES = $(basic_packet_test_SOURCES) \
-	$(buffered_single_char_test_SOURCES)
+	$(buffered_single_char_test_SOURCES) \
+	$(raw_packet_data_buffer_test_SOURCES) \
+	$(raw_packet_test_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -479,6 +492,10 @@ basic_packet_test_SOURCES = basic_packet_test.cxx
 basic_packet_test_LDADD = $(DEPLIBS) -lgtest
 buffered_single_char_test_SOURCES = buffered_single_char_test.cxx 
 buffered_single_char_test_LDADD = $(DEPLIBS) -lgtest
+raw_packet_test_SOURCES = raw_packet_test.cxx
+raw_packet_test_LDADD = $(DEPLIBS) -lgtest
+raw_packet_data_buffer_test_SOURCES = raw_packet_data_buffer_test.cxx
+raw_packet_data_buffer_test_LDADD = $(DEPLIBS) -lgtest
 TESTS = $(noinst_PROGRAMS)
 all: all-am
 
@@ -526,6 +543,14 @@ buffered_single_char_test$(EXEEXT): $(buffered_single_char_test_OBJECTS) $(buffe
 	@rm -f buffered_single_char_test$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(buffered_single_char_test_OBJECTS) $(buffered_single_char_test_LDADD) $(LIBS)
 
+raw_packet_data_buffer_test$(EXEEXT): $(raw_packet_data_buffer_test_OBJECTS) $(raw_packet_data_buffer_test_DEPENDENCIES) $(EXTRA_raw_packet_data_buffer_test_DEPENDENCIES) 
+	@rm -f raw_packet_data_buffer_test$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(raw_packet_data_buffer_test_OBJECTS) $(raw_packet_data_buffer_test_LDADD) $(LIBS)
+
+raw_packet_test$(EXEEXT): $(raw_packet_test_OBJECTS) $(raw_packet_test_DEPENDENCIES) $(EXTRA_raw_packet_test_DEPENDENCIES) 
+	@rm -f raw_packet_test$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(raw_packet_test_OBJECTS) $(raw_packet_test_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -534,6 +559,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/basic_packet_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffered_single_char_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/raw_packet_data_buffer_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/raw_packet_test.Po@am__quote@
 
 .cxx.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -754,6 +781,20 @@ basic_packet_test.log: basic_packet_test$(EXEEXT)
 buffered_single_char_test.log: buffered_single_char_test$(EXEEXT)
 	@p='buffered_single_char_test$(EXEEXT)'; \
 	b='buffered_single_char_test'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+raw_packet_test.log: raw_packet_test$(EXEEXT)
+	@p='raw_packet_test$(EXEEXT)'; \
+	b='raw_packet_test'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+raw_packet_data_buffer_test.log: raw_packet_data_buffer_test$(EXEEXT)
+	@p='raw_packet_data_buffer_test$(EXEEXT)'; \
+	b='raw_packet_data_buffer_test'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

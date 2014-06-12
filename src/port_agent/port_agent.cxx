@@ -58,7 +58,7 @@ PortAgent::PortAgent() {
     m_pConfig = NULL;
     m_oState = STATE_UNKNOWN;
 
-    m_packetDataBuffer = NULL;
+    m_rawPacketDataBuffer = NULL;
 }
 
 /******************************************************************************
@@ -71,7 +71,7 @@ PortAgent::PortAgent(int argc, char *argv[]) {
     LOG(DEBUG) << "Initialize port agent with args";
     
     m_pConfig = new PortAgentConfig(argc, argv);
-    m_packetDataBuffer = new RsnPacketDataBuffer(65536, MAX_PACKET_SIZE, MAX_PACKET_SIZE);   // TODO: Set as a config value?  Maybe initialize or clear upon instrument connection?
+    m_rawPacketDataBuffer = new RawPacketDataBuffer(65536, MAX_PACKET_SIZE, MAX_PACKET_SIZE);   // TODO: Set as a config value?  Maybe initialize or clear upon instrument connection?
     setState(STATE_STARTUP);
     
     m_pInstrumentConnection = NULL;
@@ -99,10 +99,10 @@ PortAgent::~PortAgent() {
         
     m_pConfig = NULL;
 
-    if (m_packetDataBuffer)
-        delete m_packetDataBuffer;
+    if (m_rawPacketDataBuffer)
+        delete m_rawPacketDataBuffer;
 
-    m_packetDataBuffer = NULL;
+    m_rawPacketDataBuffer = NULL;
 }
 
 /******************************************************************************
@@ -1824,7 +1824,7 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
 
     int clientFD = getInstrumentDataRxClientFD();
     int bytesRead = 0;
-    char buffer[MAX_PACKET_SIZE];
+    char buffer[MAX_PACKET_SIZE + HEADER_SIZE];
     unsigned int read_size;
     LOG(DEBUG) << "handleInstrumentDataRead - do we need to read from the instrument data";
     
@@ -1845,15 +1845,12 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
             LOG(DEBUG2) << "Bytes read: " << bytesRead;
 
             if (1) {  // TODO: if configured as RSN DIGI
-                size_t bytesWritten = m_packetDataBuffer->write(buffer, bytesRead);
-                if (bytesWritten != bytesRead) {
-                    // TODO: log error or throw an exception.  Buffer is probably full.
-                    Packet *packet = NULL;
-                    while ((packet = m_packetDataBuffer->getNextPacket()) != NULL) {  // TODO: Use NULL instead of 0
-                        publishPacket(packet);
-                        delete packet;
-                        packet = NULL;
-                    }
+                m_rawPacketDataBuffer->write(buffer, bytesRead);
+                Packet *packet = NULL;
+                while ((packet = m_rawPacketDataBuffer->getNextPacket()) != NULL) {
+                    publishPacket(packet);
+                    delete packet;
+                    packet = NULL;
                 }
             }
             else {

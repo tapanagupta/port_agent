@@ -10,8 +10,6 @@
 
 using namespace std;
 
-// TODO: Make buffer generic for all packet types?  Will have to modify the base packet class?
-
 namespace packet {
 
 class RsnPacketDataBuffer : public CircularBuffer {
@@ -24,14 +22,14 @@ class RsnPacketDataBuffer : public CircularBuffer {
         // TODO: Throws new() exception?
         RsnPacketDataBuffer(size_t bufferCapacity, size_t maxPacketSize, size_t maxInvalidDataSize);
 
-        // Will return pointer to data, make a smart pointer?
+        // TODO: Will return pointer to data, make a smart pointer?
         Packet* getNextPacket();
 
     private:
 
         RsnPacketDataBuffer();
 
-        // arg invalidSync - buffer starts with an invalid sync word  TODO: need to check size first to make sure enough space
+        // arg invalidSync - buffer starts with an invalid sync word
         size_t getLeadingInvalidData(char* data, bool invalidSync = false);
 
         const size_t peekHeader(char* data);

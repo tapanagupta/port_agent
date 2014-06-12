@@ -293,9 +293,6 @@ string Packet::pretty() {
  *          a pointer so if this object goes out of scope the buffer will be
  *          destroyed.
  ******************************************************************************/
-
-// TODO: May have to override depending upon the RSN format or build RSN packet in expected format.
-
 char* Packet::packet() {
     uint64_t ts = m_oTimestamp.asBinary();
     uint32_t sync = htonl(SYNC) >> 8;

@@ -1,8 +1,17 @@
 
 #include "rsn_packet_data_buffer.h"
+#include "common/logger.h"
+#include "common/util.h"
 
+#include <sys/types.h>
+#include <unistd.h>
+#include <string>
+
+using namespace logger;
 using namespace packet;
 using namespace std;
+
+// TODO: Do we only get DATA_FROM_INSTRUMENT?
 
 RsnPacketDataBuffer::RsnPacketDataBuffer(size_t bufferCapacity, size_t maxPacketSize, size_t maxInvalidDataSize):
     CircularBuffer(bufferCapacity),
@@ -12,37 +21,40 @@ RsnPacketDataBuffer::RsnPacketDataBuffer(size_t bufferCapacity, size_t maxPacket
 
 Packet* RsnPacketDataBuffer::getNextPacket() {   // TODO: Add data timeout?  Would need separate thread.
 
+    LOG(DEBUG) << "Begin getNextPacket(), buffer size = " << size();
+
     char data[maxPacketSize_];
     Packet* packet = NULL;
     size_t sentinelSize = 3;  // TODO: get from parameter or add constant to packet.h
     size_t numberInvalidBytes = 0;
 
     // Buffer is empty
-    if (size() > 0)
+    if (size() == 0) {
+        LOG(DEBUG) << "No packets, buffer size = " << 0;
         return packet;
+    }
 
     numberInvalidBytes = getLeadingInvalidData(data);  // Get invalid data until a sync appears
+    LOG(ERROR) << "Number invalid bytes = " << numberInvalidBytes;
     if ((numberInvalidBytes == 0) && (size() > HEADER_SIZE)) {
-        // TODO: Should be at sync word
+        // Should be at sync word
         // TODO: Need to peek_header and check return value
         const size_t headerSize = peekHeader(data);
         RawHeader* header = reinterpret_cast<RawHeader*>(data);
-        if (header->validate(maxPacketSize_)) {
+        if (!header->validateHeader(maxPacketSize_)) {
+            LOG(ERROR) << "Invalid header";
             numberInvalidBytes = getLeadingInvalidData(data, true);  // Invalid sync, see if there is more invalid data
         } else if (header->getPacketSize() < size()) {  // Possibly a truncated packet, will have to wait for more data
-            // TODO: log
+            // TODO: Log
             packet = NULL;
         } else {  // validate data for a packet
             const size_t packetSize = peekPacket(data, header->getPacketSize());
             RawPacket* rawPacket = reinterpret_cast<RawPacket*>(data);
-            packet = new Packet(DATA_FROM_INSTRUMENT, rawPacket->getTimestamp(), rawPacket->getPayload(), rawPacket->getPacketSize());
-            if (validatePacket(packet, rawPacket)) {
-                // TODO: log
+            if (rawPacket->validateChecksum()) {
+                packet = new Packet(DATA_FROM_INSTRUMENT, rawPacket->getTimestamp(), rawPacket->getPayload(), rawPacket->getPayloadSize());
                 discard(rawPacket->getPacketSize());
             } else {  // Assume invalid sync
-                // TODO: log checksum failure
-                delete packet;
-                packet = NULL;
+                LOG(ERROR) << "Check sum failure";  // Print values
                 numberInvalidBytes = getLeadingInvalidData(data, true);  // See if there is more invalid data
             }
         }
@@ -53,10 +65,12 @@ Packet* RsnPacketDataBuffer::getNextPacket() {   // TODO: Add data timeout?  Wou
         // TODO: Throw an internal exception
     }
 
-    if (numberInvalidBytes > 0) {
-        packet = new Packet(PORT_AGENT_FAULT, Timestamp(), data, numberInvalidBytes);  // TODO: new packet type?
+    if (packet != NULL) {
+        LOG(DEBUG) << endl << "Begin Pretty Print Packet" << packet->pretty() << endl << "End Pretty Print Packet";
     } else if (packet == NULL) {
-        // TODO: buffer is empty or not a complete packet
+        LOG(DEBUG) << endl << "No packets, buffer size = " << size();
+    } else {
+        packet = new Packet(PORT_AGENT_FAULT, Timestamp(), data, numberInvalidBytes);  // TODO: new packet type?
     }
 
     return packet;
@@ -64,10 +78,16 @@ Packet* RsnPacketDataBuffer::getNextPacket() {   // TODO: Add data timeout?  Wou
 
 size_t  RsnPacketDataBuffer::getLeadingInvalidData(char* data, bool invalidSync) {
 
+    LOG(DEBUG) << "Begin getLeadingInvalidData(): invalidSync = " << invalidSync;
+
     size_t numberInvalidBytes = 0;
     char next_byte;
-    size_t sync_index = 0;
-    size_t sync_index_max = 3;
+    size_t sync_index = 1;
+    size_t sync_index_max = 4;
+
+    uint32_t hlSync = htonl(SYNC);  // TODO: convert to big endian, Move to CTR
+
+    char* syncChar = (char*)&hlSync;
 
     if (invalidSync && size() >= 3) {  // TODO: make sentinel size a param or something
         numberInvalidBytes = read(data, 3);  // Add sync to invalid data, TODO: check return value
@@ -75,7 +95,15 @@ size_t  RsnPacketDataBuffer::getLeadingInvalidData(char* data, bool invalidSync)
 
     while(peek_next_byte(next_byte))
     {
-        if (next_byte == *(&SYNC + sync_index))
+        stringstream out;
+        out.fill('0'); // TODO: Remove
+        out.width(2); // TODO: Remove
+        out << hex << uppercase << byteToUnsignedInt(next_byte);  // TODO: Remove
+        LOG(DEBUG) << "peek_next_byte() = " << out.str();  // TODO: Remove
+        out.str("");  // TODO: Remove
+        out << hex << uppercase << byteToUnsignedInt(syncChar[sync_index]);  // TODO: Remove
+        LOG(DEBUG) << "sync byte = " << out.str();  // TODO: Remove
+        if (next_byte == syncChar[sync_index])  // TODO: Redo if little endian
         {
             sync_index++;
             if (sync_index == sync_index_max)
@@ -83,17 +111,19 @@ size_t  RsnPacketDataBuffer::getLeadingInvalidData(char* data, bool invalidSync)
         }
         else
         {
-            sync_index = 0;
+            sync_index = 1;
             numberInvalidBytes++;
             if (numberInvalidBytes > maxInvalidDataSize_) break;
         }
     }
-    if (sync_index > 0)
+    if (sync_index > 1)
         //  Sync could have been truncated between reads?
     reset_peek();
 
     if (numberInvalidBytes > 0)
         read(data, numberInvalidBytes);  // TODO: check return value
+
+    LOG(DEBUG) << "End getLeadingInvalidData()";
 
     return numberInvalidBytes;
 }
@@ -109,13 +139,4 @@ const size_t RsnPacketDataBuffer::peekPacket(char* data, size_t packetSize) {
     size_t rawPacketSize = peek(data, packetSize);  // TODO: Check return value?
     reset_peek();
     return rawPacketSize;
-}
-
-bool RsnPacketDataBuffer::validatePacket(Packet* packet, RawPacket* rawPacket) {
-    bool valid = false;
-    uint16_t rawPacketChecksum = rawPacket->getChecksum();
-    uint16_t packetChecksum = packet->checksum();
-    if (rawPacketChecksum == packetChecksum)
-        valid = true;
-    return true;
 }

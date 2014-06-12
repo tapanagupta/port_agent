@@ -122,7 +122,6 @@ namespace packet {
         
         protected:
             
-            // TODO: sync is not a member of this structure?  What is going on?
             PacketType m_tPacketType;
             uint16_t m_iPacketSize;
             uint16_t m_iChecksum;
