@@ -1843,8 +1843,7 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
         
         if(bytesRead) {
             LOG(DEBUG2) << "Bytes read: " << bytesRead;
-
-            if (1) {  // TODO: if configured as RSN DIGI
+            if (m_pConfig->instrumentConnectionType() == TYPE_RSN) {  // TODO: if configured as RSN DIGI
                 m_rawPacketDataBuffer->write(buffer, bytesRead);
                 Packet *packet = NULL;
                 while ((packet = m_rawPacketDataBuffer->getNextPacket()) != NULL) {

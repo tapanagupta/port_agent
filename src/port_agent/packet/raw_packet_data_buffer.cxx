@@ -143,7 +143,7 @@ Packet* RawPacketDataBuffer::checkForPacket() {
     char data[maxPacketSize_];
 
     if (size() < HEADER_SIZE) {
-        LOG(DEBUG) << "Header possibly truncated.";
+        LOG(DEBUG) << "Header possibly truncated";
         return packet;
     }
 
@@ -192,6 +192,8 @@ Packet* RawPacketDataBuffer::getNextPacket() {
 
     Packet* packet = NULL;
 
+    LOG(DEBUG) << "getNextPacket(): buffer size = " << size();
+
     // Buffer is empty
     if (size() == 0) {
         LOG(DEBUG) << "No packets, buffer size = 0";
@@ -205,11 +207,12 @@ Packet* RawPacketDataBuffer::getNextPacket() {
         // No leading invalid data, buffer empty or at sync word
         packet = checkForPacket();
     } else {
-        LOG(DEBUG) << endl << "Invalid packet";
+        LOG(DEBUG) << "Invalid packet";
     }
 
     if (packet != NULL) {
         LOG(DEBUG) << endl << "Begin Pretty Print Packet" << packet->pretty() << endl << "End Pretty Print Packet";
+        LOG(DEBUG) << "Packet created, buffer size = " << size();
     } else if (packet == NULL) {
         LOG(DEBUG) << endl << "No packets, buffer size = " << size();
     }
@@ -257,8 +260,9 @@ size_t RawPacketDataBuffer::getAnyLeadingInvalidData(char* data, bool invalidSyn
         }
         else
         {
-            sync_index = SYNC_MIN_INDEX;
             numberInvalidBytes++;
+            numberInvalidBytes += sync_index - SYNC_MIN_INDEX;
+            sync_index = SYNC_MIN_INDEX;
             if (numberInvalidBytes > maxInvalidDataSize_) {
                 LOG(DEBUG) << "Reached maximum invalid data size";
                 break;
