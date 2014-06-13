@@ -27,6 +27,7 @@ using namespace logger;
 #define DEFAULT_PACKET_SIZE   1024
 #define DEFAULT_BREAK_DURATION 0
 #define MAX_PACKET_SIZE       4097
+#define RSN_RAW_PACKET_BUFFER_SIZE 65536  // TODO: What should RSN packet buffer size be?
 #define DEFAULT_HEARTBEAT_INTERVAL 120
 
 #define BASE_FILENAME "port_agent"

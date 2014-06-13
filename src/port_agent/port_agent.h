@@ -154,7 +154,7 @@ namespace port_agent {
             PublisherList m_oPublishers;
             time_t m_lLastHeartbeat;
             
-            RawPacketDataBuffer *m_rawPacketDataBuffer;
+            RawPacketDataBuffer *m_rsnRawPacketDataBuffer;
 
             // Port agent connections
             Connection *m_pObservatoryConnection;

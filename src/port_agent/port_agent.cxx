@@ -58,7 +58,7 @@ PortAgent::PortAgent() {
     m_pConfig = NULL;
     m_oState = STATE_UNKNOWN;
 
-    m_rawPacketDataBuffer = NULL;
+    m_rsnRawPacketDataBuffer = NULL;
 }
 
 /******************************************************************************
@@ -71,7 +71,9 @@ PortAgent::PortAgent(int argc, char *argv[]) {
     LOG(DEBUG) << "Initialize port agent with args";
     
     m_pConfig = new PortAgentConfig(argc, argv);
-    m_rawPacketDataBuffer = new RawPacketDataBuffer(65536, MAX_PACKET_SIZE, MAX_PACKET_SIZE);   // TODO: Set as a config value?  Maybe initialize or clear upon instrument connection?
+    // RSN packet data buffer
+    m_rsnRawPacketDataBuffer = new RawPacketDataBuffer(RSN_RAW_PACKET_BUFFER_SIZE, MAX_PACKET_SIZE, MAX_PACKET_SIZE);
+
     setState(STATE_STARTUP);
     
     m_pInstrumentConnection = NULL;
@@ -99,10 +101,10 @@ PortAgent::~PortAgent() {
         
     m_pConfig = NULL;
 
-    if (m_rawPacketDataBuffer)
-        delete m_rawPacketDataBuffer;
+    if (m_rsnRawPacketDataBuffer)
+        delete m_rsnRawPacketDataBuffer;
 
-    m_rawPacketDataBuffer = NULL;
+    m_rsnRawPacketDataBuffer = NULL;
 }
 
 /******************************************************************************
@@ -331,7 +333,8 @@ void PortAgent::initializeObservatoryCommandConnection() {
  * this method will need to support more types.
  ******************************************************************************/
 void PortAgent::initializeInstrumentConnection() {
-    if (m_pConfig->instrumentConnectionType() == TYPE_TCP) {
+    if ((m_pConfig->instrumentConnectionType() == TYPE_TCP) ||
+         m_pConfig->instrumentConnectionType() == TYPE_RSN) {
         initializeTCPInstrumentConnection();
     }
     else if (m_pConfig->instrumentConnectionType() == TYPE_BOTPT) {
@@ -1843,10 +1846,10 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
         
         if(bytesRead) {
             LOG(DEBUG2) << "Bytes read: " << bytesRead;
-            if (m_pConfig->instrumentConnectionType() == TYPE_RSN) {  // TODO: if configured as RSN DIGI
-                m_rawPacketDataBuffer->write(buffer, bytesRead);
+            if (m_pConfig->instrumentConnectionType() == TYPE_RSN) {
+                m_rsnRawPacketDataBuffer->write(buffer, bytesRead);
                 Packet *packet = NULL;
-                while ((packet = m_rawPacketDataBuffer->getNextPacket()) != NULL) {
+                while ((packet = m_rsnRawPacketDataBuffer->getNextPacket()) != NULL) {
                     publishPacket(packet);
                     delete packet;
                     packet = NULL;
