@@ -73,19 +73,23 @@ class PortAgentUnitTest : public testing::Test {
             }
         }
             
-        void startPortAgent() {
+        void startPortAgent(const string &config_file = "") {
             try {
                 stringstream cmd;
                 cmd << "../port_agent";
-                stringstream portStr;
-                portStr << TEST_OB_CMD_PORT;
 
-                SpawnProcess process(cmd.str(), 8, "-v", "-v", "-v", "-v", "-v", "-v", "-p",
-                portStr.str().c_str()); 
-
-                LOG(INFO) << "Start Port Agent: " << process.cmd_as_string();
-
-                process.run();
+                if (config_file.length()) {
+                    SpawnProcess process(cmd.str(), 8, "-v", "-v", "-v", "-v", "-v", "-v", "-c", config_file.c_str());
+                    process.run();
+                    LOG(INFO) << "Start Port Agent: " << process.cmd_as_string();
+                } else {
+                    stringstream portStr;
+                    portStr << TEST_OB_CMD_PORT;
+                    SpawnProcess process(cmd.str(), 8, "-v", "-v", "-v", "-v", "-v", "-v", "-p",
+                    portStr.str().c_str());
+                    process.run();
+                    LOG(INFO) << "Start Port Agent: " << process.cmd_as_string();
+                }
                 sleep(1);
             }
             catch(exception &e) {
@@ -98,6 +102,8 @@ class PortAgentUnitTest : public testing::Test {
         void writeConfig(const string &filename, const string &config = "") {
             stringstream cmd;
             
+            LOG(INFO) << "Port agent config length: " << config.length();
+
             if(config.length())
                 cmd << config;
             else 
@@ -108,7 +114,7 @@ class PortAgentUnitTest : public testing::Test {
                     << "command_port " << TEST_OB_CMD_PORT << endl
                     << "log_level debug " << endl;
                     
-            LOG(INFO) << "Port agent config: " << cmd.str();
+            LOG(INFO) << "Port agent config: " << endl << cmd.str();
             
             create_file(filename.c_str(), cmd.str().c_str());
         }
@@ -218,9 +224,9 @@ class PortAgentUnitTest : public testing::Test {
             SpawnProcess process(cmd.str());
              ***/
 
-            SpawnProcess process(cmd.str(), 5, "-s", "-p",
+            SpawnProcess process(cmd.str(), 6, "-s", "-p",
                  portStr.str().c_str(), "-t",
-                 "5" );
+                 "5", "-c" );
 
             LOG(INFO) << "Start TCP Echo Server: " << process.cmd_as_string();
             process.set_output_file(SERVER_LOG);
@@ -311,7 +317,7 @@ TEST_F(PortAgentUnitTest, DISABLED_StartUpWithConfigFile) {
 }
 
 /* Test Startup */
-TEST_F(PortAgentUnitTest, StartUp) {
+TEST_F(PortAgentUnitTest, DISABLED_StartUp) {
     try {
         string response;
         string datafile = getDataFile();
@@ -323,6 +329,7 @@ TEST_F(PortAgentUnitTest, StartUp) {
 		LOG(ERROR) << "Start port agent";
         startPortAgent();
         configurePortAgent();
+
         //response = commandPortAgent("get status");
         
         //startTCPClientDump(atoi(TEST_OB_CMD_PORT), "localhost", RESPONSE_FILE);
@@ -339,6 +346,40 @@ TEST_F(PortAgentUnitTest, StartUp) {
         LOG(ERROR) << "Exception: " << err;
         EXPECT_TRUE(false);
     }
+}
+
+TEST_F(PortAgentUnitTest, RSN_PortAgent) {
+    try {
+
+        string response;
+        string datafile = getDataFile();
+
+        remove_file(RESPONSE_FILE);
+        remove_file(CONFIG_FILE);
+
+        startTCPEchoServer();
+
+        stringstream config;
+        config << "instrument_type rsn" << endl
+               << "instrument_data_port " << TEST_IN_DATA_PORT << endl
+               << "instrument_addr localhost" << endl
+               << "data_port " << TEST_OB_DATA_PORT << endl
+               << "command_port " << TEST_OB_CMD_PORT << endl
+               << "log_level debug " << endl;
+        writeConfig(CONFIG_FILE, config.str());
+
+        startPortAgent(CONFIG_FILE);
+
+        sleep(60);
+
+        // TODO: Kill tcp processes.
+
+    } catch(exception &e) {
+        string err = e.what();
+        LOG(ERROR) << "Exception: " << err;
+        EXPECT_TRUE(false);
+    }
+
 }
 
 /* Test startup sequence and failures */

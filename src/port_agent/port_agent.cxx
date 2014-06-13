@@ -54,10 +54,9 @@ using namespace port_agent;
 PortAgent::PortAgent() {
     m_pObservatoryConnection = NULL;
     m_pInstrumentConnection = NULL;
-    
+    m_pTelnetSnifferConnection = NULL;
     m_pConfig = NULL;
     m_oState = STATE_UNKNOWN;
-
     m_rsnRawPacketDataBuffer = NULL;
 }
 
@@ -71,9 +70,14 @@ PortAgent::PortAgent(int argc, char *argv[]) {
     LOG(DEBUG) << "Initialize port agent with args";
     
     m_pConfig = new PortAgentConfig(argc, argv);
-    // RSN packet data buffer
-    m_rsnRawPacketDataBuffer = new RawPacketDataBuffer(RSN_RAW_PACKET_BUFFER_SIZE, MAX_PACKET_SIZE, MAX_PACKET_SIZE);
 
+    // RSN packet data buffer
+    if (m_pConfig->instrumentConnectionType() == TYPE_RSN) {
+        m_rsnRawPacketDataBuffer = new RawPacketDataBuffer(RSN_RAW_PACKET_BUFFER_SIZE, MAX_PACKET_SIZE, MAX_PACKET_SIZE);
+    }
+    else {
+        m_rsnRawPacketDataBuffer = NULL;
+    }
     setState(STATE_STARTUP);
     
     m_pInstrumentConnection = NULL;
