@@ -23,6 +23,7 @@ using namespace port_agent;
 const char* TEST_OB_CMD_PORT = "9001";
 const char* TEST_OB_DATA_PORT = "9002";
 const char* TEST_IN_DATA_PORT = "9003";
+const char* TEST_IN_CMD_PORT = "9004";
 
 const char* RESPONSE_FILE="/tmp/gtest.rsp";
 const char* DUMP_FILE="/tmp/gtest.dmp";
@@ -31,6 +32,7 @@ const char* CMD_FILE="/tmp/gtest.cmd";
 const char* TEST_LOG="/tmp/gtest.log";
 const char* FILE_LOG="/tmp/gtest.out";
 const char* SERVER_LOG="/tmp/gtest.srv";
+const char* RSN_SERVER_LOG="/tmp/gtest.rsn";
 const char* PORT_AGENT_LOGBASE="/tmp/port_agent";
 
 class PortAgentUnitTest : public testing::Test {
@@ -79,6 +81,7 @@ class PortAgentUnitTest : public testing::Test {
                 cmd << "../port_agent";
 
                 if (config_file.length()) {
+                    LOG(INFO) << "Start Port Agent With Config: " << config_file.c_str();
                     SpawnProcess process(cmd.str(), 8, "-v", "-v", "-v", "-v", "-v", "-v", "-c", config_file.c_str());
                     process.run();
                     LOG(INFO) << "Start Port Agent: " << process.cmd_as_string();
@@ -112,7 +115,7 @@ class PortAgentUnitTest : public testing::Test {
                     << "instrument_addr localhost" << endl
                     << "data_port " << TEST_OB_DATA_PORT << endl
                     << "command_port " << TEST_OB_CMD_PORT << endl
-                    << "log_level debug " << endl;
+                    << "log_level mesg " << endl;
                     
             LOG(INFO) << "Port agent config: " << endl << cmd.str();
             
@@ -204,7 +207,7 @@ class PortAgentUnitTest : public testing::Test {
                 LOG(DEBUG) << "Waiting for client to die.";
                 sleep(1);
             }
-        
+
             LOG(DEBUG) << "echo client process complete.";
             stopPortAgent();
         }
@@ -226,7 +229,7 @@ class PortAgentUnitTest : public testing::Test {
 
             SpawnProcess process(cmd.str(), 6, "-s", "-p",
                  portStr.str().c_str(), "-t",
-                 "5", "-c" );
+                 "10", "-c" );
 
             LOG(INFO) << "Start TCP Echo Server: " << process.cmd_as_string();
             process.set_output_file(SERVER_LOG);
@@ -234,9 +237,36 @@ class PortAgentUnitTest : public testing::Test {
             bool result = process.run();
             sleep(1);
         
-        m_oProcess = process;
-    }
+            m_oProcess = process;
+        }
             
+        void startRSNEchoServer() {
+            stringstream cmd;
+            cmd << TOOLSDIR << "/rsn_server_echo.py";
+            stringstream portStr;
+            portStr << TEST_IN_DATA_PORT;
+
+            /***
+            SpawnProcess process(cmd.str());
+             ***/
+
+            SpawnProcess process(cmd.str(), 6, "-s", "-p",
+                 portStr.str().c_str(), "-t",
+                 "10", "-c" );
+
+            LOG(INFO) << "Start RSN Echo Server: " << process.cmd_as_string();
+            process.set_output_file(RSN_SERVER_LOG);
+
+            bool result = process.run();
+            sleep(1);
+
+            m_rsnServerProcess = process;
+        }
+
+        void stopRSNEchoServer() {
+
+        }
+
         void stopTCPClientDump() {
             m_oDumpProcess;
             while(m_oDumpProcess.is_running()) {
@@ -289,6 +319,7 @@ class PortAgentUnitTest : public testing::Test {
         protected:
         SpawnProcess m_oProcess;
         SpawnProcess m_oDumpProcess;
+        SpawnProcess m_rsnServerProcess;
 };
 
 
@@ -356,18 +387,22 @@ TEST_F(PortAgentUnitTest, RSN_PortAgent) {
 
         remove_file(RESPONSE_FILE);
         remove_file(CONFIG_FILE);
+//
+//        startTCPEchoServer();
+//        writeConfig(CONFIG_FILE);
+//        startPortAgent(CONFIG_FILE);
 
-        startTCPEchoServer();
-
+        startRSNEchoServer();
         stringstream config;
         config << "instrument_type rsn" << endl
                << "instrument_data_port " << TEST_IN_DATA_PORT << endl
                << "instrument_addr localhost" << endl
                << "data_port " << TEST_OB_DATA_PORT << endl
+               << "instrument_command_port " << TEST_IN_CMD_PORT << endl
                << "command_port " << TEST_OB_CMD_PORT << endl
-               << "log_level debug " << endl;
-        writeConfig(CONFIG_FILE, config.str());
+               << "log_level mesg " << endl;
 
+        writeConfig(CONFIG_FILE, config.str());
         startPortAgent(CONFIG_FILE);
 
         sleep(60);
