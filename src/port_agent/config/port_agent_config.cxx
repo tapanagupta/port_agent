@@ -155,7 +155,7 @@ string PortAgentConfig::conffile() {
  ******************************************************************************/
 string PortAgentConfig::datafile() {
     ostringstream out;
-    out << logdir() << "/" << BASE_FILENAME << "_"
+    out << datadir() << "/" << BASE_FILENAME << "_"
         << observatoryCommandPort();
     
     LOG(DEBUG) << "Data file: " << out.str();

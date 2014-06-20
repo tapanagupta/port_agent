@@ -163,7 +163,7 @@ TEST_F(PacketDataBuffer, InvalidSync) {
 
 
 TEST_F(PacketDataBuffer, InvalidChecksum) {
-    char rawData[] = {          0x7A, 0x9D, 0xA3, // Invalid SYNC
+    char rawData[] = {          0xA3, 0x9D, 0x7A,
                                 0x01, // Message Type
                                 0x00, 0x19,  // Message Size
                                 0x00, 0x50,  // Checksum
@@ -174,7 +174,49 @@ TEST_F(PacketDataBuffer, InvalidChecksum) {
 
     RawPacket* rawPacket = reinterpret_cast<RawPacket*>(rawData);
 
-    LOG(DEBUG) << "checksum = " << rawPacket->calculateChecksum(rawPacket);
+    LOG(DEBUG) << "InvalidChecksum: checksum = " << rawPacket->calculateChecksum(rawPacket);
+
+    RawPacketDataBuffer dataBuffer(65536, MAX_PACKET_SIZE, MAX_PACKET_SIZE);
+
+    dataBuffer.writeRawData(rawData, 0x19);
+
+    Packet *packet = dataBuffer.getNextPacket();
+    ASSERT_NE(packet, (void*)NULL);
+
+    printRawBytes(out, rawData, 0x19);
+    LOG(DEBUG) << out.str();
+    out.str("");
+    printRawBytes(out, packet->payload(), packet->packetSize() - HEADER_SIZE);
+    LOG(DEBUG) << out.str();
+
+    uint16_t rawDataSize = *((uint16_t*)(rawData+4));
+    rawDataSize = ntohs(rawDataSize);
+    ASSERT_EQ(packet->packetType(), PORT_AGENT_FAULT);
+    ASSERT_EQ(rawDataSize + HEADER_SIZE, packet->packetSize());
+    ASSERT_FALSE(memcmp(rawData, packet->payload(), packet->packetSize() - HEADER_SIZE));
+    delete packet;
+    packet = NULL;
+
+    packet = dataBuffer.getNextPacket();
+    ASSERT_EQ(packet, (void*)NULL);  // No more packets
+
+    out.str("");
+    LOG(DEBUG) << out.str();
+}
+
+TEST_F(PacketDataBuffer, InvalidHeader) {
+    char rawData[] = {          0xA3, 0x9D, 0x7A,
+                                0x00, // Message Type
+                                0x00, 0x19,  // Message Size
+                                0x00, 0x5D,  // Checksum
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // Time Stamp
+                                0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09   // Payload
+                              };
+    stringstream out;
+
+    RawPacket* rawPacket = reinterpret_cast<RawPacket*>(rawData);
+
+    LOG(DEBUG) << "InvalidHeader: checksum = " << rawPacket->calculateChecksum(rawPacket);
 
     RawPacketDataBuffer dataBuffer(65536, MAX_PACKET_SIZE, MAX_PACKET_SIZE);
 

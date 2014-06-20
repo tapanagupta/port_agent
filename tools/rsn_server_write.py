@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 #
-# This tool it used to test TCP clients.  It listens on a tcp port and 
-# allows clients to connect.  Bytes are read a single character at a time
-# until the buffer is empty.  Then the bytes read are sent back to the 
-# original sender.
+# TODO:
 #
 # Options:
 # 
 #  -h, --help - Display the program help screen
-#  -c, --continuous - Do not close the connection after each read
+# TODO: remove option: -c, --continuous - Do not close the connection after each read
 #  -s, --single - Accept one client connection then kill the server.
 #  -p PORT, --port PORT - Indicate what port to listen on.  Default: 40000
 #  -t TIMEOUT, --timeout TIMEOUT - How long should we wait for a client connection?
@@ -27,10 +24,26 @@ import sys
 import argparse
 import time
 import os
+import binascii
+from struct import Struct
 
 DEFAULT_TIMEOUT = 30
 DEFAULT_PORT    = 40000
 DEFAULT_DELAY   = 0
+
+"""
+Port Agent Packet Types
+"""
+UNKNOWN = 0
+DATA_FROM_INSTRUMENT = 1
+DATA_FROM_DRIVER = 2
+PORT_AGENT_COMMAND = 3
+PORT_AGENT_STATUS = 4
+PORT_AGENT_FAULT = 5
+INSTRUMENT_COMMAND = 6
+HEARTBEAT = 7
+PICKLED_DATA_FROM_INSTRUMENT = 8
+PICKLED_DATA_FROM_DRIVER = 9
 
 def parseArgs():
     parser = argparse.ArgumentParser(description="TCP Echo Server")
@@ -45,20 +58,50 @@ def parseArgs():
 
     return parser.parse_args()
 
+def makepacket(msgtype, timestamp, data):
+
+    SYNC = (0xA3, 0x9D, 0x7A)
+    HEADER_FORMAT = "!BBBBHHd"
+    header_struct = Struct(HEADER_FORMAT)
+    HEADER_SIZE = header_struct.size
+
+    def calculateChecksum(data, seed=0):
+        n = seed
+        for datum in data:
+            n ^= datum
+        return n
+
+    def pack_header(buf, msgtype, pktsize, checksum, timestamp):
+        sync1, sync2, sync3 = SYNC
+        header_struct.pack_into(buf, 0, sync1, sync2, sync3, msgtype, pktsize,
+                                checksum, timestamp)
+
+    pktsize = HEADER_SIZE + len(data)
+    pkt = bytearray(pktsize)
+    pack_header(pkt, msgtype, pktsize, 0, timestamp)
+    pkt[HEADER_SIZE:] = data
+    checksum = calculateChecksum(pkt)
+    pack_header(pkt, msgtype, pktsize, checksum, timestamp)
+    return pkt
+
+# Make a packet
+# data = "A" * (2**16 - HEADER_SIZE - 1)
+# txpkt = makepacket(PortAgentPacket.DATA_FROM_INSTRUMENT, 0.0, data)
 
 def run_server(serv, opts):
     conn,addr = serv.accept() #accept the connection
-    print("client connected");
+    print("client connected")
     
     try:
         while True:
-            data = read_tcp(conn, opts.delay);
+            data = read_tcp(conn, opts.delay)
             if(data):
-                if(opts.stdout): print "Read: " + data
-                time.sleep(1);
-                send_tcp(conn, data)
+                if(opts.stdout): print "Read: " + binascii.hexlify(data)
+                time.sleep(1)
+                pkt = makepacket(msgtype=DATA_FROM_INSTRUMENT, timestamp=time.time(), data=data)
+                send_tcp(conn, pkt)
 
-            if(not opts.continuous): break;
+            if(not opts.continuous): break
 
         print "closing connection"
         conn.close()
@@ -67,7 +110,8 @@ def run_server(serv, opts):
         raise e
 
 def send_tcp(conn, buffer):
-    print("Sending data: " + buffer)
+    ## TODO: Send in pieces
+    print("Sending data: " + binascii.hexlify(buffer))
     result = conn.send(buffer)
     print("result: %d" % result)
     
@@ -75,7 +119,7 @@ def send_tcp(conn, buffer):
 def read_tcp(conn, read_delay):
     result = ""
 
-    conn.settimeout(0.1);
+    conn.settimeout(0.1)
 
     while True:
         try:
@@ -106,14 +150,10 @@ def read_tcp(conn, read_delay):
 
     return result
 
-
-
 opts = parseArgs()
 
-print "options: " + str(opts)
-
 ##let's set up some constants
-hostname = 'localhost'    #we are the host
+hostname = ''    #we are the host
 portnum = opts.port    #arbitrary port not currently in use
 address = (hostname,portnum)    #we need a tuple for the address
 buffer_size = 1    #reasonably sized buffer for data
@@ -132,7 +172,7 @@ print("ready for connections")
 
 if(timeout):
     serv.settimeout(timeout)
-        
+
 while(1):
     run_server(serv, opts)
     if opts.single:

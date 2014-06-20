@@ -39,7 +39,6 @@ while True:
 		else:
 			raise e
 
-
 try:
 	conn.close()
 except Exception, e:

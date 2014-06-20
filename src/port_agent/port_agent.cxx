@@ -1854,6 +1854,10 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
                 m_rsnRawPacketDataBuffer->write(buffer, bytesRead);
                 Packet *packet = NULL;
                 while ((packet = m_rsnRawPacketDataBuffer->getNextPacket()) != NULL) {
+                    if(Logger::GetLogLevel() == MESG) {
+                        LOG(MESG) << "RSN Data Buffer Retrieved Packet:" << endl
+                                  << packet->pretty() << endl;
+                    }
                     publishPacket(packet);
                     delete packet;
                     packet = NULL;

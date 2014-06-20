@@ -12,6 +12,7 @@
 #include "common/logger.h"
 #include "common/spawn_process.h"
 #include "port_agent/port_agent.h"
+#include "port_agent/packet/raw_packet.h"
 #include "gtest/gtest.h"
 #include "common/util.h"
 #include <unistd.h>
@@ -26,6 +27,7 @@ const char* TEST_IN_DATA_PORT = "9003";
 const char* TEST_IN_CMD_PORT = "9004";
 
 const char* RESPONSE_FILE="/tmp/gtest.rsp";
+const char* DRIVER_RESPONSE_FILE="/tmp/gtest.drsp";
 const char* DUMP_FILE="/tmp/gtest.dmp";
 const char* CONFIG_FILE="/tmp/gtest.cfg";
 const char* CMD_FILE="/tmp/gtest.cmd";
@@ -176,35 +178,68 @@ class PortAgentUnitTest : public testing::Test {
         bool sendDriverData(const string &cmd) {
             stringstream shell;
             string response;
-            
+
             remove_file(CMD_FILE);
-            
+
             LOG(DEBUG) << "Send driver data on port " << TEST_OB_DATA_PORT << ": " << cmd;
-            
+
             create_file(CMD_FILE, cmd.c_str());
             shell << TOOLSDIR << "/tcp_client_write.py";
-            
+
             LOG(DEBUG) << "Run process: " << shell.str();
-            
+
             SpawnProcess process(shell.str(), 4, "-p", TEST_OB_DATA_PORT,
                                  "-f", CMD_FILE);
-            
+
             process.set_output_file(FILE_LOG);
             bool result = process.run();
-            
+
             while(process.is_running()) {
                 LOG(DEBUG) << "Waiting for client process die.";
                 sleep(1);
             }
-			
+
 			return result;
         }
         
+        bool sendDriverDataWithResponse(const string &cmd) {
+            stringstream shell;
+            string response;
+
+            remove_file(CMD_FILE);
+            remove_file(DRIVER_RESPONSE_FILE);
+
+            LOG(DEBUG) << "Send driver data on port " << TEST_OB_DATA_PORT << ": " << cmd;
+
+            create_file(CMD_FILE, cmd.c_str());
+            shell << TOOLSDIR << "/tcp_client_write.py";
+
+            LOG(DEBUG) << "Run process: " << shell.str();
+
+            SpawnProcess process(shell.str(), 8, "-p", TEST_OB_DATA_PORT,
+                                 "-f", CMD_FILE, "-r", DRIVER_RESPONSE_FILE, "-t", "10");
+
+            process.set_output_file(FILE_LOG);
+            bool result = process.run();
+
+            while(process.is_running()) {
+                LOG(DEBUG) << "Waiting for client process die.";
+                sleep(1);
+            }
+
+            return result;
+        }
+
         virtual void TearDown() {
             LOG(INFO) << "Tear down test";
         
             while(m_oProcess.is_running()) {
                 LOG(DEBUG) << "Waiting for client to die.";
+                sleep(1);
+            }
+
+            while(m_rsnServerProcess.is_running()) {
+                LOG(DEBUG) << "Waiting for RSN server to die.";
                 sleep(1);
             }
 
@@ -227,9 +262,9 @@ class PortAgentUnitTest : public testing::Test {
             SpawnProcess process(cmd.str());
              ***/
 
-            SpawnProcess process(cmd.str(), 6, "-s", "-p",
+            SpawnProcess process(cmd.str(), 5, "-s", "-p",
                  portStr.str().c_str(), "-t",
-                 "10", "-c" );
+                 "30");
 
             LOG(INFO) << "Start TCP Echo Server: " << process.cmd_as_string();
             process.set_output_file(SERVER_LOG);
@@ -243,16 +278,27 @@ class PortAgentUnitTest : public testing::Test {
         void startRSNEchoServer() {
             stringstream cmd;
             cmd << TOOLSDIR << "/rsn_server_echo.py";
-            stringstream portStr;
-            portStr << TEST_IN_DATA_PORT;
 
-            /***
-            SpawnProcess process(cmd.str());
-             ***/
+            SpawnProcess process(cmd.str(), 5, "-s", "-p",
+                 TEST_IN_DATA_PORT, "-t",
+                 "5");
+
+            LOG(INFO) << "Start RSN Echo Server: " << process.cmd_as_string();
+            process.set_output_file(RSN_SERVER_LOG);
+
+            bool result = process.run();
+            sleep(1);
+
+            m_rsnServerProcess = process;
+        }
+
+        void startRSNEchoServerNoHeader() {
+            stringstream cmd;
+            cmd << TOOLSDIR << "/rsn_server_echo.py";
 
             SpawnProcess process(cmd.str(), 6, "-s", "-p",
-                 portStr.str().c_str(), "-t",
-                 "10", "-c" );
+                 TEST_IN_DATA_PORT, "-t",
+                 "5", "-n");
 
             LOG(INFO) << "Start RSN Echo Server: " << process.cmd_as_string();
             process.set_output_file(RSN_SERVER_LOG);
@@ -315,7 +361,41 @@ class PortAgentUnitTest : public testing::Test {
         
             return file.str();
         }
-    
+
+        size_t readDataFile(const char* fileName, char* data) {
+
+            LOG(DEBUG) << "Read data file: " << fileName;
+
+            size_t length = 0;
+            std::ifstream is (fileName, std::ifstream::binary);
+            if (is) {
+              // get length of file:
+              is.seekg (0, is.end);
+              length = is.tellg();
+              is.seekg (0, is.beg);
+              is.read (data, length);
+
+              if (is) {
+                  LOG(DEBUG) << "All characters read successfully.";
+              } else {
+                  LOG(ERROR) << "Only " << is.gcount() << " could be read";
+                  length = 0;
+              }
+              is.close();
+            }
+            else
+            {
+                LOG(ERROR) << fileName << " could not be read.";
+            }
+
+            return length;
+        }
+
+        void const printRawBytes(stringstream& out, const char* buffer, const size_t numBytes) {
+            for (size_t ii = 0; ii < numBytes;ii++)
+                out << setfill('0') << setw(2) << hex << uppercase << byteToUnsignedInt(buffer[ii]);
+        }
+
         protected:
         SpawnProcess m_oProcess;
         SpawnProcess m_oDumpProcess;
@@ -362,11 +442,11 @@ TEST_F(PortAgentUnitTest, DISABLED_StartUp) {
         configurePortAgent();
 
         //response = commandPortAgent("get status");
-        
+
         //startTCPClientDump(atoi(TEST_OB_CMD_PORT), "localhost", RESPONSE_FILE);
         //EXPECT_TRUE(sendDriverData("foo"));
         //stopTCPClientDump();
-		
+
 		// Reconnect and send more data
         //startTCPClientDump(atoi(TEST_OB_CMD_PORT), "localhost", RESPONSE_FILE);
         //EXPECT_TRUE(sendDriverData("foo"));
@@ -382,40 +462,143 @@ TEST_F(PortAgentUnitTest, DISABLED_StartUp) {
 TEST_F(PortAgentUnitTest, RSN_PortAgent) {
     try {
 
-        string response;
-        string datafile = getDataFile();
-
-        remove_file(RESPONSE_FILE);
         remove_file(CONFIG_FILE);
-//
-//        startTCPEchoServer();
-//        writeConfig(CONFIG_FILE);
-//        startPortAgent(CONFIG_FILE);
 
         startRSNEchoServer();
         stringstream config;
+
         config << "instrument_type rsn" << endl
                << "instrument_data_port " << TEST_IN_DATA_PORT << endl
                << "instrument_addr localhost" << endl
                << "data_port " << TEST_OB_DATA_PORT << endl
                << "instrument_command_port " << TEST_IN_CMD_PORT << endl
                << "command_port " << TEST_OB_CMD_PORT << endl
-               << "log_level mesg " << endl;
+               << "log_level mesg ";
 
         writeConfig(CONFIG_FILE, config.str());
+
         startPortAgent(CONFIG_FILE);
 
-        sleep(60);
+        sleep(1);
 
-        // TODO: Kill tcp processes.
+        char* driverData = "This is a test.";
+        size_t driverDataSize = 15;
+        sendDriverDataWithResponse(driverData);
+
+        sleep(15);
+
+        char data[MAX_PACKET_SIZE];
+        size_t numBytes = readDataFile(DRIVER_RESPONSE_FILE, data);
+        LOG(DEBUG) << "Num bytes: " << numBytes;
+        ASSERT_NE(numBytes, 0);
+
+        stringstream out;
+        printRawBytes(out, data, numBytes);
+        LOG(DEBUG) << "Data File: " << out.str().c_str();
+
+        RawPacket* rawPacket = reinterpret_cast<RawPacket*>(data);
+
+        ASSERT_EQ(rawPacket->getPacketType(), DATA_FROM_INSTRUMENT);
+        ASSERT_EQ(rawPacket->getPayloadSize(), driverDataSize);
+        ASSERT_EQ(rawPacket->getPacketSize(), driverDataSize + HEADER_SIZE);
+        ASSERT_FALSE(memcmp(rawPacket->getPayload(), driverData, driverDataSize));
 
     } catch(exception &e) {
         string err = e.what();
         LOG(ERROR) << "Exception: " << err;
         EXPECT_TRUE(false);
     }
-
 }
+
+TEST_F(PortAgentUnitTest, RSN_PortAgentFault) {
+    try {
+
+        remove_file(CONFIG_FILE);
+
+        startRSNEchoServerNoHeader();
+        stringstream config;
+
+        config << "instrument_type rsn" << endl
+               << "instrument_data_port " << TEST_IN_DATA_PORT << endl
+               << "instrument_addr localhost" << endl
+               << "data_port " << TEST_OB_DATA_PORT << endl
+               << "instrument_command_port " << TEST_IN_CMD_PORT << endl
+               << "command_port " << TEST_OB_CMD_PORT << endl
+               << "log_level mesg ";
+
+        writeConfig(CONFIG_FILE, config.str());
+
+        startPortAgent(CONFIG_FILE);
+
+        sleep(1);
+
+        char* driverData = "This is invalid because no port agent header was received from the RSN digi.";
+        size_t driverDataSize = 76;
+        sendDriverDataWithResponse(driverData);
+
+        sleep(15);
+
+        char data[MAX_PACKET_SIZE];
+        size_t numBytes = readDataFile(DRIVER_RESPONSE_FILE, data);
+        LOG(DEBUG) << "Num bytes: " << numBytes;
+        ASSERT_NE(numBytes, 0);
+
+        stringstream out;
+        printRawBytes(out, data, numBytes);
+        LOG(DEBUG) << "Data File: " << out.str().c_str();
+
+        RawPacket* rawPacket = reinterpret_cast<RawPacket*>(data);
+
+        ASSERT_EQ(rawPacket->getPacketType(), PORT_AGENT_FAULT);
+        ASSERT_EQ(rawPacket->getPayloadSize(), driverDataSize);
+        ASSERT_EQ(rawPacket->getPacketSize(), driverDataSize + HEADER_SIZE);
+        ASSERT_FALSE(memcmp(rawPacket->getPayload(), driverData, driverDataSize));
+
+    } catch(exception &e) {
+        string err = e.what();
+        LOG(ERROR) << "Exception: " << err;
+        EXPECT_TRUE(false);
+    }
+}
+
+
+TEST_F(PortAgentUnitTest, DISABLED_RSN_PortAgentDigiIntegration) {
+    try {
+
+        string response;
+        string datafile = getDataFile();
+
+        remove_file(RESPONSE_FILE);
+        remove_file(CONFIG_FILE);
+
+        stringstream config;
+
+        config << "instrument_type rsn" << endl
+               << "instrument_data_port " << 2101 << endl
+               << "instrument_addr 192.168.1.20" << endl
+               << "data_port " << TEST_OB_DATA_PORT << endl
+               << "instrument_command_port " << 2102 << endl
+               << "command_port " << TEST_OB_CMD_PORT << endl
+               << "log_level mesg " << endl;
+
+        writeConfig(CONFIG_FILE, config.str());
+
+        startPortAgent(CONFIG_FILE);
+
+        sleep(5);
+
+        sendDriverData("This is a test.");
+
+        sleep(5);
+
+    } catch(exception &e) {
+        string err = e.what();
+        LOG(ERROR) << "Exception: " << err;
+        EXPECT_TRUE(false);
+    }
+}
+
+// TODO: RSN digi timing test
 
 /* Test startup sequence and failures */
 // Successful start should end in the unconfigured state

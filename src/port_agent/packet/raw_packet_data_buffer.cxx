@@ -162,7 +162,8 @@ Packet* RawPacketDataBuffer::checkForPacket() {
                     throw RawPacketDataReadError();
                 }
             } else {
-                LOG(DEBUG) << "Invalid checksum";
+                // TODO: Throw packet away unless it contains a sync?
+                LOG(DEBUG) << "Invalid checksum, throw whole packet away";
                 packet = checkForInvalidPacket(true);
             }
         } else {
@@ -171,6 +172,7 @@ Packet* RawPacketDataBuffer::checkForPacket() {
         }
     } else {
         LOG(DEBUG) << "Invalid header";
+        // TODO: Throw header away unless it contains a sync?
         packet = checkForInvalidPacket(true);
     }
 
@@ -237,14 +239,13 @@ size_t RawPacketDataBuffer::getAnyLeadingInvalidData(char* data, bool invalidSyn
     size_t numberInvalidBytes = 0;
     char next_byte;
     size_t sync_index = SYNC_MIN_INDEX;
-    size_t syncOffset = 0;
 
     if (invalidSync && (size() >= SYNC_SIZE)) {
-        numberInvalidBytes = read(data, SYNC_SIZE);
+        // TODO: Will peek throw things off? shouldn't
+        numberInvalidBytes = peek(data, SYNC_SIZE);
         if (numberInvalidBytes != SYNC_SIZE) {
             throw RawPacketDataReadError();
         }
-        syncOffset = SYNC_SIZE;
     }
 
     while(peek_next_byte(next_byte))
@@ -277,7 +278,7 @@ size_t RawPacketDataBuffer::getAnyLeadingInvalidData(char* data, bool invalidSyn
     reset_peek();
 
     if (numberInvalidBytes > 0) {
-        size_t bytesRead = read(data+syncOffset, numberInvalidBytes);
+        size_t bytesRead = read(data, numberInvalidBytes);
         if (bytesRead != numberInvalidBytes) {
             throw RawPacketDataReadError();
         }

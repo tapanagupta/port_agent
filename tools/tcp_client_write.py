@@ -31,7 +31,9 @@ HOST = 'localhost'
 PORT = options.port
 ADDR = (HOST,PORT)
 BUFSIZE = 1024
- 
+
+print "address: " + str(ADDR)
+
 cli = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
 if(options.timeout):
@@ -41,7 +43,7 @@ cli.connect((ADDR))
 
 time.sleep(1);
 
-FILE = open(options.data);
+FILE = open(options.data)
 
 while(1):
 	if(options.data):
