@@ -110,10 +110,8 @@ def read_tcp(conn, read_delay):
 
 opts = parseArgs()
 
-print "options: " + str(opts)
-
 ##let's set up some constants
-hostname = 'localhost'    #we are the host
+hostname = ''    #we are the host
 portnum = opts.port    #arbitrary port not currently in use
 address = (hostname,portnum)    #we need a tuple for the address
 buffer_size = 1    #reasonably sized buffer for data
