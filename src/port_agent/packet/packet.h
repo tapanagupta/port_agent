@@ -99,7 +99,7 @@ namespace packet {
             virtual bool readyToSend() { return true; }
 
             // Convert a PacketType to a string representation
-            static string typeToString(PacketType type);
+            string typeToString(PacketType type);
         protected:
 
             // Calculate a checksum of the packet buffer.

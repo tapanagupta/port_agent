@@ -428,7 +428,7 @@ TEST_F(PortAgentUnitTest, DISABLED_StartUpWithConfigFile) {
 }
 
 /* Test Startup */
-TEST_F(PortAgentUnitTest, DISABLED_StartUp) {
+TEST_F(PortAgentUnitTest, StartUp) {
     try {
         string response;
         string datafile = getDataFile();
@@ -597,8 +597,6 @@ TEST_F(PortAgentUnitTest, DISABLED_RSN_PortAgentDigiIntegration) {
         EXPECT_TRUE(false);
     }
 }
-
-// TODO: RSN digi timing test
 
 /* Test startup sequence and failures */
 // Successful start should end in the unconfigured state
