@@ -213,7 +213,7 @@ Packet* RawPacketDataBuffer::getNextPacket() {
     }
 
     if (packet != NULL) {
-        LOG(DEBUG) << endl << "Begin Pretty Print Packet" << packet->pretty() << endl << "End Pretty Print Packet";
+        LOG(MESG) << endl << "Begin Pretty Print Packet" << packet->pretty() << endl << "End Pretty Print Packet";
         LOG(DEBUG) << "Packet created, buffer size = " << size();
     } else if (packet == NULL) {
         LOG(DEBUG) << endl << "No packets, buffer size = " << size();
