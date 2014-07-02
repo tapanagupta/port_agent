@@ -48,6 +48,9 @@ namespace network {
 			
             // Does this object have a complete configuration?
             bool isConfigured();
+
+            //TG TODO: need to implement sendBreak() here
+            bool sendBreak(uint32_t iDuration);
 	    
         protected:
 

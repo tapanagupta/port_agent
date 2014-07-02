@@ -89,6 +89,7 @@ namespace port_agent {
             void initializeObservatoryCommandConnection();
             void initializeInstrumentConnection();
             void initializeTCPInstrumentConnection();
+            void initializeRSNInstrumentConnection();
             void initialize_BOTPT_InstrumentConnection();
             void initializeSerialInstrumentConnection();
             bool initializeSerialSettings();
@@ -134,6 +135,7 @@ namespace port_agent {
             void publishHeartbeat();
             void publishFault(const string &msg);
             void publishStatus(const string &msg);
+            void publishBreak(uint32_t iDuration);
             void publishPacket(Packet *packet);
             void publishPacket(char *payload, uint16_t size, PacketType type);
 
@@ -156,7 +158,7 @@ namespace port_agent {
             // Port agent connections
             Connection *m_pObservatoryConnection;
             Connection *m_pInstrumentConnection;
-            
+
             // Publisher Connections
             TCPCommListener *m_pTelnetSnifferConnection;
             

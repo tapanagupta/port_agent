@@ -12,6 +12,7 @@
 #include "connection/observatory_connection.h"
 #include "connection/observatory_multi_connection.h"
 #include "connection/instrument_tcp_connection.h"
+#include "connection/instrument_rsn_connection.h"
 #include "connection/instrument_botpt_connection.h"
 #include "connection/instrument_serial_connection.h"
 #include "packet/packet.h"
@@ -331,6 +332,10 @@ void PortAgent::initializeInstrumentConnection() {
     else if (m_pConfig->instrumentConnectionType() == TYPE_SERIAL) {
         initializeSerialInstrumentConnection();
     }
+    // TG TODO:  RSN Connection case
+    else if (m_pConfig->instrumentConnectionType() == TYPE_RSN) {
+        initializeRSNInstrumentConnection();
+    }
     else {
         LOG(ERROR) << "Instrument connection type not recognized.";
    }
@@ -374,6 +379,69 @@ void PortAgent::initializeTCPInstrumentConnection() {
     if (!connection->connected()) {
         LOG(DEBUG) << "Instrument not connected, attempting to reconnect";
         LOG(DEBUG2) << "host: " << connection->dataHost() << " port: " << connection->dataPort();
+
+        setState(STATE_DISCONNECTED);
+
+        try {
+            connection->initialize();
+        }
+        catch(SocketConnectFailure &e) {
+            connection->disconnect();
+            string msg = e.what();
+            LOG(ERROR) << msg;
+        };
+
+        // Let everything connect
+        sleep(SELECT_SLEEP_TIME);
+    }
+
+
+    if(connection->connected())
+        setState(STATE_CONNECTED);
+}
+
+//TG TODO: add initializeRSNInstrumentConnection
+/******************************************************************************
+ * Method: initializeTCPInstrumentConnection
+ * Description: Connect to a TCP type instrument.
+ *
+ * State Transitions:
+ *  Connected - if we can connect to an instrument
+ *  Disconnected - if we fail to connect to an instrument
+ ******************************************************************************/
+void PortAgent::initializeRSNInstrumentConnection() {
+    InstrumentRSNConnection *connection = (InstrumentRSNConnection *)m_pInstrumentConnection;
+
+    // Clear if we have already initialized the wrong type
+    if(connection && connection->connectionType() != PACONN_INSTRUMENT_RSN) {
+        LOG(INFO) << "Detected connection type change.  rebuilding connection.";
+        delete connection;
+        connection = NULL;
+    }
+
+    // Create the connection object
+    if(!connection)
+        m_pInstrumentConnection = connection = new InstrumentRSNConnection();
+
+    // If we have changed out configuration then set the new values and try to connect
+    if (connection->dataHost() != m_pConfig->instrumentAddr() ||
+    		connection->dataPort() != m_pConfig->instrumentDataPort() ||
+    		connection->commandHost() != m_pConfig->instrumentAddr() ||
+    		connection->commandPort() != m_pConfig->instrumentCommandPort()) {
+    	LOG(INFO) << "Detected connection configuration change.  reconfiguring.";
+
+    	connection->disconnect();
+
+    	connection->setDataHost(m_pConfig->instrumentAddr());
+    	connection->setDataPort(m_pConfig->instrumentDataPort());
+    	connection->setCommandHost(m_pConfig->instrumentAddr());
+    	connection->setCommandPort(m_pConfig->instrumentCommandPort());
+    }
+
+    if (!connection->connected()) {
+        LOG(DEBUG) << "Instrument not connected, attempting to reconnect";
+        LOG(DEBUG2) << "host: " << connection->dataHost() << " data port: " << connection->dataPort()
+        		<< " command port: " << connection->commandPort();
 
         setState(STATE_DISCONNECTED);
 
@@ -862,7 +930,9 @@ void PortAgent::processPortAgentCommands() {
                 break;
             case CMD_BREAK:
                 LOG(DEBUG) << "break command";
-                m_pInstrumentConnection->sendBreak(m_pConfig->breakDuration());
+                //TODO: need to branch based on connection type, figure out where to branch
+                publishBreak(m_pConfig->breakDuration());
+                //m_pInstrumentConnection->sendBreak(m_pConfig->breakDuration());
                 break;
             case CMD_ROTATION_INTERVAL:
                 LOG(DEBUG) << "set rotation interval";
@@ -1550,6 +1620,29 @@ void PortAgent::publishStatus(const string &msg) {
     Packet packet(PORT_AGENT_STATUS, ts, (char *)(msg.c_str()), msg.length());
 
     LOG(ERROR) << "Port Agent Status: " << msg;
+    publishPacket(&packet);
+}
+
+/******************************************************************************
+ * Method: publishBreak
+ * Description: Generate break command with specified duration and send it to
+ *  the publishers.
+ ******************************************************************************/
+void PortAgent::publishBreak(uint32_t iDuration) {
+    Timestamp ts;
+
+    char break_cmd[64] = "break ";
+    char durationStr[32];
+
+	// construct the break command
+	// syntax: break <duration>
+	sprintf(durationStr, "%d", iDuration);
+	strcat(break_cmd, durationStr);
+	strcat(break_cmd, "\n");
+
+    Packet packet(INSTRUMENT_COMMAND, ts, break_cmd, strlen(break_cmd));
+
+    LOG(DEBUG) << "Sending Break Command: " << break_cmd;
     publishPacket(&packet);
 }
 

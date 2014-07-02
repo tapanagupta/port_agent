@@ -72,27 +72,32 @@ class PortAgentUnitTest : public testing::Test {
                 EXPECT_FALSE(true);
             }
         }
-            
-        void startPortAgent() {
-            try {
-                stringstream cmd;
-                cmd << "../port_agent";
-                stringstream portStr;
-                portStr << TEST_OB_CMD_PORT;
 
-                SpawnProcess process(cmd.str(), 8, "-v", "-v", "-v", "-v", "-v", "-v", "-p",
-                portStr.str().c_str()); 
+        void startPortAgent(const string &config_file = "") {
+        	try {
+        		stringstream cmd;
+        		cmd << "../port_agent";
 
-                LOG(INFO) << "Start Port Agent: " << process.cmd_as_string();
-
-                process.run();
-                sleep(1);
-            }
-            catch(exception &e) {
-                string err = e.what();
-                LOG(ERROR) << "Exception: " << err;
-                EXPECT_FALSE(true);
-            }
+        		if (config_file.length()) {
+        			LOG(INFO) << "Start Port Agent With Config: " << config_file.c_str();
+        			SpawnProcess process(cmd.str(), 8, "-v", "-v", "-v", "-v", "-v", "-v", "-c", config_file.c_str());
+        			process.run();
+        			LOG(INFO) << "Start Port Agent: " << process.cmd_as_string();
+        		} else {
+        			stringstream portStr;
+        			portStr << TEST_OB_CMD_PORT;
+        			SpawnProcess process(cmd.str(), 8, "-v", "-v", "-v", "-v", "-v", "-v", "-p",
+        					portStr.str().c_str());
+        			process.run();
+        			LOG(INFO) << "Start Port Agent: " << process.cmd_as_string();
+        		}
+        		sleep(1);
+        	}
+        	catch(exception &e) {
+        		string err = e.what();
+        		LOG(ERROR) << "Exception: " << err;
+        		EXPECT_FALSE(true);
+        	}
         }
     
         void writeConfig(const string &filename, const string &config = "") {
@@ -191,6 +196,33 @@ class PortAgentUnitTest : public testing::Test {
 			return result;
         }
         
+        bool sendDriverCommand(const string &cmd) {
+        	stringstream shell;
+        	string response;
+
+        	remove_file(CMD_FILE);
+
+        	LOG(DEBUG) << "Send driver data on port " << TEST_OB_CMD_PORT << ": " << cmd;
+
+        	create_file(CMD_FILE, cmd.c_str());
+        	shell << TOOLSDIR << "/tcp_client_write.py";
+
+        	LOG(DEBUG) << "Run process: " << shell.str();
+
+        	SpawnProcess process(shell.str(), 4, "-p", TEST_OB_CMD_PORT,
+        			"-f", CMD_FILE);
+
+        	process.set_output_file(FILE_LOG);
+        	bool result = process.run();
+
+        	while(process.is_running()) {
+        		LOG(DEBUG) << "Waiting for client process die.";
+        		sleep(1);
+        	}
+
+        	return result;
+        }
+
         virtual void TearDown() {
             LOG(INFO) << "Tear down test";
         
@@ -311,7 +343,7 @@ TEST_F(PortAgentUnitTest, DISABLED_StartUpWithConfigFile) {
 }
 
 /* Test Startup */
-TEST_F(PortAgentUnitTest, StartUp) {
+TEST_F(PortAgentUnitTest, DISABLED_StartUp) {
     try {
         string response;
         string datafile = getDataFile();
@@ -348,3 +380,39 @@ TEST_F(PortAgentUnitTest, StartUp) {
 /* Walk through port agent states */
 // Make sure we try disonnect and make config changes to transition to unconfigured
 
+
+TEST_F(PortAgentUnitTest, RSN_PortAgentDigiIntegration) {
+    try {
+
+        string response;
+        string datafile = getDataFile();
+
+        remove_file(RESPONSE_FILE);
+        remove_file(CONFIG_FILE);
+
+        stringstream config;
+
+        config << "instrument_type rsn" << endl
+               << "instrument_data_port " << 2101 << endl
+               << "instrument_addr 192.168.1.20" << endl
+               << "data_port " << TEST_OB_DATA_PORT << endl
+               << "instrument_command_port " << 2102 << endl
+               << "command_port " << TEST_OB_CMD_PORT << endl
+               << "log_level mesg " << endl;
+
+        writeConfig(CONFIG_FILE, config.str());
+
+        startPortAgent(CONFIG_FILE);
+
+        sleep(5);
+
+        sendDriverCommand("break 300");
+
+        sleep(5);
+
+    } catch(exception &e) {
+        string err = e.what();
+        LOG(ERROR) << "Exception: " << err;
+        EXPECT_TRUE(false);
+    }
+}

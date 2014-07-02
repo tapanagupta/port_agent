@@ -480,6 +480,14 @@ bool PortAgentConfig::setInstrumentBreakDuration(const string &param) {
             LOG(INFO) << "attempt to set break duration to a negative.  using default.";
             value = DEFAULT_BREAK_DURATION;
         }
+        else if (value < MIN_BREAK_DURATION) {
+			LOG(INFO) << "attempt to set break duration to value below minimum allowed.  using min value.";
+			value = MIN_BREAK_DURATION;
+		}
+        else if (value > MAX_BREAK_DURATION) {
+			LOG(INFO) << "attempt to set break duration to value greater than maximum allowed.  using max value.";
+			value = MAX_BREAK_DURATION;
+		}
         m_breakDuration = value;
     }
 

@@ -25,7 +25,9 @@ using namespace std;
 using namespace logger;
 
 #define DEFAULT_PACKET_SIZE   1024
-#define DEFAULT_BREAK_DURATION 0
+#define DEFAULT_BREAK_DURATION 100
+#define MIN_BREAK_DURATION 100
+#define MAX_BREAK_DURATION 4000
 #define MAX_PACKET_SIZE       4097
 #define DEFAULT_HEARTBEAT_INTERVAL 120
 
