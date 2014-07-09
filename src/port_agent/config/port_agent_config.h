@@ -29,6 +29,7 @@ using namespace logger;
 #define MIN_BREAK_DURATION 100
 #define MAX_BREAK_DURATION 4000
 #define MAX_PACKET_SIZE       4097
+#define RSN_RAW_PACKET_BUFFER_SIZE 65536  // TODO: What should RSN packet buffer size be?
 #define DEFAULT_HEARTBEAT_INTERVAL 120
 
 // Set the RSN Digi to add Binary Timestamps to data

@@ -55,9 +55,10 @@ using namespace port_agent;
 PortAgent::PortAgent() {
     m_pObservatoryConnection = NULL;
     m_pInstrumentConnection = NULL;
-    
+    m_pTelnetSnifferConnection = NULL;
     m_pConfig = NULL;
     m_oState = STATE_UNKNOWN;
+    m_rsnRawPacketDataBuffer = NULL;
 }
 
 /******************************************************************************
@@ -70,11 +71,20 @@ PortAgent::PortAgent(int argc, char *argv[]) {
     LOG(DEBUG) << "Initialize port agent with args";
     
     m_pConfig = new PortAgentConfig(argc, argv);
+
+    // RSN packet data buffer
+    if (m_pConfig->instrumentConnectionType() == TYPE_RSN) {
+        m_rsnRawPacketDataBuffer = new RawPacketDataBuffer(RSN_RAW_PACKET_BUFFER_SIZE, MAX_PACKET_SIZE, MAX_PACKET_SIZE);
+    }
+    else {
+        m_rsnRawPacketDataBuffer = NULL;
+    }
     setState(STATE_STARTUP);
     
     m_pInstrumentConnection = NULL;
     m_pObservatoryConnection = NULL;
     m_pTelnetSnifferConnection = NULL;
+
 }
 
 /******************************************************************************
@@ -95,6 +105,11 @@ PortAgent::~PortAgent() {
         delete m_pConfig;
         
     m_pConfig = NULL;
+
+    if (m_rsnRawPacketDataBuffer)
+        delete m_rsnRawPacketDataBuffer;
+
+    m_rsnRawPacketDataBuffer = NULL;
 }
 
 /******************************************************************************
@@ -323,7 +338,8 @@ void PortAgent::initializeObservatoryCommandConnection() {
  * this method will need to support more types.
  ******************************************************************************/
 void PortAgent::initializeInstrumentConnection() {
-    if (m_pConfig->instrumentConnectionType() == TYPE_TCP) {
+    if ((m_pConfig->instrumentConnectionType() == TYPE_TCP) ||
+         m_pConfig->instrumentConnectionType() == TYPE_RSN) {
         initializeTCPInstrumentConnection();
     }
     else if (m_pConfig->instrumentConnectionType() == TYPE_BOTPT) {
@@ -1941,7 +1957,7 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
 
     int clientFD = getInstrumentDataRxClientFD();
     int bytesRead = 0;
-    char buffer[MAX_PACKET_SIZE];
+    char buffer[MAX_PACKET_SIZE + HEADER_SIZE];
     unsigned int read_size;
     LOG(DEBUG) << "handleInstrumentDataRead - do we need to read from the instrument data";
     
@@ -1960,8 +1976,23 @@ void PortAgent::handleInstrumentDataRead(const fd_set &readFDs) {
         
         if(bytesRead) {
             LOG(DEBUG2) << "Bytes read: " << bytesRead;
-            publishPacket(buffer, bytesRead, DATA_FROM_INSTRUMENT);
-            //buffer[bytesRead] = '\0';
+            if (m_pConfig->instrumentConnectionType() == TYPE_RSN) {
+                m_rsnRawPacketDataBuffer->write(buffer, bytesRead);
+                Packet *packet = NULL;
+                while ((packet = m_rsnRawPacketDataBuffer->getNextPacket()) != NULL) {
+                    if(Logger::GetLogLevel() == MESG) {
+                        LOG(MESG) << "RSN Data Buffer Retrieved Packet:" << endl
+                                  << packet->pretty() << endl;
+                    }
+                    publishPacket(packet);
+                    delete packet;
+                    packet = NULL;
+                }
+            }
+            else {
+                publishPacket(buffer, bytesRead, DATA_FROM_INSTRUMENT);
+                //buffer[bytesRead] = '\0';
+            }
         }
     }
 }

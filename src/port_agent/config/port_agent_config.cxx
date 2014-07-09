@@ -155,7 +155,7 @@ string PortAgentConfig::conffile() {
  ******************************************************************************/
 string PortAgentConfig::datafile() {
     ostringstream out;
-    out << logdir() << "/" << BASE_FILENAME << "_"
+    out << datadir() << "/" << BASE_FILENAME << "_"
         << observatoryCommandPort();
     
     LOG(DEBUG) << "Data file: " << out.str();
@@ -566,7 +566,7 @@ bool PortAgentConfig::setObservatoryConnectionType(const string &param) {
  * Param:
  *     command - the entire command string to set the sentinle.  We do this
  *     because we need to do custom parsing for this command in case there is
- *     a CR or LF embedded in the sentinle. 
+ *     a CR or LF embedded in the sentinle.
  * Return:
  *     return true if the sequence was set correctly, otherwise false.
  *****************************************************************************/

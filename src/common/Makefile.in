@@ -99,7 +99,8 @@ am_libcommon_a_OBJECTS = libcommon_a-logger.$(OBJEXT) \
 	libcommon_a-log_file.$(OBJEXT) libcommon_a-util.$(OBJEXT) \
 	libcommon_a-daemon_process.$(OBJEXT) \
 	libcommon_a-spawn_process.$(OBJEXT) \
-	libcommon_a-timestamp.$(OBJEXT)
+	libcommon_a-timestamp.$(OBJEXT) \
+	libcommon_a-circular_buffer.$(OBJEXT)
 libcommon_a_OBJECTS = $(am_libcommon_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -330,6 +331,7 @@ libcommon_a_SOURCES = logger.cxx logger.h \
                       daemon_process.cxx daemon_process.h \
                       spawn_process.cxx spawn_process.h \
 	              timestamp.cxx timestamp.h \
+	              circular_buffer.cxx circular_buffer.h \
                       exception.h 
 
 libcommon_a_CXXFLAGS = 
@@ -382,6 +384,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_a-circular_buffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_a-daemon_process.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_a-log_file.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_a-logger.Po@am__quote@
@@ -488,6 +491,20 @@ libcommon_a-timestamp.obj: timestamp.cxx
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='timestamp.cxx' object='libcommon_a-timestamp.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libcommon_a-timestamp.obj `if test -f 'timestamp.cxx'; then $(CYGPATH_W) 'timestamp.cxx'; else $(CYGPATH_W) '$(srcdir)/timestamp.cxx'; fi`
+
+libcommon_a-circular_buffer.o: circular_buffer.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcommon_a_CXXFLAGS) $(CXXFLAGS) -MT libcommon_a-circular_buffer.o -MD -MP -MF $(DEPDIR)/libcommon_a-circular_buffer.Tpo -c -o libcommon_a-circular_buffer.o `test -f 'circular_buffer.cxx' || echo '$(srcdir)/'`circular_buffer.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libcommon_a-circular_buffer.Tpo $(DEPDIR)/libcommon_a-circular_buffer.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='circular_buffer.cxx' object='libcommon_a-circular_buffer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libcommon_a-circular_buffer.o `test -f 'circular_buffer.cxx' || echo '$(srcdir)/'`circular_buffer.cxx
+
+libcommon_a-circular_buffer.obj: circular_buffer.cxx
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcommon_a_CXXFLAGS) $(CXXFLAGS) -MT libcommon_a-circular_buffer.obj -MD -MP -MF $(DEPDIR)/libcommon_a-circular_buffer.Tpo -c -o libcommon_a-circular_buffer.obj `if test -f 'circular_buffer.cxx'; then $(CYGPATH_W) 'circular_buffer.cxx'; else $(CYGPATH_W) '$(srcdir)/circular_buffer.cxx'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libcommon_a-circular_buffer.Tpo $(DEPDIR)/libcommon_a-circular_buffer.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='circular_buffer.cxx' object='libcommon_a-circular_buffer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libcommon_a_CXXFLAGS) $(CXXFLAGS) -c -o libcommon_a-circular_buffer.obj `if test -f 'circular_buffer.cxx'; then $(CYGPATH_W) 'circular_buffer.cxx'; else $(CYGPATH_W) '$(srcdir)/circular_buffer.cxx'; fi`
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
