@@ -332,7 +332,6 @@ void PortAgent::initializeInstrumentConnection() {
     else if (m_pConfig->instrumentConnectionType() == TYPE_SERIAL) {
         initializeSerialInstrumentConnection();
     }
-    // TG TODO:  RSN Connection case
     else if (m_pConfig->instrumentConnectionType() == TYPE_RSN) {
         initializeRSNInstrumentConnection();
     }
@@ -400,7 +399,6 @@ void PortAgent::initializeTCPInstrumentConnection() {
         setState(STATE_CONNECTED);
 }
 
-//TG TODO: add initializeRSNInstrumentConnection
 /******************************************************************************
  * Method: initializeTCPInstrumentConnection
  * Description: Connect to a TCP type instrument.
@@ -461,6 +459,7 @@ void PortAgent::initializeRSNInstrumentConnection() {
 
     if(connection->connected())
         setState(STATE_CONNECTED);
+
 }
 
 /******************************************************************************
@@ -930,7 +929,6 @@ void PortAgent::processPortAgentCommands() {
                 break;
             case CMD_BREAK:
                 LOG(DEBUG) << "break command";
-                //TODO: need to branch based on connection type, figure out where to branch
                 publishBreak(m_pConfig->breakDuration());
                 //m_pInstrumentConnection->sendBreak(m_pConfig->breakDuration());
                 break;
@@ -991,6 +989,12 @@ void PortAgent::handleStateConfigured(const fd_set &readFDs) {
     initializeObservatoryDataConnection();
     initializeInstrumentConnection();
     initializePublishers();
+
+    // connection/publisher initialized, so turn on timestamping
+    // from the RSN Digi
+	LOG(DEBUG) << "Turning timestamping on";
+	publishTimestamp(TIMESTAMP_BINARY);
+
 }
 
 /******************************************************************************
@@ -1117,6 +1121,7 @@ void PortAgent::poll() {
         handleCommon(readFDs);
             
         publishHeartbeat();
+
     }
     catch(UnknownState &e) {
         //re-throw the exception
@@ -1643,6 +1648,34 @@ void PortAgent::publishBreak(uint32_t iDuration) {
     Packet packet(INSTRUMENT_COMMAND, ts, break_cmd, strlen(break_cmd));
 
     LOG(DEBUG) << "Sending Break Command: " << break_cmd;
+    publishPacket(&packet);
+}
+
+/******************************************************************************
+ * Method: publishTimestamp
+ * Description: Generate timestamp command with specified value and send it to
+ *  the publishers.
+ ******************************************************************************/
+void PortAgent::publishTimestamp(uint32_t val) {
+    Timestamp ts;
+
+    // 0, 1, 2 are the only acceptable values for the timestamp
+    if(val < 0 || val > 2) {
+    	LOG(ERROR) << "Attempt to send Invalid Timestamp Command!";
+    }
+
+    char timestamp_cmd[64] = "time ";
+    char valStr[32];
+
+	// construct the timestamp command
+	// syntax: time <val>
+	sprintf(valStr, "%d", val);
+	strcat(timestamp_cmd, valStr);
+	strcat(timestamp_cmd, "\n");
+
+    Packet packet(INSTRUMENT_COMMAND, ts, timestamp_cmd, strlen(timestamp_cmd));
+
+    LOG(DEBUG) << "Sending Timestamp Command: " << timestamp_cmd;
     publishPacket(&packet);
 }
 

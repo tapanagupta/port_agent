@@ -267,38 +267,3 @@ void InstrumentRSNConnection::initialize() {
 		initializeCommandSocket();
 	}
 }
-
-/******************************************************************************
- * Method: sendBreak
- * Description: Send a break condition for the given duration.
- ******************************************************************************/
-bool InstrumentRSNConnection::sendBreak(const uint32_t iDuration) {
-    bool bReturnCode = true;
-
-    LOG(DEBUG) << "InstrumentRSNConnection: Sending Break Command";
-
-     if (!m_oDataSocket.sendBreak(iDuration)) {
-        LOG(ERROR) << "Failed to send break.";
-        bReturnCode = false;
-    }
-
-    return bReturnCode;
-}
-
-/******************************************************************************
- * Method: sendBreak
- * Description: Send a break condition for the given duration.
- ******************************************************************************/
-bool InstrumentRSNConnection::sendTimestamp(const uint32_t val) {
-    bool bReturnCode = true;
-
-//    LOG(DEBUG) << "InstrumentRSNConnection: Sending Timestamp Enable/Disable";
-//
-//     if (!m_oDataSocket.sendBreak(iDuration)) {
-//        LOG(ERROR) << "Failed to send break.";
-//        bReturnCode = false;
-//    }
-
-    return bReturnCode;
-}
-

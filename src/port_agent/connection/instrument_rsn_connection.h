@@ -110,12 +110,6 @@ namespace port_agent {
 			void initializeDataSocket();
 			void initializeCommandSocket();
 
-            // Send break condition for duration (milliseconds)
-            virtual bool sendBreak(const uint32_t duration);
-
-            // Set command to enable/disable timestamping
-            virtual bool sendTimestamp(const uint32_t val);
-
         protected:
 
         private:

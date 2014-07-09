@@ -136,6 +136,7 @@ namespace port_agent {
             void publishFault(const string &msg);
             void publishStatus(const string &msg);
             void publishBreak(uint32_t iDuration);
+            void publishTimestamp(uint32_t val);
             void publishPacket(Packet *packet);
             void publishPacket(char *payload, uint16_t size, PacketType type);
 

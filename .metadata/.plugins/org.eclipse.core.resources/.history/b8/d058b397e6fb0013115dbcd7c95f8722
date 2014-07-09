@@ -1,0 +1,47 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+O_SRCS += \
+../src/common/libcommon_a-daemon_process.o \
+../src/common/libcommon_a-log_file.o \
+../src/common/libcommon_a-logger.o \
+../src/common/libcommon_a-spawn_process.o \
+../src/common/libcommon_a-timestamp.o \
+../src/common/libcommon_a-util.o 
+
+CXX_SRCS += \
+../src/common/daemon_process.cxx \
+../src/common/log_file.cxx \
+../src/common/logger.cxx \
+../src/common/spawn_process.cxx \
+../src/common/timestamp.cxx \
+../src/common/util.cxx 
+
+OBJS += \
+./src/common/daemon_process.o \
+./src/common/log_file.o \
+./src/common/logger.o \
+./src/common/spawn_process.o \
+./src/common/timestamp.o \
+./src/common/util.o 
+
+CXX_DEPS += \
+./src/common/daemon_process.d \
+./src/common/log_file.d \
+./src/common/logger.d \
+./src/common/spawn_process.d \
+./src/common/timestamp.d \
+./src/common/util.d 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+src/common/%.o: ../src/common/%.cxx
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+

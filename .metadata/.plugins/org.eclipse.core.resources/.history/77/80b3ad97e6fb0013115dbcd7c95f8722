@@ -1,0 +1,82 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+O_SRCS += \
+../src/port_agent/publisher/libport_agent_publisher_a-driver_command_publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-driver_data_publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-driver_publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-file_pointer_publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-file_publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-instrument_command_publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-instrument_data_publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-instrument_publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-log_publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-publisher_list.o \
+../src/port_agent/publisher/libport_agent_publisher_a-tcp_publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-telnet_sniffer_publisher.o \
+../src/port_agent/publisher/libport_agent_publisher_a-udp_publisher.o 
+
+CXX_SRCS += \
+../src/port_agent/publisher/driver_command_publisher.cxx \
+../src/port_agent/publisher/driver_data_publisher.cxx \
+../src/port_agent/publisher/driver_publisher.cxx \
+../src/port_agent/publisher/file_pointer_publisher.cxx \
+../src/port_agent/publisher/file_publisher.cxx \
+../src/port_agent/publisher/instrument_command_publisher.cxx \
+../src/port_agent/publisher/instrument_data_publisher.cxx \
+../src/port_agent/publisher/instrument_publisher.cxx \
+../src/port_agent/publisher/log_publisher.cxx \
+../src/port_agent/publisher/publisher.cxx \
+../src/port_agent/publisher/publisher_list.cxx \
+../src/port_agent/publisher/tcp_publisher.cxx \
+../src/port_agent/publisher/telnet_sniffer_publisher.cxx \
+../src/port_agent/publisher/template_publisher.cxx \
+../src/port_agent/publisher/udp_publisher.cxx 
+
+OBJS += \
+./src/port_agent/publisher/driver_command_publisher.o \
+./src/port_agent/publisher/driver_data_publisher.o \
+./src/port_agent/publisher/driver_publisher.o \
+./src/port_agent/publisher/file_pointer_publisher.o \
+./src/port_agent/publisher/file_publisher.o \
+./src/port_agent/publisher/instrument_command_publisher.o \
+./src/port_agent/publisher/instrument_data_publisher.o \
+./src/port_agent/publisher/instrument_publisher.o \
+./src/port_agent/publisher/log_publisher.o \
+./src/port_agent/publisher/publisher.o \
+./src/port_agent/publisher/publisher_list.o \
+./src/port_agent/publisher/tcp_publisher.o \
+./src/port_agent/publisher/telnet_sniffer_publisher.o \
+./src/port_agent/publisher/template_publisher.o \
+./src/port_agent/publisher/udp_publisher.o 
+
+CXX_DEPS += \
+./src/port_agent/publisher/driver_command_publisher.d \
+./src/port_agent/publisher/driver_data_publisher.d \
+./src/port_agent/publisher/driver_publisher.d \
+./src/port_agent/publisher/file_pointer_publisher.d \
+./src/port_agent/publisher/file_publisher.d \
+./src/port_agent/publisher/instrument_command_publisher.d \
+./src/port_agent/publisher/instrument_data_publisher.d \
+./src/port_agent/publisher/instrument_publisher.d \
+./src/port_agent/publisher/log_publisher.d \
+./src/port_agent/publisher/publisher.d \
+./src/port_agent/publisher/publisher_list.d \
+./src/port_agent/publisher/tcp_publisher.d \
+./src/port_agent/publisher/telnet_sniffer_publisher.d \
+./src/port_agent/publisher/template_publisher.d \
+./src/port_agent/publisher/udp_publisher.d 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+src/port_agent/publisher/%.o: ../src/port_agent/publisher/%.cxx
+	@echo 'Building file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+

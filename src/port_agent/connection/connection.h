@@ -26,8 +26,6 @@ namespace port_agent {
         PACONN_INSTRUMENT_TCP       = 0x03,
         PACONN_INSTRUMENT_BOTPT     = 0x04,
         PACONN_INSTRUMENT_SERIAL    = 0x05,
-
-        //TG TODO : add RSN Connection
         PACONN_INSTRUMENT_RSN    	= 0x06
 
     } PortAgentConnectionType;

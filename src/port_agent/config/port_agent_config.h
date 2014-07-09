@@ -31,6 +31,9 @@ using namespace logger;
 #define MAX_PACKET_SIZE       4097
 #define DEFAULT_HEARTBEAT_INTERVAL 120
 
+// Set the RSN Digi to add Binary Timestamps to data
+#define TIMESTAMP_BINARY 2
+
 #define BASE_FILENAME "port_agent"
 
 #define DEFAULT_LOG_DIR   "/tmp"

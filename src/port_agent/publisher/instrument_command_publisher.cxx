@@ -39,6 +39,8 @@ InstrumentCommandPublisher::InstrumentCommandPublisher() { }
  * Description: The only handler this publisher cares about!
  ******************************************************************************/
 bool InstrumentCommandPublisher::handleInstrumentCommand(Packet *packet) {
+
 	LOG(DEBUG) << "InstrumentCommandPublisher: publish packet to command port";
-	return logPacket(packet);
+	return write(packet->payload(), packet->payloadSize());
+
 }
