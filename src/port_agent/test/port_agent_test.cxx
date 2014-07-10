@@ -632,7 +632,9 @@ TEST_F(PortAgentUnitTest, DISABLED_RSN_PortAgentDigiIntegration) {
 /* Walk through port agent states */
 // Make sure we try disonnect and make config changes to transition to unconfigured
 
-
+/* This test Initializes an RSN Instrument connection, sends data to  get a response
+ * from the instrument, and then sends a break command.
+ */
 TEST_F(PortAgentUnitTest, RSN_PortAgentDigiIntegration) {
     try {
 
@@ -664,9 +666,9 @@ TEST_F(PortAgentUnitTest, RSN_PortAgentDigiIntegration) {
 
 	    sleep(5);
 
-        //sendDriverCommand("break 300");
+        sendDriverCommand("break 300");
 
-        //sleep(5);
+        sleep(5);
 
     } catch(exception &e) {
         string err = e.what();

@@ -132,33 +132,6 @@ bool TCPCommSocket::initialize() {
 	return true;
 }
 
-// TG TODO: REMOVE THIS FROM HERE
-//bool TCPCommSocket::sendBreak(uint32_t  iDuration) {
-//    bool bReturnCode = true;
-//
-//    char break_cmd[64] = "break ";
-//    char durationStr[32];
-//
-//    LOG(DEBUG) << "Sending Break over TCP";
-//
-//    // construct the break command
-//    // syntax: break <duration>
-//    sprintf(durationStr, "%d", iDuration);
-//    strcat(break_cmd, durationStr);
-//    strcat(break_cmd, "\n");
-//
-//    // send the break command
-//    if(send(m_pSocketFD, break_cmd, strlen(break_cmd), 0) < 0){
-//    	 LOG(ERROR) << "Failed to send break";
-//    	 bReturnCode = false;
-//    }
-//    else{
-//    	LOG(DEBUG) << "Break command sent successfully: " << break_cmd;
-//    }
-//
-//    return bReturnCode;
-//}
-
 /******************************************************************************
  * Method: isConfigured
  * Description: Does this class have enough config info?

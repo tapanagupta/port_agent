@@ -338,8 +338,7 @@ void PortAgent::initializeObservatoryCommandConnection() {
  * this method will need to support more types.
  ******************************************************************************/
 void PortAgent::initializeInstrumentConnection() {
-    if ((m_pConfig->instrumentConnectionType() == TYPE_TCP) ||
-         m_pConfig->instrumentConnectionType() == TYPE_RSN) {
+    if (m_pConfig->instrumentConnectionType() == TYPE_TCP) {
         initializeTCPInstrumentConnection();
     }
     else if (m_pConfig->instrumentConnectionType() == TYPE_BOTPT) {
@@ -416,8 +415,8 @@ void PortAgent::initializeTCPInstrumentConnection() {
 }
 
 /******************************************************************************
- * Method: initializeTCPInstrumentConnection
- * Description: Connect to a TCP type instrument.
+ * Method: initializeRSNInstrumentConnection
+ * Description: Connect to a RSN type instrument.
  *
  * State Transitions:
  *  Connected - if we can connect to an instrument
